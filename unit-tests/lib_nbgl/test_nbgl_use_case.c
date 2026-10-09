@@ -15,6 +15,9 @@
 // the touched pair (and not the ones of a pair further in the list, or out of the list).
 // Regression tests for V-293: an advanced review with a custom warning only made of the info field
 // must display this warning page, and the review must only start once the user accepts it.
+// Regression tests for V-295: an advanced review with custom review details must display a
+// top-right button with the given icon on first and last pages, opening these review details.
+// When a predefined warning is also given, it takes precedence over the custom fields.
 
 // number of pairs of the TAG_VALUE_CONFIRM list
 #define NB_PAIRS            12
@@ -131,10 +134,42 @@ int nbgl_layoutAddChoiceButtons(nbgl_layout_t *layout, const nbgl_layoutChoiceBu
     return 0;
 }
 
+static const char                *modal_header_text;
+static uint8_t                    nb_bars;
+static const nbgl_icon_details_t *layout_top_right_icon;
+
 int nbgl_layoutAddHeader(nbgl_layout_t *layout, const nbgl_layoutHeader_t *headerDesc)
 {
     (void) layout;
-    (void) headerDesc;
+    if (headerDesc->type == HEADER_BACK_AND_TEXT) {
+        modal_header_text = headerDesc->backAndText.text;
+    }
+    return 0;
+}
+
+int nbgl_layoutAddTouchableBar(nbgl_layout_t *layout, const nbgl_layoutBar_t *barLayout)
+{
+    (void) layout;
+    (void) barLayout;
+    nb_bars++;
+    return 0;
+}
+
+int nbgl_layoutAddSeparationLine(nbgl_layout_t *layout)
+{
+    (void) layout;
+    return 0;
+}
+
+int nbgl_layoutAddTopRightButton(nbgl_layout_t             *layout,
+                                 const nbgl_icon_details_t *icon,
+                                 uint8_t                    token,
+                                 tune_index_e               tuneId)
+{
+    (void) layout;
+    (void) token;
+    (void) tuneId;
+    layout_top_right_icon = icon;
     return 0;
 }
 
@@ -182,18 +217,11 @@ UNUSED_LAYOUT_FUNC(AddKeypadContent,
                    uint8_t        nbDigits,
                    const char    *text)
 UNUSED_LAYOUT_FUNC(AddQRCode, nbgl_layout_t *layout, const nbgl_layoutQRCode_t *info)
-UNUSED_LAYOUT_FUNC(AddSeparationLine, nbgl_layout_t *layout)
 UNUSED_LAYOUT_FUNC(AddSpinner,
                    nbgl_layout_t *layout,
                    const char    *text,
                    const char    *subText,
                    uint8_t        initPosition)
-UNUSED_LAYOUT_FUNC(AddTopRightButton,
-                   nbgl_layout_t             *layout,
-                   const nbgl_icon_details_t *icon,
-                   uint8_t                    token,
-                   tune_index_e               tuneId)
-UNUSED_LAYOUT_FUNC(AddTouchableBar, nbgl_layout_t *layout, const nbgl_layoutBar_t *barLayout)
 UNUSED_LAYOUT_FUNC(UpdateKeyboard,
                    nbgl_layout_t *layout,
                    uint8_t        index,
@@ -382,15 +410,18 @@ void setUp(void)
 {
     memset(&page_content, 0, sizeof(page_content));
     memset(&page_nav, 0, sizeof(page_nav));
-    page_callback        = NULL;
-    modal_title          = NULL;
-    modal_full_value     = NULL;
-    layout_callback      = NULL;
-    warning_center       = NULL;
-    warning_choice_token = 0;
-    warning_choice_drawn = false;
-    nb_choices           = 0;
-    last_choice          = false;
+    page_callback         = NULL;
+    modal_title           = NULL;
+    modal_full_value      = NULL;
+    layout_callback       = NULL;
+    warning_center        = NULL;
+    warning_choice_token  = 0;
+    warning_choice_drawn  = false;
+    modal_header_text     = NULL;
+    nb_bars               = 0;
+    layout_top_right_icon = NULL;
+    nb_choices            = 0;
+    last_choice           = false;
 
     memset(extensions, 0, sizeof(extensions));
     for (uint8_t i = 0; i < NB_PAIRS; i++) {
@@ -637,6 +668,206 @@ void test_empty_warning_starts_review_directly(void)
     }
 }
 
+// ============================================================================
+// V-295: custom review details accessible from first/last pages of review
+// ============================================================================
+
+static const nbgl_warningDetails_t customIntroDetails = {
+    .title        = "Intro details",
+    .type         = CENTERED_INFO_WARNING,
+    .centeredInfo = {.title = "Intro", .description = "Intro details"}
+};
+static const nbgl_warningDetails_t customReviewDetails = {
+    .title        = "Review details",
+    .type         = CENTERED_INFO_WARNING,
+    .centeredInfo = {.title = "Review", .description = "Review details"}
+};
+
+// Checks that the current page has a top-right button with the given icon, and that touching it
+// displays either the custom review details or the predefined security report
+static void checkTopRightButton(const nbgl_icon_details_t *expectedIcon,
+                                bool                       customDetails,
+                                const char                *msg)
+{
+    TEST_ASSERT_EQUAL_PTR_MESSAGE(expectedIcon, page_content.topRightIcon, msg);
+    warning_center    = NULL;
+    modal_header_text = NULL;
+    nb_bars           = 0;
+    page_callback(page_content.topRightToken, 0);
+    if (customDetails) {
+        TEST_ASSERT_EQUAL_PTR_MESSAGE(&customReviewDetails.centeredInfo, warning_center, msg);
+        TEST_ASSERT_EQUAL_STRING_MESSAGE(customReviewDetails.title, modal_header_text, msg);
+        TEST_ASSERT_EQUAL_UINT8_MESSAGE(0, nb_bars, msg);
+    }
+    else {
+        TEST_ASSERT_NULL_MESSAGE(warning_center, msg);
+        TEST_ASSERT_EQUAL_STRING_MESSAGE("Security report", modal_header_text, msg);
+        TEST_ASSERT_EQUAL_UINT8_MESSAGE(1, nb_bars, msg);
+    }
+}
+
+// Goes through the review (regular or streaming), checking that the top-right button is
+// displayed with the given icon in the first and last pages, and only in them
+static void checkTopRightButtons(const nbgl_icon_details_t *expectedIcon,
+                                 bool                       customDetails,
+                                 bool                       streaming)
+{
+    const char *msg = streaming ? "streaming" : "regular";
+
+    // first page of review
+    TEST_ASSERT_NOT_NULL_MESSAGE(page_callback, msg);
+    TEST_ASSERT_EQUAL_MESSAGE(EXTENDED_CENTER, page_content.type, msg);
+    checkTopRightButton(expectedIcon, customDetails, msg);
+
+    if (streaming) {
+        buildList(NB_PAIRS, false);
+        nbgl_useCaseReviewStreamingContinue(&content.content.tagValueConfirm.tagValueList,
+                                            onChoice);
+        TEST_ASSERT_NULL_MESSAGE(page_content.topRightIcon, msg);
+        nbgl_useCaseReviewStreamingFinish("Sign", onChoice);
+    }
+    else {
+        uint8_t pageIdx = 0;
+        while (page_content.type != INFO_LONG_PRESS) {
+            pageIdx++;
+            TEST_ASSERT_LESS_THAN_UINT8_MESSAGE(page_nav.nbPages, pageIdx, msg);
+            page_callback(page_nav.navWithButtons.navToken, pageIdx);
+            if (page_content.type != INFO_LONG_PRESS) {
+                // no button in intermediate pages
+                TEST_ASSERT_NULL_MESSAGE(page_content.topRightIcon, msg);
+            }
+        }
+    }
+    // last page of review
+    TEST_ASSERT_EQUAL_MESSAGE(INFO_LONG_PRESS, page_content.type, msg);
+    checkTopRightButton(expectedIcon, customDetails, msg);
+    TEST_ASSERT_EQUAL_INT_MESSAGE(0, nb_choices, msg);
+}
+
+// Goes through the review (regular or streaming), checking that the custom review details are
+// accessible from the first and last pages, and only from them
+static void checkReviewDetails(const nbgl_warning_t *warning, bool streaming)
+{
+    checkTopRightButtons(
+        (warning->reviewTopRightIcon != NULL) ? warning->reviewTopRightIcon : &WARNING_ICON,
+        true,
+        streaming);
+}
+
+// A warning only made of review details (and icon) shall not lead to an ordinary review
+void test_review_details_only_warning_is_accessible(void)
+{
+    nbgl_warning_t warning = {0};
+
+    warning.reviewDetails      = &customReviewDetails;
+    warning.reviewTopRightIcon = &C_QRCode_40px;
+    for (uint8_t streaming = 0; streaming < 2; streaming++) {
+        page_callback = NULL;
+        startAdvancedReview(&warning, streaming);
+        checkReviewDetails(&warning, streaming);
+    }
+}
+
+// Without reviewTopRightIcon, a default warning icon shall be used
+void test_review_details_without_icon_uses_warning_icon(void)
+{
+    nbgl_warning_t warning = {0};
+
+    warning.reviewDetails = &customReviewDetails;
+    for (uint8_t streaming = 0; streaming < 2; streaming++) {
+        page_callback = NULL;
+        startAdvancedReview(&warning, streaming);
+        checkReviewDetails(&warning, streaming);
+    }
+}
+
+// With an initial custom warning, the intro details shall not be displayed once the review has
+// started, but the review details
+void test_review_details_after_initial_warning(void)
+{
+    nbgl_warning_t warning = {0};
+
+    warning.info               = &customWarningInfo;
+    warning.introDetails       = &customIntroDetails;
+    warning.reviewDetails      = &customReviewDetails;
+    warning.reviewTopRightIcon = &C_QRCode_40px;
+    for (uint8_t streaming = 0; streaming < 2; streaming++) {
+        page_callback = NULL;
+        startAdvancedReview(&warning, streaming);
+        // accept the initial warning to start the review
+        TEST_ASSERT_TRUE(warning_choice_drawn);
+        TEST_ASSERT_NULL(page_callback);
+        layout_callback(warning_choice_token, 1);
+        checkReviewDetails(&warning, streaming);
+    }
+}
+
+// Without any warning, no top-right button shall be displayed in first page of review
+void test_no_warning_no_review_details_button(void)
+{
+    for (uint8_t streaming = 0; streaming < 2; streaming++) {
+        page_callback = NULL;
+        startAdvancedReview(NULL, streaming);
+        TEST_ASSERT_NOT_NULL(page_callback);
+        TEST_ASSERT_NULL(page_content.topRightIcon);
+    }
+}
+
+// Starts an advanced review with the given predefined set, with or without the custom fields, and
+// checks that the predefined warning is used everywhere, the custom fields being ignored
+static void checkPredefinedWarning(uint32_t                   predefinedSet,
+                                   const nbgl_icon_details_t *expectedIcon,
+                                   bool                       withCustom,
+                                   bool                       streaming)
+{
+    nbgl_warning_t warning = {0};
+
+    warning.predefinedSet = predefinedSet;
+    if (withCustom) {
+        warning.introDetails       = &customIntroDetails;
+        warning.reviewDetails      = &customReviewDetails;
+        warning.introTopRightIcon  = &C_Search_40px;
+        warning.reviewTopRightIcon = &C_QRCode_40px;
+    }
+    page_callback         = NULL;
+    layout_top_right_icon = NULL;
+    warning_choice_drawn  = false;
+    startAdvancedReview(&warning, streaming);
+    if (HAS_INITIAL_WARNING((&warning))) {
+        // the predefined initial warning page shall be drawn, without the custom icon
+        TEST_ASSERT_TRUE(warning_choice_drawn);
+        TEST_ASSERT_NULL(page_callback);
+        TEST_ASSERT_NOT_NULL(layout_top_right_icon);
+        TEST_ASSERT_TRUE(layout_top_right_icon != &C_Search_40px);
+        TEST_ASSERT_TRUE(warning_center != &customWarningInfo);
+        // accept it to start the review
+        layout_callback(warning_choice_token, 1);
+    }
+    else {
+        TEST_ASSERT_FALSE(warning_choice_drawn);
+    }
+    checkTopRightButtons(expectedIcon, false, streaming);
+}
+
+// A predefined warning alone shall display the predefined security report
+void test_predefined_warning_without_custom_fields(void)
+{
+    for (uint8_t streaming = 0; streaming < 2; streaming++) {
+        checkPredefinedWarning(1 << BLIND_SIGNING_WARN, &WARNING_ICON, false, streaming);
+        checkPredefinedWarning(1 << W3C_NO_THREAT_WARN, &PRIVACY_ICON, false, streaming);
+    }
+}
+
+// When both a predefined warning and custom fields are given, the predefined warning shall take
+// precedence: neither the custom icons nor the custom details shall be displayed
+void test_predefined_warning_takes_precedence_over_custom_fields(void)
+{
+    for (uint8_t streaming = 0; streaming < 2; streaming++) {
+        checkPredefinedWarning(1 << BLIND_SIGNING_WARN, &WARNING_ICON, true, streaming);
+        checkPredefinedWarning(1 << W3C_NO_THREAT_WARN, &PRIVACY_ICON, true, streaming);
+    }
+}
+
 int main(void)
 {
     UNITY_BEGIN();
@@ -650,5 +881,11 @@ int main(void)
     RUN_TEST(test_info_only_warning_is_displayed_before_streaming_review);
     RUN_TEST(test_info_only_warning_can_be_rejected_in_streaming_review);
     RUN_TEST(test_empty_warning_starts_review_directly);
+    RUN_TEST(test_review_details_only_warning_is_accessible);
+    RUN_TEST(test_review_details_without_icon_uses_warning_icon);
+    RUN_TEST(test_review_details_after_initial_warning);
+    RUN_TEST(test_no_warning_no_review_details_button);
+    RUN_TEST(test_predefined_warning_without_custom_fields);
+    RUN_TEST(test_predefined_warning_takes_precedence_over_custom_fields);
     return UNITY_END();
 }

@@ -1280,6 +1280,18 @@ static bool genericContextPreparePageContent(const nbgl_content_t *p_content,
         pageContent->topRightToken
             = (operationType & BLIND_OPERATION) ? BLIND_WARNING_TOKEN : WARNING_BUTTON_TOKEN;
     }
+    // if first or last page of an advanced review with customized review details, add the
+    // top-right button giving access to these details, with the caller provided icon
+    else if (isFirstOrLastPage && ((navType == STREAMING_NAV) || (navType == GENERIC_NAV))
+             && (sharedContext.usage == SHARE_CTX_REVIEW_WITH_WARNING)
+             && (reviewWithWarnCtx.warning != NULL)
+             && (reviewWithWarnCtx.warning->predefinedSet == 0)
+             && (reviewWithWarnCtx.warning->reviewDetails != NULL)) {
+        pageContent->topRightIcon  = (reviewWithWarnCtx.warning->reviewTopRightIcon != NULL)
+                                         ? reviewWithWarnCtx.warning->reviewTopRightIcon
+                                         : &WARNING_ICON;
+        pageContent->topRightToken = WARNING_BUTTON_TOKEN;
+    }
 
     return true;
 }
