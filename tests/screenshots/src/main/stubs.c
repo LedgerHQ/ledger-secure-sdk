@@ -244,20 +244,6 @@ unsigned int os_sched_current_task(void)
 
 void nbgl_screen_reinit(void) {}
 
-#ifdef HAVE_STAX_CONFIG_DISPLAY_FAST_MODE
-void nbgl_screen_config_fast_mode(uint8_t setting)
-{
-    UNUSED(setting);
-}
-#endif  // HAVE_STAX_CONFIG_DISPLAY_FAST_MODE
-
-#ifdef HAVE_STAX_DISPLAY_FAST_MODE
-void nbgl_screen_update_temperature(uint8_t temp_degrees)
-{
-    UNUSED(temp_degrees);
-}
-#endif  // HAVE_STAX_DISPLAY_FAST_MODE
-
 #ifdef HAVE_SE_EINK_DISPLAY
 void nbgl_wait_pipeline(void) {}
 #endif
