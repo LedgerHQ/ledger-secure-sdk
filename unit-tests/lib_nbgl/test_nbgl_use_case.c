@@ -13,6 +13,8 @@
 // Regression tests for V-149: when the value alias of a pair of a multi-page TAG_VALUE_CONFIRM is
 // touched on a page other than the first one, the details shown in the modal must be the ones of
 // the touched pair (and not the ones of a pair further in the list, or out of the list).
+// Regression tests for V-293: an advanced review with a custom warning only made of the info field
+// must display this warning page, and the review must only start once the user accepts it.
 
 // number of pairs of the TAG_VALUE_CONFIRM list
 #define NB_PAIRS            12
@@ -96,17 +98,37 @@ nbgl_page_t *nbgl_pageDrawInfo(nbgl_layoutTouchCallback_t              onActionC
 }
 
 // ============================================================================
-// NBGL layout stubs: memorize the text content of the alias modal
+// NBGL layout stubs: memorize the text content of the alias modal and the content of the warning
+// page
 // ============================================================================
 
-static int         layout_dummy;
-static const char *modal_title;
-static const char *modal_full_value;
+static int                         layout_dummy;
+static const char                 *modal_title;
+static const char                 *modal_full_value;
+static nbgl_layoutTouchCallback_t  layout_callback;
+static const nbgl_contentCenter_t *warning_center;
+static uint8_t                     warning_choice_token;
+static bool                        warning_choice_drawn;
 
 nbgl_layout_t *nbgl_layoutGet(const nbgl_layoutDescription_t *description)
 {
-    (void) description;
+    layout_callback = description->onActionCallback;
     return (nbgl_layout_t *) &layout_dummy;
+}
+
+int nbgl_layoutAddContentCenter(nbgl_layout_t *layout, const nbgl_contentCenter_t *info)
+{
+    (void) layout;
+    warning_center = info;
+    return 0;
+}
+
+int nbgl_layoutAddChoiceButtons(nbgl_layout_t *layout, const nbgl_layoutChoiceButtons_t *info)
+{
+    (void) layout;
+    warning_choice_token = info->token;
+    warning_choice_drawn = true;
+    return 0;
 }
 
 int nbgl_layoutAddHeader(nbgl_layout_t *layout, const nbgl_layoutHeader_t *headerDesc)
@@ -144,8 +166,6 @@ int nbgl_layoutRelease(nbgl_layout_t *layout)
         return -1;                                                 \
     }
 
-UNUSED_LAYOUT_FUNC(AddChoiceButtons, nbgl_layout_t *layout, const nbgl_layoutChoiceButtons_t *info)
-UNUSED_LAYOUT_FUNC(AddContentCenter, nbgl_layout_t *layout, const nbgl_contentCenter_t *info)
 UNUSED_LAYOUT_FUNC(AddExtendedFooter, nbgl_layout_t *layout, const nbgl_layoutFooter_t *footerDesc)
 UNUSED_LAYOUT_FUNC(AddFooter,
                    nbgl_layout_t *layout,
@@ -311,6 +331,15 @@ static nbgl_genericContents_t  contents;
 
 static void onReject(void) {}
 
+static int  nb_choices;
+static bool last_choice;
+
+static void onChoice(bool confirm)
+{
+    nb_choices++;
+    last_choice = confirm;
+}
+
 static nbgl_contentTagValue_t *getPair(uint8_t pairIndex)
 {
     TEST_ASSERT_LESS_THAN_UINT8(NB_PAIRS, pairIndex);
@@ -353,9 +382,15 @@ void setUp(void)
 {
     memset(&page_content, 0, sizeof(page_content));
     memset(&page_nav, 0, sizeof(page_nav));
-    page_callback    = NULL;
-    modal_title      = NULL;
-    modal_full_value = NULL;
+    page_callback        = NULL;
+    modal_title          = NULL;
+    modal_full_value     = NULL;
+    layout_callback      = NULL;
+    warning_center       = NULL;
+    warning_choice_token = 0;
+    warning_choice_drawn = false;
+    nb_choices           = 0;
+    last_choice          = false;
 
     memset(extensions, 0, sizeof(extensions));
     for (uint8_t i = 0; i < NB_PAIRS; i++) {
@@ -505,6 +540,103 @@ void test_review_spans_at_least_three_pages(void)
     TEST_ASSERT_GREATER_OR_EQUAL_UINT8(3, page_nav.nbPages);
 }
 
+// ============================================================================
+// V-293: custom warning only made of the info field
+// ============================================================================
+
+static const nbgl_contentCenter_t customWarningInfo
+    = {.title = "Custom warning", .description = "Dangerous operation"};
+
+// Starts an advanced review (regular or streaming) with the given warning
+static void startAdvancedReview(const nbgl_warning_t *warning, bool streaming)
+{
+    if (streaming) {
+        nbgl_useCaseAdvancedReviewStreamingStart(
+            TYPE_TRANSACTION, &C_Warning_64px, "Review", NULL, warning, onChoice);
+    }
+    else {
+        buildList(NB_PAIRS, false);
+        nbgl_useCaseAdvancedReview(TYPE_TRANSACTION,
+                                   &content.content.tagValueConfirm.tagValueList,
+                                   &C_Warning_64px,
+                                   "Review",
+                                   NULL,
+                                   "Sign",
+                                   NULL,
+                                   warning,
+                                   onChoice);
+    }
+}
+
+// Checks that the custom warning page is displayed instead of the review, then accepts or rejects
+// it, depending on accept
+static void checkInfoOnlyWarning(bool streaming, bool accept)
+{
+    nbgl_warning_t warning = {0};
+
+    warning.info = &customWarningInfo;
+    startAdvancedReview(&warning, streaming);
+
+    // the custom warning page shall be drawn, and the review not started
+    TEST_ASSERT_EQUAL_PTR(&customWarningInfo, warning_center);
+    TEST_ASSERT_TRUE(warning_choice_drawn);
+    TEST_ASSERT_NOT_NULL(layout_callback);
+    TEST_ASSERT_NULL(page_callback);
+    TEST_ASSERT_EQUAL_INT(0, nb_choices);
+
+    if (accept) {
+        // bottom button: the review shall start
+        layout_callback(warning_choice_token, 1);
+        TEST_ASSERT_NOT_NULL(page_callback);
+        TEST_ASSERT_EQUAL_INT(0, nb_choices);
+    }
+    else {
+        // top button: the review shall be rejected without being started
+        layout_callback(warning_choice_token, 0);
+        TEST_ASSERT_NULL(page_callback);
+        TEST_ASSERT_EQUAL_INT(1, nb_choices);
+        TEST_ASSERT_FALSE(last_choice);
+    }
+}
+
+void test_info_only_warning_is_displayed_before_review(void)
+{
+    checkInfoOnlyWarning(false, true);
+}
+
+void test_info_only_warning_can_be_rejected(void)
+{
+    checkInfoOnlyWarning(false, false);
+}
+
+void test_info_only_warning_is_displayed_before_streaming_review(void)
+{
+    checkInfoOnlyWarning(true, true);
+}
+
+void test_info_only_warning_can_be_rejected_in_streaming_review(void)
+{
+    checkInfoOnlyWarning(true, false);
+}
+
+// Without any warning (NULL or empty), the review shall start directly
+void test_empty_warning_starts_review_directly(void)
+{
+    nbgl_warning_t warning = {0};
+
+    for (uint8_t streaming = 0; streaming < 2; streaming++) {
+        page_callback = NULL;
+        startAdvancedReview(NULL, streaming);
+        TEST_ASSERT_NOT_NULL(page_callback);
+        TEST_ASSERT_FALSE(warning_choice_drawn);
+
+        page_callback = NULL;
+        startAdvancedReview(&warning, streaming);
+        TEST_ASSERT_NOT_NULL(page_callback);
+        TEST_ASSERT_FALSE(warning_choice_drawn);
+    }
+}
+
 int main(void)
 {
     UNITY_BEGIN();
@@ -513,5 +645,10 @@ int main(void)
     RUN_TEST(test_alias_without_extension_shows_nothing);
     RUN_TEST(test_alias_without_extension_shows_nothing_with_callback);
     RUN_TEST(test_review_spans_at_least_three_pages);
+    RUN_TEST(test_info_only_warning_is_displayed_before_review);
+    RUN_TEST(test_info_only_warning_can_be_rejected);
+    RUN_TEST(test_info_only_warning_is_displayed_before_streaming_review);
+    RUN_TEST(test_info_only_warning_can_be_rejected_in_streaming_review);
+    RUN_TEST(test_empty_warning_starts_review_directly);
     return UNITY_END();
 }
