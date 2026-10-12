@@ -99,10 +99,12 @@ unsigned char io_event(unsigned char channel);
 int io_legacy_apdu_rx(uint8_t handle_ux_events);
 int io_legacy_apdu_tx(const unsigned char *buffer, unsigned short length);
 
-// TOCTOU latch: armed when an APDU command is accepted, cleared when the app
+// TOCTOU latch: armed when a command is accepted, cleared when the app
 // replies (io_legacy_apdu_tx / u2f_message_reply). While armed,
-// io_legacy_apdu_rx rejects new commands (SWO_COMMAND_NOT_ACCEPTED) so a
-// transaction cannot be mutated behind an on-screen review.
+// io_legacy_apdu_rx rejects new commands from every transport, CTAP2 ones
+// included (SWO_COMMAND_NOT_ACCEPTED, or a CTAPHID CHANNEL_BUSY error), and
+// drops USB CDC input, so a transaction cannot be mutated behind an on-screen
+// review. Only a CTAPHID_CANCEL reaches a pending CTAP2 command.
 void os_io_set_reply_pending(bool pending);
 bool os_io_reply_pending(void);
 

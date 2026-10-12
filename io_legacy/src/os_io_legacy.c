@@ -82,8 +82,31 @@ static apdu_type_t io_os_legacy_apdu_type;
 static uint8_t     need_to_start_io;
 // TOCTOU latch
 static bool io_reply_pending;
+// Only a pending CTAP2 command can be cancelled by CTAPHID_CANCEL.
+static bool io_reply_pending_cbor;
 
 /* Private functions ---------------------------------------------------------*/
+// Answers a command that arrives while another one awaits its reply. The answer is built
+// apart: G_io_tx_buffer is G_io_apdu_buffer, which may still hold the pending command.
+static int reject_while_reply_pending(uint8_t packet_type)
+{
+    int status;
+
+#ifdef HAVE_IO_U2F
+    if (packet_type == OS_IO_PACKET_TYPE_USB_U2F_HID_CBOR) {
+        // A CTAP2 client expects a CTAPHID error, not a status word.
+        uint8_t error[2] = {U2F_COMMAND_ERROR, CTAP1_ERR_CHANNEL_BUSY};
+        status           = os_io_tx_cmd(OS_IO_PACKET_TYPE_USB_U2F_HID_RAW, error, sizeof(error), 0);
+    }
+    else
+#endif  // HAVE_IO_U2F
+    {
+        uint8_t sw[2] = {SWO_COMMAND_NOT_ACCEPTED >> 8, SWO_COMMAND_NOT_ACCEPTED & 0xFF};
+        status        = os_io_tx_cmd(packet_type, sw, sizeof(sw), 0);
+    }
+    return (status > 0) ? 0 : status;
+}
+
 static io_apdu_media_t get_media_from_apdu_type(apdu_type_t apdu_type)
 {
     if (apdu_type == APDU_TYPE_RAW) {
@@ -384,30 +407,30 @@ int io_legacy_apdu_rx(uint8_t handle_ux_events)
                 }
                 break;
 
+#ifdef HAVE_IO_U2F
+            case OS_IO_PACKET_TYPE_USB_U2F_HID_CANCEL:
+                // CTAPHID_CANCEL only aborts a pending CTAP2 command. It has no data, and must
+                // not change where that command's reply goes.
+                status = 0;
+                if (os_io_reply_pending() && io_reply_pending_cbor) {
+                    G_io_app.apdu_state = APDU_U2F_CANCEL;
+                    status              = 1;
+                }
+                break;
+#endif  // HAVE_IO_U2F
+
             case OS_IO_PACKET_TYPE_RAW_APDU:
             case OS_IO_PACKET_TYPE_USB_HID_APDU:
             case OS_IO_PACKET_TYPE_USB_CCID_APDU:
             case OS_IO_PACKET_TYPE_USB_WEBUSB_APDU:
             case OS_IO_PACKET_TYPE_USB_U2F_HID_APDU:
             case OS_IO_PACKET_TYPE_USB_U2F_HID_CBOR:
-            case OS_IO_PACKET_TYPE_USB_U2F_HID_CANCEL:
-            case OS_IO_PACKET_TYPE_USB_U2F_HID_RAW:
             case OS_IO_PACKET_TYPE_BLE_APDU:
             case OS_IO_PACKET_TYPE_NFC_APDU:
-                // TOCTOU: reject a new command while a previous one still awaits its reply.
-                // CANCEL/RAW are pure U2F transport frames and never touch the latch; CBOR is
-                // exempt from rejection here but still arms/clears it like a normal command.
-                if ((G_io_rx_buffer[0] != OS_IO_PACKET_TYPE_USB_U2F_HID_CANCEL)
-                    && (G_io_rx_buffer[0] != OS_IO_PACKET_TYPE_USB_U2F_HID_RAW)
-                    && (G_io_rx_buffer[0] != OS_IO_PACKET_TYPE_USB_U2F_HID_CBOR)
-                    && os_io_reply_pending()) {
-                    bolos_err_t err   = SWO_COMMAND_NOT_ACCEPTED;
-                    G_io_tx_buffer[0] = err >> 8;
-                    G_io_tx_buffer[1] = err;
-                    status            = os_io_tx_cmd(G_io_rx_buffer[0], G_io_tx_buffer, 2, 0);
-                    if (status > 0) {
-                        status = 0;
-                    }
+                // TOCTOU: reject a new command while a previous one still awaits its reply,
+                // whatever transport either comes from.
+                if (os_io_reply_pending()) {
+                    status = reject_while_reply_pending(G_io_rx_buffer[0]);
                     break;
                 }
                 io_os_legacy_apdu_type = G_io_rx_buffer[0];
@@ -456,12 +479,10 @@ int io_legacy_apdu_rx(uint8_t handle_ux_events)
                 }
 #endif  // HAVE_BOLOS_NO_DEFAULT_APDU
                 else {
-                    // Arm the TOCTOU latch. CANCEL/RAW are transport-only frames with no app
-                    // reply to clear it, so they don't arm; CBOR does (it replies like a command).
-                    if ((G_io_rx_buffer[0] != OS_IO_PACKET_TYPE_USB_U2F_HID_CANCEL)
-                        && (G_io_rx_buffer[0] != OS_IO_PACKET_TYPE_USB_U2F_HID_RAW)) {
-                        os_io_set_reply_pending(true);
-                    }
+                    // Arm the TOCTOU latch until the app replies.
+                    os_io_set_reply_pending(true);
+                    io_reply_pending_cbor
+                        = (G_io_rx_buffer[0] == OS_IO_PACKET_TYPE_USB_U2F_HID_CBOR);
                     G_io_app.apdu_media = get_media_from_apdu_type(io_os_legacy_apdu_type);
                     status -= 1;
                     memmove(G_io_apdu_buffer, &G_io_rx_buffer[1], status);
@@ -478,11 +499,6 @@ int io_legacy_apdu_rx(uint8_t handle_ux_events)
                         G_io_u2f.media      = U2F_MEDIA_USB;
                         G_io_app.apdu_state = APDU_U2F_CBOR;
                     }
-                    else if (io_os_legacy_apdu_type == APDU_TYPE_USB_U2F_CANCEL) {
-                        G_io_u2f.media      = U2F_MEDIA_USB;
-                        G_io_app.apdu_state = APDU_U2F_CANCEL;
-                        status += 1;
-                    }
                     else if (io_os_legacy_apdu_type == APDU_TYPE_NFC) {
                         G_io_u2f.media      = U2F_MEDIA_NFC;
                         G_io_app.apdu_state = APDU_U2F;
@@ -491,6 +507,12 @@ int io_legacy_apdu_rx(uint8_t handle_ux_events)
                 }
                 break;
             case OS_IO_PACKET_TYPE_AT_CMD:
+                // G_io_apdu_buffer may hold a command awaiting its reply: CDC input is dropped
+                // meanwhile.
+                if (os_io_reply_pending()) {
+                    status = 0;
+                    break;
+                }
                 memmove(G_io_apdu_buffer, &G_io_rx_buffer[1], status);
                 break;
 
@@ -506,6 +528,9 @@ int io_legacy_apdu_rx(uint8_t handle_ux_events)
 void os_io_set_reply_pending(bool pending)
 {
     io_reply_pending = pending;
+    if (!pending) {
+        io_reply_pending_cbor = false;
+    }
 }
 
 bool os_io_reply_pending(void)
