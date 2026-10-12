@@ -35,6 +35,7 @@ and optionally `coverage.xml` (Cobertura) if `lcov_cobertura` is installed.
 |--------------------|-------------------------------------------------------|
 | `address_book/`    | Address Book APDU handlers (TLV parsing and UI flows) |
 | `app_storage/`     | Application persistent storage                        |
+| `io_legacy/`       | Legacy IO: one pending command at a time, CTAP cancel |
 | `lib_alloc/`       | Dynamic memory allocator and utility wrappers         |
 | `lib_lists/`       | Generic singly- and doubly-linked list library        |
 | `lib_standard_app/`| Standard app boilerplate (APDU dispatch, IO helpers)  |
