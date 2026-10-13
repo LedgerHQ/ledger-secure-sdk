@@ -24,7 +24,7 @@ jobs:
         with:
             rust_sdk_branch: ${{ github.event_name == 'workflow_dispatch' && inputs.rust_sdk_branch || (github.base_ref || github.ref_name) == 'master' && 'develop' || 'master' }}
             c_sdk_branch: ${{ github.event_name == 'workflow_dispatch' && inputs.c_sdk_branch || github.head_ref }}
-            c_sdk_repo: ${{ github.event_name == 'workflow_dispatch' && inputs.c_sdk_repo || 'LedgerHQ/ledger-secure-sdk' }}
+            c_sdk_repo: ${{ github.event_name == 'workflow_dispatch' && inputs.c_sdk_repo || github.event.pull_request.head.repo.full_name }}
     test_build_all_rust_apps:
         name: Build all Rust apps
         uses: LedgerHQ/ledger-device-rust-sdk/.github/workflows/reusable_build_all_apps.yml@master
