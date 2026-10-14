@@ -3,6 +3,9 @@
  * command may reach the app, whatever transport it comes from, and a CTAPHID_CANCEL only
  * reaches a pending CTAP2 command.
  *
+ * Built for the in-app IO stack (no USE_OS_IO_STACK), where a USB class can still read a reply
+ * from the app's buffer after os_io_tx_cmd() returns.
+ *
  * The source is included to reach its static state. The OS calls are fakes: one packet is
  * queued for os_io_rx_app_evt(), and os_io_tx_cmd() records what is sent.
  */
@@ -70,6 +73,14 @@ int os_io_tx_cmd(unsigned char        type,
            length < sizeof(sent[0].data) ? length : sizeof(sent[0].data));
     sent_count++;
     return length;
+}
+
+// Whether a USB class still reads a reply from the app's buffer.
+static bool usb_busy;
+
+int32_t USBD_LEDGER_is_busy(void)
+{
+    return usb_busy;
 }
 
 bolos_bool_t os_perso_is_pin_set(void)
@@ -177,6 +188,8 @@ static void assert_pending_untouched(const uint8_t  *command,
 
 void setUp(void)
 {
+    usb_busy           = false;
+    io_reply_in_flight = false;
     os_io_set_reply_pending(false);
     io_os_legacy_apdu_type = APDU_TYPE_NONE;
     memset(&G_io_app, 0, sizeof(G_io_app));
@@ -362,6 +375,56 @@ void test_cdc_input_reaches_the_app_when_idle(void)
     TEST_ASSERT_EQUAL_INT(0, sent_count);
 }
 
+// os_io_tx_cmd() returned, but USB still sends the reply from G_io_tx_buffer: a command from
+// another transport would be copied over it.
+void test_gate_stays_closed_until_usb_has_read_the_reply(void)
+{
+    static const uint8_t reply[] = {0x01, 0x02, 0x03, 0x04, 0x90, 0x00};
+
+    receive(OS_IO_PACKET_TYPE_USB_HID_APDU, HID_APDU, sizeof(HID_APDU));
+    memcpy(G_io_tx_buffer, reply, sizeof(reply));
+    usb_busy = true;
+    io_legacy_apdu_tx(G_io_tx_buffer, sizeof(reply));
+    TEST_ASSERT_TRUE(os_io_reply_pending());
+
+    TEST_ASSERT_EQUAL_INT(0, receive(OS_IO_PACKET_TYPE_BLE_APDU, OTHER_APDU, sizeof(OTHER_APDU)));
+    TEST_ASSERT_EQUAL_UINT8(OS_IO_PACKET_TYPE_BLE_APDU, sent[1].type);
+    TEST_ASSERT_EQUAL_HEX8_ARRAY_MESSAGE(reply, G_io_tx_buffer, sizeof(reply), "reply overwritten");
+
+    // USB has read it all: the next command is taken.
+    usb_busy = false;
+    TEST_ASSERT_EQUAL_INT(sizeof(OTHER_APDU),
+                          receive(OS_IO_PACKET_TYPE_BLE_APDU, OTHER_APDU, sizeof(OTHER_APDU)));
+    TEST_ASSERT_TRUE(os_io_reply_pending());
+    TEST_ASSERT_EQUAL_INT(2, sent_count);
+}
+
+// The CTAP2 command is answered even if its reply is still being sent: it cannot be cancelled,
+// and another CTAP2 command still waits.
+void test_cbor_reply_in_flight_closes_cancel_but_not_the_gate(void)
+{
+    receive(OS_IO_PACKET_TYPE_USB_U2F_HID_CBOR, CBOR_LOGIN, sizeof(CBOR_LOGIN));
+    usb_busy = true;
+    os_io_set_reply_pending(false);  // as u2f_message_reply() does after os_io_tx_cmd()
+
+    TEST_ASSERT_EQUAL_INT(0, receive(OS_IO_PACKET_TYPE_USB_U2F_HID_CANCEL, NULL, 0));
+    TEST_ASSERT_EQUAL(APDU_U2F_CBOR, G_io_app.apdu_state);
+    TEST_ASSERT_EQUAL_INT(0,
+                          receive(OS_IO_PACKET_TYPE_USB_U2F_HID_CBOR, GET_INFO, sizeof(GET_INFO)));
+    TEST_ASSERT_EQUAL_UINT8(OS_IO_PACKET_TYPE_USB_U2F_HID_RAW, sent[0].type);
+    TEST_ASSERT_TRUE(os_io_reply_pending());
+}
+
+// USB busy with something else does not arm a latch that no command armed.
+void test_usb_busy_without_pending_command_keeps_the_gate_open(void)
+{
+    usb_busy = true;
+    os_io_set_reply_pending(false);
+    TEST_ASSERT_FALSE(os_io_reply_pending());
+    TEST_ASSERT_EQUAL_INT(sizeof(HID_APDU),
+                          receive(OS_IO_PACKET_TYPE_USB_HID_APDU, HID_APDU, sizeof(HID_APDU)));
+}
+
 void test_reply_reopens_the_gate(void)
 {
     static const uint8_t reply[] = {0x90, 0x00};
@@ -395,6 +458,9 @@ int main(void)
     RUN_TEST(test_received_raw_packet_is_ignored);
     RUN_TEST(test_cdc_input_during_review_is_dropped);
     RUN_TEST(test_cdc_input_reaches_the_app_when_idle);
+    RUN_TEST(test_gate_stays_closed_until_usb_has_read_the_reply);
+    RUN_TEST(test_cbor_reply_in_flight_closes_cancel_but_not_the_gate);
+    RUN_TEST(test_usb_busy_without_pending_command_keeps_the_gate_open);
     RUN_TEST(test_reply_reopens_the_gate);
     return UNITY_END();
 }
