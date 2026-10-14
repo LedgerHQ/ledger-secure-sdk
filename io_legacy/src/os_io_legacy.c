@@ -84,6 +84,10 @@ static uint8_t     need_to_start_io;
 static bool io_reply_pending;
 // Only a pending CTAP2 command can be cancelled by CTAPHID_CANCEL.
 static bool io_reply_pending_cbor;
+#if defined(HAVE_IO_USB) && !defined(USE_OS_IO_STACK)
+// The reply is sent, but a USB class still reads it from the app's buffer.
+static bool io_reply_in_flight;
+#endif  // HAVE_IO_USB && !USE_OS_IO_STACK
 
 /* Private functions ---------------------------------------------------------*/
 // Answers a command that arrives while another one awaits its reply. The answer is built
@@ -383,6 +387,13 @@ int io_legacy_apdu_rx(uint8_t handle_ux_events)
 
     status = os_io_rx_evt(G_io_rx_buffer, sizeof(G_io_rx_buffer), NULL, true);
 
+#if defined(HAVE_IO_USB) && !defined(USE_OS_IO_STACK)
+    if (io_reply_in_flight && !USBD_LEDGER_is_busy()) {
+        io_reply_in_flight = false;
+        io_reply_pending   = false;
+    }
+#endif  // HAVE_IO_USB && !USE_OS_IO_STACK
+
     if (status > 0) {
         switch (G_io_rx_buffer[0]) {
             case OS_IO_PACKET_TYPE_SE_EVT:
@@ -527,10 +538,18 @@ int io_legacy_apdu_rx(uint8_t handle_ux_events)
 
 void os_io_set_reply_pending(bool pending)
 {
-    io_reply_pending = pending;
     if (!pending) {
         io_reply_pending_cbor = false;
     }
+#if defined(HAVE_IO_USB) && !defined(USE_OS_IO_STACK)
+    // os_io_tx_cmd() can return before a USB class has read the whole reply from the app's
+    // buffer, often G_io_tx_buffer: no other command may be copied there until it has.
+    io_reply_in_flight = !pending && io_reply_pending && USBD_LEDGER_is_busy();
+    if (io_reply_in_flight) {
+        return;
+    }
+#endif  // HAVE_IO_USB && !USE_OS_IO_STACK
+    io_reply_pending = pending;
 }
 
 bool os_io_reply_pending(void)

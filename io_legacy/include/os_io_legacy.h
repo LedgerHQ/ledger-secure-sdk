@@ -100,7 +100,9 @@ int io_legacy_apdu_rx(uint8_t handle_ux_events);
 int io_legacy_apdu_tx(const unsigned char *buffer, unsigned short length);
 
 // TOCTOU latch: armed when a command is accepted, cleared when the app
-// replies (io_legacy_apdu_tx / u2f_message_reply). While armed,
+// replies (io_legacy_apdu_tx / u2f_message_reply). With the in-app IO stack,
+// it stays armed until USB has read the whole reply from the app's buffer.
+// While armed,
 // io_legacy_apdu_rx rejects new commands from every transport, CTAP2 ones
 // included (SWO_COMMAND_NOT_ACCEPTED, or a CTAPHID CHANNEL_BUSY error), and
 // drops USB CDC input, so a transaction cannot be mutated behind an on-screen
