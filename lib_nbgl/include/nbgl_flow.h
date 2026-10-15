@@ -1,6 +1,6 @@
 /**
  * @file nbgl_flow.h
- * @brief Flow construction API of NBGL
+ * @brief Types shared by the Nano use cases (the flow API itself is implemented by the OS)
  *
  */
 
@@ -27,29 +27,9 @@ extern "C" {
  *      TYPEDEFS
  **********************/
 /**
- * @brief type shared externally
- *
- */
-typedef void *nbgl_flow_t;
-
-/**
  * @brief prototype of function to be called when a step is using a callback on "double-key" action
  */
 typedef void (*nbgl_stepCallback_t)(void);
-
-/**
- * @brief Structure containing all specific information when creating a NBGL step.
- */
-typedef struct nbgl_stepDesc_s {
-    nbgl_stepCallback_t init;      ///< if not NULL, function to be called when the step is entered
-    nbgl_stepCallback_t callback;  ///< if not NULL, function to be called on "double-key" action
-    const char         *text;      ///< text to display in step (can be multi-pages if icon == NULL)
-    const char         *subText;   ///< sub-text to display in step (NULL most of the time)
-    const nbgl_icon_details_t *icon;  ///< icon to display in step (text must be single-page)
-#ifdef HAVE_LANGUAGE_PACK
-    UX_LOC_STRINGS_INDEX textId;  ///< text Id to display in step
-#endif                            // HAVE_LANGUAGE_PACK
-} nbgl_stepDesc_t;
 
 /**
  * @brief This structure contains data to build a page in multi-pages mode (@ref
@@ -68,17 +48,6 @@ typedef struct nbgl_pageContent_s {
         nbgl_contentBarsList_t        barsList;         ///< @ref BARS_LIST type
     };
 } nbgl_pageContent_t;
-
-/**********************
- * GLOBAL PROTOTYPES
- **********************/
-
-nbgl_flow_t nbgl_flowDraw(const nbgl_stepDesc_t *steps,
-                          uint8_t                nbSteps,
-                          uint8_t                initStep,
-                          bool                   loop,
-                          bool                   modal);
-void        nbgl_flowRelease(nbgl_flow_t flow);
 
 /**********************
  *      MACROS
