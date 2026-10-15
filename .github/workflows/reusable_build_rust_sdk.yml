@@ -1,0 +1,111 @@
+name: Build Rust SDK
+
+on:
+  workflow_call:
+    inputs:
+      c_sdk_repo:
+        description: 'Repository of the C SDK (e.g. LedgerHQ/ledger-secure-sdk)'
+        required: false
+        default: 'LedgerHQ/ledger-secure-sdk'
+        type: string
+      c_sdk_branch:
+        description: 'Branch of the C SDK to use. Leave empty to use the default from ledger-app-builder.'
+        required: false
+        default: ''
+        type: string
+      rust_sdk_repo:
+        description: 'Repository of the Rust SDK (e.g. LedgerHQ/ledger-device-rust-sdk)'
+        required: false
+        default: 'LedgerHQ/ledger-device-rust-sdk'
+        type: string
+      rust_sdk_branch:
+        description: 'Branch of the Rust SDK to build'
+        required: true
+        type: string
+  workflow_dispatch:
+    inputs:
+      c_sdk_repo:
+        description: 'Repository of the C SDK (e.g. LedgerHQ/ledger-secure-sdk)'
+        required: false
+        default: 'LedgerHQ/ledger-secure-sdk'
+        type: string
+      c_sdk_branch:
+        description: 'Branch of the C SDK to use. Leave empty to use the default from ledger-app-builder.'
+        required: false
+        default: ''
+        type: string
+      rust_sdk_repo:
+        description: 'Repository of the Rust SDK (e.g. LedgerHQ/ledger-device-rust-sdk)'
+        required: false
+        default: 'LedgerHQ/ledger-device-rust-sdk'
+        type: string
+      rust_sdk_branch:
+        description: 'Branch of the Rust SDK to build'
+        required: true
+        type: string
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    name: Build SDK for ${{ matrix.target }}
+    runs-on: ubuntu-latest
+    container: ${{ vars.APP_BUILDER_REGISTRY && fromJSON(format('{{"image":"{0}/ledger-app-dev-tools:latest","credentials":{{"username":"{1}","password":"{2}"}}}}', vars.APP_BUILDER_REGISTRY, github.actor, github.token)) || 'ghcr.io/ledgerhq/ledger-app-builder/ledger-app-dev-tools:latest' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        target: ["nanox", "nanosplus", "stax", "flex", "apex_p"]
+    steps:
+      - name: Clone Rust SDK
+        uses: actions/checkout@v6
+        with:
+          repository: ${{ inputs.rust_sdk_repo }}
+          ref: ${{ inputs.rust_sdk_branch }}
+          token: ${{ secrets.CI_BOT_TOKEN || github.token }}
+
+      - name: Clone C SDK
+        if: ${{ inputs.c_sdk_branch != '' }}
+        uses: actions/checkout@v6
+        with:
+          repository: ${{ inputs.c_sdk_repo }}
+          ref: ${{ inputs.c_sdk_branch }}
+          token: ${{ secrets.CI_BOT_TOKEN || github.token }}
+          path: c_sdk
+
+      - name: Setup C SDK
+        if: ${{ inputs.c_sdk_branch != '' }}
+        run: |
+          echo "LEDGER_SDK_PATH=$GITHUB_WORKSPACE/c_sdk" >> "$GITHUB_ENV"
+          echo "Using C SDK from ${{ inputs.c_sdk_repo }} branch ${{ inputs.c_sdk_branch }}"
+
+      - name: Cargo build
+        working-directory: ledger_device_sdk
+        shell: bash
+        run: |
+          echo "Building SDK for ${{matrix.target}}"
+          cargo build --target ${{ matrix.target }}
+          if [[ "${{ matrix.target }}" == "nanosplus" || "${{ matrix.target }}" == "nanox" ]]; then
+            echo "Building SDK with nano_nbgl feature for ${{matrix.target}}"
+            cargo clean
+            cargo build --target ${{ matrix.target }} --features nano_nbgl
+            echo "Building SDK with nano_nbgl and io_new features for ${{matrix.target}}"
+            cargo clean
+            cargo build --target ${{ matrix.target }} --features nano_nbgl,io_new
+            echo "Building SDK with debug_over_usb and nano_nbgl features for ${{matrix.target}}"
+            cargo clean
+            cargo build --target ${{ matrix.target }} --features debug_over_usb,nano_nbgl
+            echo "Building SDK with debug_over_usb, nano_nbgl and io_new features for ${{matrix.target}}"
+            cargo clean
+            cargo build --target ${{ matrix.target }} --features debug_over_usb,nano_nbgl,io_new
+          else
+            echo "Building SDK for ${{matrix.target}} with io_new"
+            cargo clean
+            cargo build --target ${{ matrix.target }} --features io_new
+            echo "Building SDK for ${{matrix.target}} with debug_over_usb"
+            cargo clean
+            cargo build --target ${{ matrix.target }} --features debug_over_usb
+            echo "Building SDK for ${{matrix.target}} with debug_over_usb and io_new"
+            cargo clean
+            cargo build --target ${{ matrix.target }} --features debug_over_usb,io_new
+          fi

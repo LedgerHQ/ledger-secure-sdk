@@ -20,15 +20,20 @@ on:
 jobs:
     test_build_rust_sdk:
         name: Build Rust SDK
-        uses: LedgerHQ/ledger-device-rust-sdk/.github/workflows/reusable_build_sdk.yml@master
+        uses: ./.github/workflows/reusable_build_rust_sdk.yml
+        secrets: inherit
         with:
+            rust_sdk_repo: ${{ vars.RUST_SDK_REPO || 'LedgerHQ/ledger-device-rust-sdk' }}
             rust_sdk_branch: ${{ github.event_name == 'workflow_dispatch' && inputs.rust_sdk_branch || (github.base_ref || github.ref_name) == 'master' && 'develop' || 'master' }}
             c_sdk_branch: ${{ github.event_name == 'workflow_dispatch' && inputs.c_sdk_branch || github.head_ref }}
             c_sdk_repo: ${{ github.event_name == 'workflow_dispatch' && inputs.c_sdk_repo || github.event.pull_request.head.repo.full_name }}
     test_build_all_rust_apps:
         name: Build all Rust apps
-        uses: LedgerHQ/ledger-device-rust-sdk/.github/workflows/reusable_build_all_apps.yml@master
+        uses: ./.github/workflows/reusable_build_rust_apps.yml
+        secrets: inherit
         with:
+            rust_sdk_repo: ${{ vars.RUST_SDK_REPO || 'LedgerHQ/ledger-device-rust-sdk' }}
             rust_sdk_branch: ${{ github.event_name == 'workflow_dispatch' && inputs.rust_sdk_branch || (github.base_ref || github.ref_name) == 'master' && 'develop' || 'master' }}
             c_sdk_branch: ${{ github.event.inputs.c_sdk_branch || github.head_ref }}
             c_sdk_repo: ${{ github.event.inputs.c_sdk_repo || github.event.pull_request.head.repo.full_name }}
+            app_repo_suffix: ${{ vars.APP_REPO_SUFFIX }}
