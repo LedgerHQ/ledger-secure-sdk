@@ -136,7 +136,7 @@ void __attribute__((noreturn)) assert_display_exit(void)
 #ifdef HAVE_NBGL
 #if defined(TARGET_NANOX) || defined(TARGET_NANOS2)
 #define ICON_APP_WARNING C_icon_warning
-#elif defined(TARGET_STAX) || defined(TARGET_FLEX)
+#elif defined(TARGET_STAX) || defined(TARGET_FLEX) || defined(TARGET_APOLLO)
 #define ICON_APP_WARNING C_Important_Circle_64px
 #elif defined(TARGET_APEX)
 #define ICON_APP_WARNING C_Important_Circle_48px

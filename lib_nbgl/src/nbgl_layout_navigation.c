@@ -29,7 +29,7 @@
 #define NAV_BUTTON_HEIGHT 80
 #define NAV_BUTTON_WIDTH  80
 #define PAGE_NUMBER_WIDTH 79
-#elif defined(TARGET_FLEX)
+#elif defined(TARGET_FLEX) || defined(TARGET_APOLLO)
 #define NAVIGATION_HEIGHT 96
 #define NAV_BUTTON_HEIGHT NAVIGATION_HEIGHT
 #define NAV_BUTTON_WIDTH  104
@@ -165,7 +165,7 @@ void layoutNavigationPopulate(nbgl_container_t                 *navContainer,
         button->obj.area.height = BUTTON_DIAMETER;
         button->radius          = BUTTON_RADIUS;
         button->icon            = &CLOSE_ICON;
-#ifdef TARGET_FLEX
+#if defined(TARGET_FLEX) || defined(TARGET_APOLLO)
         button->obj.alignmentMarginX = (navConfig->nbPages > 1) ? 8 : 0;
 #endif  // TARGET_STAX
 

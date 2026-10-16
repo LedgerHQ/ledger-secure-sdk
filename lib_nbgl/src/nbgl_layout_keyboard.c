@@ -28,7 +28,7 @@
 /*********************
  *      DEFINES
  *********************/
-#if defined(TARGET_FLEX) || defined(TARGET_APEX)
+#if defined(TARGET_FLEX) || defined(TARGET_APEX) || defined(TARGET_APOLLO)
 #define USE_PARTIAL_BUTTONS 1
 #endif  // TARGET_FLEX
 
@@ -73,7 +73,7 @@ enum {
 #define NUMBER_TEXT_SPACE          8
 #define NUMBER_WIDTH               56
 #define DELETE_ICON                C_Close_32px
-#elif defined(TARGET_FLEX)
+#elif defined(TARGET_FLEX) || defined(TARGET_APOLLO)
 #define TEXT_ENTRY_NORMAL_HEIGHT   72
 #define TEXT_ENTRY_COMPACT_HEIGHT  56
 #define BOTTOM_NORMAL_MARGIN       24
@@ -108,7 +108,7 @@ enum {
 #endif  // TARGETS
 
 #ifdef USE_PARTIAL_BUTTONS
-#if defined(TARGET_FLEX)
+#if defined(TARGET_FLEX) || defined(TARGET_APOLLO)
 #define LEFT_HALF_ICON              C_left_half_64px
 #define SUGGESTION_CONTAINER_HEIGHT 92
 #elif defined(TARGET_APEX)

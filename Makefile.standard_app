@@ -174,7 +174,7 @@ USE_NBGL = 1
 endif
 
 ifeq ($(ENABLE_NBGL_QRCODE), 1)
-ifeq ($(TARGET_NAME),$(filter $(TARGET_NAME),TARGET_STAX TARGET_FLEX TARGET_APEX_P TARGET_APEX_M))
+ifeq ($(TARGET_NAME),$(filter $(TARGET_NAME),TARGET_STAX TARGET_FLEX TARGET_APEX_P TARGET_APEX_M TARGET_APOLLO))
     DEFINES += NBGL_QRCODE
     SDK_SOURCE_PATH += qrcode
 endif
@@ -191,6 +191,16 @@ endif
 #####################################################################
 #                          OS IO STACK USE                          #
 #####################################################################
+ifeq ($(TARGET_NAME),TARGET_APOLLO)
+    # TODO(apollo): no USB device identity (name, product, legacy PID) is defined for Apollo
+    ifeq ($(DISABLE_OS_IO_STACK_USE), 1)
+        $(error TARGET_APOLLO does not support the application-side USB stack (DISABLE_OS_IO_STACK_USE, DEBUG_OVER_USB))
+    endif
+    ifneq (,$(filter $(DEFINES),HAVE_LEGACY_PID))
+        $(error TARGET_APOLLO does not support HAVE_LEGACY_PID)
+    endif
+endif
+
 ifneq ($(DISABLE_OS_IO_STACK_USE), 1)
 ifeq (,$(filter $(DEFINES),HAVE_LEGACY_PID))
     DEFINES += USE_OS_IO_STACK
@@ -331,6 +341,9 @@ ICONNAME ?= $(ICON_APEX_P)
 endif
 ifeq ($(TARGET_NAME), TARGET_APEX_M)
 ICONNAME ?= $(ICON_APEX_M)
+endif
+ifeq ($(TARGET_NAME), TARGET_APOLLO)
+ICONNAME ?= $(ICON_APOLLO)
 endif
 
 include $(BOLOS_SDK)/Makefile.defines

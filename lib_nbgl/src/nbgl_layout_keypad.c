@@ -39,7 +39,7 @@ enum {
 #define INTER_ENTRY_DIGITS            10
 #define TITLE_MARGIN_Y                8
 #define TITLE_MARGIN_Y_SMALL          8
-#elif defined(TARGET_FLEX)
+#elif defined(TARGET_FLEX) || defined(TARGET_APOLLO)
 #define ENTRY_DIGITS_CONTAINER_HEIGHT 64
 #define INTER_ENTRY_DIGITS            12
 #define TITLE_MARGIN_Y                8

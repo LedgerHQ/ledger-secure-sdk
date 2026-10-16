@@ -36,7 +36,8 @@ void *pic(void *link_address)
     return link_address;
 }
 
-#elif defined(ST33) || defined(ST33K1M5)
+#elif defined(ST33) || defined(ST33K1M5) || defined(ST54M)
+// TODO(apollo): check that ST54M can use the same implementation
 
 #if !defined(HAVE_BOLOS) || defined(BOLOS_OS_UPGRADER_APP)
 extern void _ram;
