@@ -20,9 +20,7 @@ from github.PullRequest import PullRequest
 from git import Repo, GitCommandError
 
 
-GITHUB_ORG_NAME = "LedgerHQ"
-GITHUB_REPO_NAME = "ledger-secure-sdk"
-GITHUB_REPO_PATH = f"{GITHUB_ORG_NAME}/{GITHUB_REPO_NAME}"
+GITHUB_REPO_PATH = os.environ.get("GITHUB_REPOSITORY", "LedgerHQ/ledger-secure-sdk")
 GITHUB_FULL_URL = f"https://github.com/{GITHUB_REPO_PATH}.git"
 
 logger = logging.getLogger(__name__)
