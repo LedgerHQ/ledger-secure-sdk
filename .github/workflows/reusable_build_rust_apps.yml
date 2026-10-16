@@ -1,0 +1,188 @@
+name: Build all Rust apps
+
+on:
+    workflow_call:
+      inputs:
+        c_sdk_repo:
+          required: false
+          default: 'LedgerHQ/ledger-secure-sdk'
+          type: string
+        c_sdk_branch:
+          required: false
+          default: ''
+          type: string
+        rust_sdk_branch:
+          required: false
+          default: ''
+          type: string
+        rust_sdk_repo:
+          required: false
+          default: 'LedgerHQ/ledger-device-rust-sdk'
+          type: string
+        app_repo_suffix:
+          required: false
+          default: ''
+          type: string
+    workflow_dispatch:
+      inputs:
+        c_sdk_repo:
+          required: false
+          default: 'LedgerHQ/ledger-secure-sdk'
+          type: string
+        c_sdk_branch:
+          required: false
+          default: ''
+          type: string
+        rust_sdk_branch:
+          required: false
+          default: ''
+          type: string
+        rust_sdk_repo:
+          required: false
+          default: 'LedgerHQ/ledger-device-rust-sdk'
+          type: string
+        app_repo_suffix:
+          required: false
+          default: ''
+          type: string
+
+jobs:
+    retrieve-rust-apps:
+      name: Retrieve Rust Apps
+      runs-on: ubuntu-latest
+      outputs:
+        rust_apps: ${{ steps.get_rust_apps.outputs.rust_apps }}
+      steps:
+        - name: Checkout repository
+          uses: actions/checkout@v6
+          with:
+            repository: ${{ inputs.rust_sdk_repo }}
+            ref: ${{ inputs.rust_sdk_branch || 'master' }}
+            token: ${{ secrets.CI_BOT_TOKEN || github.token }}
+        - name: Set up Python
+          uses: actions/setup-python@v6
+          with:
+              python-version: '3.x'
+        - name: Install ledgered
+          run: pip install ledgered
+        - name: Get all rust apps
+          id: get_rust_apps
+          run: |
+            python .github/workflows/get_rust_apps.py "${{ inputs.app_repo_suffix && secrets.CI_BOT_TOKEN || secrets.GITHUB_TOKEN }}" ${{ inputs.app_repo_suffix }}
+            echo "rust_apps=$(cat rust_apps.json)" >> $GITHUB_OUTPUT
+
+    display-rust-apps:
+      name: Display Rust Apps
+      runs-on: ubuntu-latest
+      needs: retrieve-rust-apps
+      steps:
+        - name: Display Rust Apps
+          run: |
+            echo "Rust apps: ${{ needs.retrieve-rust-apps.outputs.rust_apps }}"
+
+    test-build:
+        name: Build for all targets
+        needs: [retrieve-rust-apps]
+        strategy:
+            fail-fast: false
+            matrix:
+              app-name: ["app-boilerplate-rust"]
+              device: ["nanos+", "nanox", "stax", "flex", "apex_p"]
+              include: ${{ fromJSON(needs.retrieve-rust-apps.outputs.rust_apps) }}
+        runs-on: ubuntu-latest
+        container: ${{ vars.APP_BUILDER_REGISTRY && fromJSON(format('{{"image":"{0}/ledger-app-builder:latest","credentials":{{"username":"{1}","password":"{2}"}}}}', vars.APP_BUILDER_REGISTRY, github.actor, github.token)) || 'ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder:latest' }}
+        steps:
+            - name: Install ledgered
+              run: pip install ledgered --break-system-packages
+            - name: Clone SDK
+              if: ${{ inputs.rust_sdk_branch != '' }}
+              uses: actions/checkout@v6
+              with:
+                path: sdk
+                repository: ${{ inputs.rust_sdk_repo }}
+                ref: ${{ inputs.rust_sdk_branch }}
+                token: ${{ secrets.CI_BOT_TOKEN || github.token }}
+            - name: Clone App
+              uses: actions/checkout@v6
+              with:
+                repository: LedgerHQ/${{ matrix.app-name }}
+                token: ${{ inputs.app_repo_suffix && secrets.CI_BOT_TOKEN || github.token }}
+                submodules: true
+                path: ${{ matrix.app-name }}
+            - name: Patch Cargo.toml
+              continue-on-error: false
+              if: ${{ inputs.rust_sdk_branch != '' }}
+              run: |
+                cd ${{ matrix.app-name }}
+                build_directory=$(ledger-manifest --output-build-directory ledger_app.toml)
+                cd $build_directory
+                # Required as patch has a different version from what is locked in Cargo.lock
+                cargo update ledger_device_sdk
+
+                workspace_root=$(cargo metadata --no-deps --format-version 1 | jq -r '.workspace_root')
+                cargo_toml_path="$workspace_root/Cargo.toml"
+
+                # Patch ledger_device_sdk
+                echo "" >> $cargo_toml_path
+                echo "[patch.crates-io.ledger_device_sdk]" >> $cargo_toml_path
+                path=\"$GITHUB_WORKSPACE/sdk/ledger_device_sdk\"
+                echo "path=$path" >> $cargo_toml_path
+                echo "Patch added to Cargo.toml"
+
+                # Print Cargo.toml
+                echo "Cargo.toml:"
+                cat $cargo_toml_path
+
+            - name: Clone C SDK
+              if: ${{ inputs.c_sdk_branch != '' }}
+              uses: actions/checkout@v6
+              with:
+                repository: ${{ inputs.c_sdk_repo }}
+                ref: ${{ inputs.c_sdk_branch }}
+                token: ${{ secrets.CI_BOT_TOKEN || github.token }}
+                path: c_sdk
+
+            - name: Build
+              shell: bash
+              run: |
+                if [ -n "${{ inputs.c_sdk_branch }}" ]; then
+                    echo "setting LEDGER_SDK_PATH to $(realpath c_sdk)"
+                    export LEDGER_SDK_PATH=$(realpath c_sdk)
+
+                    test_api_level=$(grep "API_LEVEL :=" "$LEDGER_SDK_PATH/Makefile.defines")
+                    echo "test_api_level=$test_api_level"
+                    if [ "$test_api_level" == "API_LEVEL := 0" ]; then
+                        echo "C SDK API level is 0, master branch is tested"
+                    else
+                        if [ "${{ matrix.device }}" = "nanos+" ]; then
+                            path="/opt/nanosplus-secure-sdk"
+                        elif [ "${{ matrix.device }}" = "nanox" ]; then
+                            path="/opt/nanox-secure-sdk"
+                        elif [ "${{ matrix.device }}" = "stax" ]; then
+                            path="/opt/stax-secure-sdk"
+                        elif [ "${{ matrix.device }}" = "flex" ]; then
+                            path="/opt/flex-secure-sdk"
+                        elif [ "${{ matrix.device }}" = "apex_p" ]; then
+                            path="/opt/apex-secure-sdk"
+                        else
+                            echo "unknown device"
+                            exit 1
+                        fi
+                        current_api_level=$(grep "API_LEVEL :=" "$path/Makefile.defines")
+                        echo "current_api_level=$current_api_level"
+                        if [ "$test_api_level" != "$current_api_level" ]; then
+                            echo "Do not build for ${{ matrix.device }} as the API level of the provided C SDK ($test_api_level) does not match the expected one ($current_api_level)"
+                            exit 0
+                        fi
+                    fi
+                else
+                    echo "using C SDK from ledger-app-builder"
+                fi
+                cd ${{ matrix.app-name }}
+                build_directory=$(ledger-manifest --output-build-directory ledger_app.toml)
+                cd $build_directory
+                cargo update ledger_device_sdk
+                echo "Building app for ${{ matrix.device }}"
+                device=$(echo ${{ matrix.device }} | sed 's/+/plus/')
+                echo "Build for "$device
+                cargo ledger build $device
