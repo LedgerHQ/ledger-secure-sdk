@@ -27,7 +27,7 @@ jobs:
       - name: Get all C apps
         id: get_c_apps
         run: |
-          python .github/workflows/scripts/get_c_apps.py ${{ secrets.GITHUB_TOKEN }}
+          python .github/workflows/scripts/get_c_apps.py "${{ vars.APP_REPO_SUFFIX && secrets.CI_BOT_TOKEN || secrets.GITHUB_TOKEN }}" "${{ vars.APP_REPO_SUFFIX }}"
           echo "c_apps=$(cat c_apps.json)" >> $GITHUB_OUTPUT
 
   print-matrix:
@@ -63,6 +63,7 @@ jobs:
         uses: actions/checkout@v6
         with:
           repository: LedgerHQ/${{ matrix.apps.app-name }}
+          token: ${{ vars.APP_REPO_SUFFIX && secrets.CI_BOT_TOKEN || github.token }}
           submodules: recursive
           path: ${{ matrix.apps.app-name }}
       - name: Clone SDK

@@ -3,17 +3,22 @@ import json
 from ledgered.github import GitHubLedgerHQ, NoManifestException, Condition  # type: ignore
 from github.GithubException import GithubException
 
-if len(sys.argv) != 2:
-    print("Usage: get_c_apps.py <github_token>")
+if len(sys.argv) not in (2, 3):
+    print("Usage: get_c_apps.py <github_token> [<private_repo_suffix>]")
     sys.exit(1)
 
 # Excluded C apps
 excluded_apps = [""]
 
-# Retrieve all public apps on LedgerHQ GitHub organization
+# Retrieve public apps, or private ones ending with the suffix
 token = sys.argv[1]
+suffix = sys.argv[2] if len(sys.argv) == 3 else ""
 gh = GitHubLedgerHQ(token)
-apps=gh.apps.filter(private=Condition.WITHOUT, archived=Condition.WITHOUT)
+if suffix:
+    apps = [app for app in gh.apps.filter(private=Condition.ONLY, archived=Condition.WITHOUT)
+            if app.name.endswith(suffix)]
+else:
+    apps = gh.apps.filter(private=Condition.WITHOUT, archived=Condition.WITHOUT)
 
 c_apps = []
 # loop all apps in gh.apps
