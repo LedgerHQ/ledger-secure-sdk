@@ -65,6 +65,12 @@ uint32_t app_storage_get_size(void);
 uint16_t app_storage_get_properties(void);
 uint32_t app_storage_get_data_version(void);
 
+/* Called by app_storage_init() with the status it found, once the storage is usable again. Weak,
+ * for the app to override. lib_standard_app initializes the storage once per start; a runtime
+ * that initializes it again within the same start finds it already reset and passes
+ * APP_STORAGE_SUCCESS, so such a runtime keeps the first status other than APP_STORAGE_SUCCESS. */
+void app_storage_callback(int32_t status);
+
 /* Reads app storage data */
 int32_t app_storage_read(void *buf, uint32_t nbyte, uint32_t offset);
 

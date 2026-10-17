@@ -33,8 +33,11 @@ typedef struct app_storage_s {
  *
  * @returns int32_t Initialization status.
  *
- * @retval APP_STORAGE_SUCCESS Application storage is successfully initialized.
- * @retval APP_STORAGE_ERR_CORRUPTED Error, application storage is corrupted.
+ * @retval APP_STORAGE_SUCCESS The storage was found valid.
+ * @retval APP_STORAGE_ERR_INVALID_HEADER Invalid tag, CRC and rest of the header zero: most likely
+ *         a first start. The storage is reinitialized.
+ * @retval APP_STORAGE_ERR_CORRUPTED Invalid tag, size or CRC: the storage existed and is damaged.
+ *         The storage is reinitialized, any data it held is lost.
  *
  */
 int32_t app_storage_init(void);
