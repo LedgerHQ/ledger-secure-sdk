@@ -20,6 +20,4 @@ ledger_unit_tests_add_test(
                     APP_STORAGE_SIZE=5555
                     HAVE_APP_STORAGE_PROP_SETTINGS
                     HAVE_APP_STORAGE_PROP_DATA
-    COMPILE_OPTIONS -fsanitize=address,undefined
-    LINK_OPTIONS    -fsanitize=address,undefined
 )

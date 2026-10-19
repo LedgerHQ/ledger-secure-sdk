@@ -11,6 +11,8 @@ if(NOT DEFINED LEDGER_UT_APP_SRC_DIR)
     set(LEDGER_UT_APP_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../src)
 endif()
 
+option(LEDGER_UT_SANITIZERS "Build the test executables with ASan and UBSan" ON)
+
 #######################################################################
 #                    include defines and includes                     #
 #######################################################################
@@ -119,8 +121,8 @@ set_property(GLOBAL PROPERTY CMOCK_MOCKED_HEADERS "")
 #       MOCK_HEADERS    ${SDK_DIR}/include/os.h      # headers to be mocked (optional)
 #       INCLUDE_DIRS    ../src                       # extra -I paths (optional)
 #       COMPILE_DEFS    TARGET_NANOX APPNAME="App"   # extra -D flags  (optional)
-#       COMPILE_OPTIONS -Wno-comment -fsanitize=...  # extra compiler flags (optional)
-#       LINK_OPTIONS    -fsanitize=...               # extra linker flags  (optional)
+#       COMPILE_OPTIONS -Wno-comment                 # extra compiler flags (optional)
+#       LINK_OPTIONS    -Wl,--wrap=foo               # extra linker flags  (optional)
 #   )
 #######################################################################
 function(ledger_unit_tests_add_test)
@@ -179,6 +181,12 @@ function(ledger_unit_tests_add_test)
         ${UNITY_DIR}/src
         ${CMOCK_DIR}/src
         ${ARG_INCLUDE_DIRS})
+
+    if(LEDGER_UT_SANITIZERS)
+        target_compile_options(${ARG_NAME} PRIVATE
+            -fsanitize=address,undefined -fno-sanitize-recover=undefined -fno-omit-frame-pointer)
+        target_link_options(${ARG_NAME} PRIVATE -fsanitize=address,undefined)
+    endif()
 
     if(ARG_COMPILE_DEFS)
         target_compile_definitions(${ARG_NAME} PRIVATE ${ARG_COMPILE_DEFS})

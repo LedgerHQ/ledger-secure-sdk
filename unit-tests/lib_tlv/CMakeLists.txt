@@ -29,8 +29,7 @@ set(TLV_COMPILE_DEFS
     HAVE_APP_STORAGE_PROP_DATA
 )
 
-set(TLV_COMPILE_OPTIONS -Wno-comment -fsanitize=address,undefined)
-set(TLV_LINK_OPTIONS    -fsanitize=address,undefined)
+set(TLV_COMPILE_OPTIONS -Wno-comment)
 
 ledger_unit_tests_add_test(
     NAME            test_tlv_helpers
@@ -38,7 +37,6 @@ ledger_unit_tests_add_test(
     INCLUDE_DIRS    ${TLV_INCLUDE_DIRS}
     COMPILE_DEFS    ${TLV_COMPILE_DEFS}
     COMPILE_OPTIONS ${TLV_COMPILE_OPTIONS} -Wno-pedantic
-    LINK_OPTIONS    ${TLV_LINK_OPTIONS}
 )
 
 ledger_unit_tests_add_test(
@@ -47,7 +45,6 @@ ledger_unit_tests_add_test(
     INCLUDE_DIRS    ${TLV_INCLUDE_DIRS}
     COMPILE_DEFS    ${TLV_COMPILE_DEFS}
     COMPILE_OPTIONS ${TLV_COMPILE_OPTIONS} -Wno-pedantic
-    LINK_OPTIONS    ${TLV_LINK_OPTIONS}
 )
 
 # dynamic_descriptor uses cx_sha256_init (inline → cx_sha256_init_no_throw),
@@ -64,7 +61,6 @@ ledger_unit_tests_add_test(
     INCLUDE_DIRS    ${TLV_INCLUDE_DIRS}
     COMPILE_DEFS    ${TLV_COMPILE_DEFS}
     COMPILE_OPTIONS ${TLV_COMPILE_OPTIONS} -Wno-nonnull-compare
-    LINK_OPTIONS    ${TLV_LINK_OPTIONS}
 )
 
 # trusted_name uses all hash init functions + cx_hash_update/final + CX_ASSERT
@@ -85,7 +81,6 @@ ledger_unit_tests_add_test(
     COMPILE_DEFS    ${TLV_COMPILE_DEFS}
     COMPILE_OPTIONS ${TLV_COMPILE_OPTIONS} -Wno-nonnull-compare
                     -include ${SDK_DIR}/lib_cxng/include/lcx_hash.h
-    LINK_OPTIONS    ${TLV_LINK_OPTIONS}
 )
 
 # transaction_check uses cx_sha256_init_no_throw, cx_hash_update/final,
@@ -106,6 +101,5 @@ ledger_unit_tests_add_test(
     COMPILE_DEFS    ${TLV_COMPILE_DEFS}
                     LIBBSD_OVERLAY
     COMPILE_OPTIONS ${TLV_COMPILE_OPTIONS} -Wno-nonnull-compare
-    LINK_OPTIONS    ${TLV_LINK_OPTIONS}
 )
 target_link_libraries(test_tlv_use_case_transaction_check PRIVATE bsd)
