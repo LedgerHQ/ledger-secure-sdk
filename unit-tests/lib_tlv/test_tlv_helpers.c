@@ -36,8 +36,10 @@ static tlv_data_t create_tlv_data(uint8_t *buffer, uint8_t tag, size_t value_siz
     buffer[0] = tag;
     U2BE_ENCODE(buffer, 1, value_size);
 
-    for (size_t i = 0; i < value_size && i < 8; i++) {
-        buffer[TLV_HEADER_SIZE + i] = (uint8_t) (value >> (8 * (value_size - i - 1)));
+    /* Big-endian, zero-padded on the left when value_size exceeds 8 bytes. */
+    for (size_t i = 0; i < value_size; i++) {
+        size_t shift                = 8 * (value_size - i - 1);
+        buffer[TLV_HEADER_SIZE + i] = (shift < 64) ? (uint8_t) (value >> shift) : 0;
     }
 
     tlv_data_t tlv_data = {
