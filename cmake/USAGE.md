@@ -56,7 +56,10 @@ project(my_app_unit_tests LANGUAGES C)
 # Path to the ledger-secure-sdk checkout.
 set(SDK_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../sdk)
 
-include(${SDK_DIR}/CMake/LedgerUT.cmake)
+# App sources, when they are not in ../src (optional, before ledger_unit_tests_init()).
+set(LEDGER_UT_APP_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../src)
+
+include(${SDK_DIR}/cmake/LedgerUT.cmake)
 
 ledger_unit_tests_init()
 
@@ -97,13 +100,18 @@ Call once, before declaring any test. It:
 - forbids in-source builds,
 - creates the mock output directory and renders `cmock_config.yml` from the
   template,
-- adds the global `TEST` define and silences `PRINTF(...)`.
+- adds the global `TEST` define and silences `PRINTF(...)`,
+- creates the `generate_coverage` target, for the files under `LEDGER_UT_APP_SRC_DIR`.
 
 #### `ledger_unit_tests_find_sources()`
 
-Globs every `*.c` under `../src` (relative to the current source dir) into
-`APP_SOURCES`, excluding `main.c` / `app_main.c`. Feed the result to
+Globs every `*.c` under `LEDGER_UT_APP_SRC_DIR` into `APP_SOURCES`, excluding
+`main.c` / `app_main.c`. Feed the result to
 `ledger_unit_tests_build_app_sources_as_lib`.
+
+`LEDGER_UT_APP_SRC_DIR` defaults to `../src`, relative to the `CMakeLists.txt`
+that includes `LedgerUT.cmake`. Tests in another folder, such as `tests/unit`, set it before
+calling `ledger_unit_tests_init()`.
 
 #### `ledger_unit_tests_build_app_sources_as_lib(SOURCES … INCLUDE_DIRS … COMPILE_DEFS …)`
 
@@ -129,7 +137,7 @@ Mocks are generated at most once per header, even if several tests mock it
 
 ### 1.5. Coverage
 
-A `generate_coverage` target is created automatically. After building and running
+`ledger_unit_tests_init()` creates a `generate_coverage` target. After building and running
 the tests:
 
 ```bash
@@ -144,6 +152,7 @@ cmake --build build --target generate_coverage
 
 The script auto-detects whether it runs against the `app` library
 (`CMakeFiles/app.dir`) or plain SDK tests and scopes the report accordingly.
+For an app, the report is restricted to the files under `LEDGER_UT_APP_SRC_DIR`.
 
 ### 1.6. Tuning the SDK defines / includes
 

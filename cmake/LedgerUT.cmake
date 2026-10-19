@@ -6,6 +6,11 @@ include(CTest)
 enable_testing()
 set(LEDGER_UT_DIR ${CMAKE_CURRENT_LIST_DIR})
 
+# App sources, ../src by default: set LEDGER_UT_APP_SRC_DIR before ledger_unit_tests_init() to change it
+if(NOT DEFINED LEDGER_UT_APP_SRC_DIR)
+    set(LEDGER_UT_APP_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../src)
+endif()
+
 #######################################################################
 #                    include defines and includes                     #
 #######################################################################
@@ -69,6 +74,15 @@ macro(ledger_unit_tests_init)
 
     add_compile_definitions(TEST)
     add_compile_options("-DPRINTF(...)=")
+
+    if(NOT TARGET generate_coverage)
+        add_custom_target(generate_coverage
+            COMMAND ${LEDGER_UT_DIR}/gen_coverage.sh ${LEDGER_UT_APP_SRC_DIR}
+            WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+            COMMENT "Generating coverage report"
+            VERBATIM
+        )
+    endif()
 endmacro()
 
 #######################################################################
@@ -76,7 +90,7 @@ endmacro()
 #######################################################################
 macro(ledger_unit_tests_find_sources)
     # Build all app sources except main to have a relevant overall coverage.
-    file(GLOB_RECURSE APP_SOURCES CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/../src/*.c)
+    file(GLOB_RECURSE APP_SOURCES CONFIGURE_DEPENDS ${LEDGER_UT_APP_SRC_DIR}/*.c)
     list(FILTER APP_SOURCES EXCLUDE REGEX "/(app_)?main\\.c$")
 endmacro()
 
@@ -181,13 +195,3 @@ function(ledger_unit_tests_add_test)
     # register test
     add_test(NAME ${ARG_NAME} COMMAND ${ARG_NAME})
 endfunction()
-
-#######################################################################
-#                           custom targets                            #
-#######################################################################
-add_custom_target(generate_coverage
-    COMMAND ${LEDGER_UT_DIR}/gen_coverage.sh ${CMAKE_SOURCE_DIR}/../src
-    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-    COMMENT "Generating coverage report"
-    VERBATIM
-)
