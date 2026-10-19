@@ -120,17 +120,24 @@ linked into the test executables — it exists so that coverage reflects the who
 app codebase (every line is compiled), not only the files a given test happens to
 pull in. Each test stays isolated and links just its own sources.
 
-#### `ledger_unit_tests_add_test(NAME … SOURCES … MOCK_HEADERS … INCLUDE_DIRS … COMPILE_DEFS …)`
+#### `ledger_unit_tests_add_test(NAME … SOURCES … MOCK_HEADERS … INCLUDE_DIRS … COMPILE_DEFS … COMPILE_OPTIONS … LINK_OPTIONS …)`
 
 Declares one Unity/CMock test executable and registers it with CTest.
 
-| Argument       | Required | Meaning                                                          |
-| -------------- | -------- | ---------------------------------------------------------------- |
-| `NAME`         | yes      | Test name. The test entry file must be `<NAME>.c`.               |
-| `SOURCES`      | no       | Real source files under test (compiled into this test).          |
-| `MOCK_HEADERS` | no       | Headers from which CMock generates `Mock<name>.c` stubs.         |
-| `INCLUDE_DIRS` | no       | Extra include directories (added *before* the defaults).         |
-| `COMPILE_DEFS` | no       | Extra preprocessor defines.                                      |
+| Argument | Required | Meaning |
+| --- | --- | --- |
+| `NAME` | yes | Test name. The test entry file must be `<NAME>.c`. |
+| `SOURCES` | no | Real source files under test (compiled into this test). |
+| `MOCK_HEADERS` | no | Headers from which CMock generates `Mock<name>.c` stubs. |
+| `INCLUDE_DIRS` | no | Extra include directories (added *before* the defaults). |
+| `COMPILE_DEFS` | no | Extra preprocessor defines. |
+| `COMPILE_OPTIONS` | no | Extra compiler flags. |
+| `LINK_OPTIONS` | no | Extra linker flags. |
+
+Every test executable is built with AddressSanitizer and UndefinedBehaviorSanitizer
+(`-fsanitize=address,undefined -fno-sanitize-recover=undefined`): an invalid memory
+access or an undefined behaviour aborts the test with its location and call stack.
+Configure with `-DLEDGER_UT_SANITIZERS=OFF` to build without them.
 
 Mocks are generated at most once per header, even if several tests mock it
 (deduplicated via the `CMOCK_MOCKED_HEADERS` global property).
