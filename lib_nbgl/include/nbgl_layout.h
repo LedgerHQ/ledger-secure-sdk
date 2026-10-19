@@ -64,7 +64,7 @@ extern "C" {
 #define ICON_TITLE_MARGIN      24
 #define TITLE_DESC_MARGIN      16
 
-#elif defined(TARGET_FLEX)
+#elif defined(TARGET_FLEX) || defined(TARGET_APOLLO)
 #define NB_MAX_SUGGESTION_BUTTONS         8
 // only 2 buttons are visible at the same time on Flex
 #define NB_MAX_VISIBLE_SUGGESTION_BUTTONS 2

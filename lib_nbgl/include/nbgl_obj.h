@@ -32,7 +32,7 @@ extern "C" {
 #ifdef SCREEN_SIZE_WALLET
 #if defined(TARGET_STAX)
 #define KEYBOARD_KEY_HEIGHT 60
-#elif defined(TARGET_FLEX)
+#elif defined(TARGET_FLEX) || defined(TARGET_APOLLO)
 #define KEYBOARD_KEY_HEIGHT 72
 #elif defined(TARGET_APEX)
 #define KEYBOARD_KEY_HEIGHT 51
@@ -61,7 +61,7 @@ extern "C" {
 #ifdef SCREEN_SIZE_WALLET
 #if defined(TARGET_STAX)
 #define KEYPAD_KEY_HEIGHT 104
-#elif defined(TARGET_FLEX)
+#elif defined(TARGET_FLEX) || defined(TARGET_APOLLO)
 #define KEYPAD_KEY_HEIGHT 88
 #elif defined(TARGET_APEX)
 #define KEYPAD_KEY_HEIGHT 60
@@ -77,7 +77,7 @@ extern "C" {
 #if defined(TARGET_STAX)
 #define BORDER_MARGIN          24
 #define VERTICAL_BORDER_MARGIN 24
-#elif defined(TARGET_FLEX)
+#elif defined(TARGET_FLEX) || defined(TARGET_APOLLO)
 #define BORDER_MARGIN          32
 #define VERTICAL_BORDER_MARGIN 24
 #elif defined(TARGET_APEX)
@@ -88,7 +88,7 @@ extern "C" {
 // Back button header height
 #if defined(TARGET_STAX)
 #define BACK_BUTTON_HEADER_HEIGHT 88
-#elif defined(TARGET_FLEX)
+#elif defined(TARGET_FLEX) || defined(TARGET_APOLLO)
 #define BACK_BUTTON_HEADER_HEIGHT 96
 #elif defined(TARGET_APEX)
 #define BACK_BUTTON_HEADER_HEIGHT 60
@@ -114,7 +114,7 @@ extern "C" {
 #if defined(TARGET_STAX)
 #define SPINNER_WIDTH  60
 #define SPINNER_HEIGHT 44
-#elif defined(TARGET_FLEX)
+#elif defined(TARGET_FLEX) || defined(TARGET_APOLLO)
 #define SPINNER_WIDTH  64
 #define SPINNER_HEIGHT 48
 #elif defined(TARGET_APEX)
@@ -126,7 +126,7 @@ extern "C" {
 #if defined(TARGET_STAX)
 #define STEPPER_2_PAGES_WIDTH 136
 #define STEPPER_N_PAGES_WIDTH 184
-#elif defined(TARGET_FLEX)
+#elif defined(TARGET_FLEX) || defined(TARGET_APOLLO)
 #define STEPPER_2_PAGES_WIDTH 136
 #define STEPPER_N_PAGES_WIDTH 184
 #elif defined(TARGET_APEX)
@@ -138,7 +138,7 @@ extern "C" {
 #if defined(TARGET_STAX)
 #define RADIO_WIDTH  32
 #define RADIO_HEIGHT 32
-#elif defined(TARGET_FLEX)
+#elif defined(TARGET_FLEX) || defined(TARGET_APOLLO)
 #define RADIO_WIDTH  40
 #define RADIO_HEIGHT 40
 #elif defined(TARGET_APEX)

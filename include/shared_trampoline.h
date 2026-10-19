@@ -14,4 +14,7 @@
 #define SHARED_TRAMPOLINE_ADDR 0x00808001
 #elif defined(TARGET_APEX_M)
 #define SHARED_TRAMPOLINE_ADDR 0x00808001
+#elif defined(TARGET_APOLLO)
+// TODO(apollo): placeholder, shared trampoline address is TBD
+#define SHARED_TRAMPOLINE_ADDR 0x00808001
 #endif

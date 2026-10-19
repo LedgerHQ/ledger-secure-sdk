@@ -54,7 +54,8 @@ extern "C" {
 #define VERTICAL_ALIGNMENT  4
 // Number of color bits
 #define NB_COLOR_BITS       4
-#elif defined(TARGET_FLEX)
+#elif defined(TARGET_FLEX) || defined(TARGET_APOLLO)
+// TODO(apollo): NBGL is rendered remotely by the MCU, Flex metrics are nominal values
 #define SCREEN_WIDTH        480
 #define SCREEN_HEIGHT       600
 #define SMALL_ICON_SIZE     40

@@ -77,7 +77,7 @@
 #define LEFT_CONTENT_ICON_TEXT_X         16
 #define TIP_BOX_MARGIN_Y                 24
 #define TIP_BOX_TEXT_ICON_MARGIN         24
-#elif defined(TARGET_FLEX)
+#elif defined(TARGET_FLEX) || defined(TARGET_APOLLO)
 #define RADIO_CHOICE_HEIGHT              92
 #define BAR_INTERVALE                    16
 #define FOOTER_BUTTON_HEIGHT             136
@@ -201,7 +201,7 @@ static uint8_t nbTouchableControls = 0;
 // extern const char *get_ux_loc_string(UX_LOC_STRINGS_INDEX index);
 
 // Hold-to-approve parameters
-#if defined(TARGET_FLEX)
+#if defined(TARGET_FLEX) || defined(TARGET_APOLLO)
 // Percent of a single "hold-to-approve" bar
 #define HOLD_TO_APPROVE_STEP_PERCENT     (7)
 // Duration between two bars
@@ -426,7 +426,9 @@ static void longTouchCallback(nbgl_obj_t            *obj,
     // case of releasing a long press button (or getting out of it)
     else if ((eventType == TOUCH_RELEASED) || (eventType == OUT_OF_TOUCH)
              || (eventType == SWIPED_LEFT) || (eventType == SWIPED_RIGHT)) {
+#ifdef HAVE_SE_EINK_DISPLAY
         nbgl_wait_pipeline();
+#endif  // HAVE_SE_EINK_DISPLAY
         progressBar->partialRedraw = true;
         progressBar->state         = 0;
         nbgl_objDraw((nbgl_obj_t *) progressBar);

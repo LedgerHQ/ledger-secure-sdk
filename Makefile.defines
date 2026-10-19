@@ -130,6 +130,14 @@ ifeq ($(TARGET_NAME),$(filter $(TARGET_NAME),TARGET_STAX TARGET_FLEX TARGET_NANO
     LDFLAGS  += -L$(BOLOS_SDK)/arch/st33k1/lib/
 endif
 
+ifeq ($(TARGET_NAME),TARGET_APOLLO)
+    # ST54M shares the ST33K1M5 core (cortex-m35p+nodsp), so it uses the same libs
+    CPU       = cortex-m35p+nodsp
+    CFLAGS   += -msoft-float
+    CFLAGS   += -frwpi
+    LDFLAGS  += -L$(BOLOS_SDK)/arch/st33k1/lib/
+endif
+
 # Common to all targets
 CFLAGS   += --target=arm-none-eabi -mcpu=$(CPU) -mlittle-endian -mthumb
 # no --target in case arm-none-eabi-gcc is used
@@ -171,6 +179,20 @@ DEFINES += NBGL_PAGE
 DEFINES += NBGL_USE_CASE
 DEFINES += SCREEN_SIZE_WALLET
 endif # TARGET_FLEX
+
+ifeq ($(TARGET_NAME),TARGET_APOLLO)
+# For Apollo NBGL must be used, it is rendered remotely by the MCU
+# TODO(apollo): Flex fonts are nominal values
+USE_NBGL = 1
+DEFINES += HAVE_BAGL_FONT_INTER_REGULAR_28PX
+DEFINES += HAVE_BAGL_FONT_INTER_SEMIBOLD_28PX
+DEFINES += HAVE_BAGL_FONT_INTER_MEDIUM_36PX
+DEFINES += HAVE_NBGL
+DEFINES += HAVE_SE_TOUCH
+DEFINES += NBGL_PAGE
+DEFINES += NBGL_USE_CASE
+DEFINES += SCREEN_SIZE_WALLET
+endif # TARGET_APOLLO
 
 ifeq ($(TARGET_NAME),$(filter $(TARGET_NAME),TARGET_APEX_P TARGET_APEX_M))
 # For Apex NBGL must be used
