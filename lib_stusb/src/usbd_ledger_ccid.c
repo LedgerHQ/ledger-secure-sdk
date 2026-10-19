@@ -316,14 +316,13 @@ USBD_StatusTypeDef USBD_LEDGER_CCID_data_in(USBD_HandleTypeDef *pdev, void *cook
                           0,
                           ledger_ccid_transport_packet_buffer,
                           sizeof(ledger_ccid_transport_packet_buffer));
-        if (handle->device.transport.tx_packet_length) {
-            handle->state = LEDGER_CCID_STATE_BUSY;
-            USBD_LL_Transmit(pdev,
-                             LEDGER_CCID_BULK_EPIN_ADDR,
-                             ledger_ccid_transport_packet_buffer,
-                             handle->device.transport.tx_packet_length,
-                             0);
-        }
+        // A zero-length packet ends a message whose last packet is full
+        handle->state = LEDGER_CCID_STATE_BUSY;
+        USBD_LL_Transmit(pdev,
+                         LEDGER_CCID_BULK_EPIN_ADDR,
+                         ledger_ccid_transport_packet_buffer,
+                         handle->device.transport.tx_packet_length,
+                         0);
     }
     if (!handle->device.transport.tx_message_buffer) {
         handle->device.transport.tx_packet_length = 0;
