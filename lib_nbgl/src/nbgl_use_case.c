@@ -1723,10 +1723,11 @@ static void modalLayoutTouchCallback(int token, uint8_t index)
                 }
             }
         }
-        else if (sharedContext.usage == SHARE_CTX_CHOICE_WITH_DETAILS) {
+        else if ((sharedContext.usage == SHARE_CTX_CHOICE_WITH_DETAILS)
+                 && (choiceWithDetailsCtx.details->barList.details != NULL)) {
             const nbgl_warningDetails_t *details
                 = &choiceWithDetailsCtx.details->barList.details[token - FIRST_WARN_BAR_TOKEN];
-            if (details->title != NO_TYPE_WARNING) {
+            if (details->type != NO_TYPE_WARNING) {
                 // dismiss modal before creating a new one
                 nbgl_layoutRelease(choiceWithDetailsCtx.modalLayout);
                 choiceWithDetailsCtx.level = 2;
