@@ -383,6 +383,23 @@ void displayAccountConfirm(void) {
 }
 @endcode
 
+The *details* modal can also display a left-aligned title followed by rows of icon and text, with
+the @ref LEFT_CONTENT_WARNING type:
+
+@code
+static const char                *howTexts[] = {"Checked before signing.", "Result is displayed."};
+static const nbgl_icon_details_t *howIcons[] = {&PRIVACY_ICON, &WARNING_ICON};
+
+static nbgl_warningDetails_t howDetails = {
+  .title                = NULL,
+  .type                 = LEFT_CONTENT_WARNING,
+  .leftContent.title    = "How it works",
+  .leftContent.nbRows   = 2,
+  .leftContent.rowTexts = howTexts,
+  .leftContent.rowIcons = howIcons,
+};
+@endcode
+
 @subsection use_case_status Status Use Case
 
 \image{inline} html UseCase-Status.png height=400
