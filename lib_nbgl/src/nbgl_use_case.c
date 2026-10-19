@@ -2529,6 +2529,9 @@ static nbgl_layout_t *displayModalDetails(const nbgl_warningDetails_t *details, 
 
     layout                      = nbgl_layoutGet(&layoutDescription);
     headerDesc.backAndText.text = details->title;
+    if (details->type == LEFT_CONTENT_WARNING) {
+        headerDesc.separationLine = false;
+    }
     nbgl_layoutAddHeader(layout, &headerDesc);
     if (details->type == BAR_LIST_WARNING) {
         // if more than one warning, so use a list of touchable bars
@@ -2562,6 +2565,9 @@ static nbgl_layout_t *displayModalDetails(const nbgl_warningDetails_t *details, 
         // display a centered info
         nbgl_layoutAddContentCenter(layout, &details->centeredInfo);
         headerDesc.separationLine = false;
+    }
+    else if (details->type == LEFT_CONTENT_WARNING) {
+        nbgl_layoutAddLeftContent(layout, &details->leftContent);
     }
     nbgl_layoutDraw(layout);
     nbgl_refresh();

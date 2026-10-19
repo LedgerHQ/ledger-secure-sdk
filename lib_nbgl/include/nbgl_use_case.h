@@ -225,7 +225,8 @@ typedef enum {
     NO_TYPE_WARNING = 0,    ///< Invalid type (to use for bars leading to nothing)
     CENTERED_INFO_WARNING,  ///< Centered info
     QRCODE_WARNING,         ///< QR Code
-    BAR_LIST_WARNING        ///< list of touchable bars, to display sub-pages
+    BAR_LIST_WARNING,       ///< list of touchable bars, to display sub-pages
+    LEFT_CONTENT_WARNING    ///< left-aligned title and icon/text rows (touch devices only)
 } nbgl_genericDetailsType_t;
 
 typedef nbgl_genericDetailsType_t nbgl_warningDetailsType_t;
@@ -261,6 +262,8 @@ typedef struct nbgl_genericDetails_s {
         nbgl_layoutQRCode_t qrCode;     ///< QR code, if type == @ref QRCODE_WARNING
 #endif                                  // NBGL_QRCODE
         nbgl_genericBarList_t barList;  ///< touchable bars list, if type == @ref BAR_LIST_WARNING
+        nbgl_layoutLeftContent_t
+            leftContent;  ///< left content, if type == @ref LEFT_CONTENT_WARNING
     };
 } nbgl_genericDetails_t;
 
