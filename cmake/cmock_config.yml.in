@@ -6,7 +6,6 @@
     - 'SYSCALL'
     - 'SUDOCALL'
     - 'TASKSWITCH'
-    - 'PLENGTH\([^)]*\)'
     - '__attribute__\(\([^)]*\)\)'
     - 'DEPRECATED'
     - 'WARN_UNUSED_RESULT'

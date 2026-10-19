@@ -127,10 +127,20 @@ function(ledger_unit_tests_add_test)
                OR ${_header} IS_NEWER_THAN ${_mock_c}
                OR ${_cmock_config} IS_NEWER_THAN ${_mock_c})
                 message(STATUS "CMock: generating Mock${_basename}")
+                # CMock cuts PLENGTH() annotations holding parentheses: mock a copy without them
+                set(_mock_input ${CMAKE_CURRENT_BINARY_DIR}/mock_headers/${_basename}.h)
+                file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/mock_headers)
+                execute_process(
+                    COMMAND ${RUBY_EXECUTABLE} -e "s = File.binread(ARGV[0]).gsub(/PLENGTH\\s*(\\((?:[^()]|\\g<-1>)*\\))/, ''); abort(\"unbalanced PLENGTH() in #{ARGV[0]}\") if s =~ /\\bPLENGTH\\s*\\(/; File.binwrite(ARGV[1], s)"
+                            ${_header} ${_mock_input}
+                    RESULT_VARIABLE _res)
+                if(NOT _res EQUAL 0)
+                    message(FATAL_ERROR "CMock: cannot strip PLENGTH() from ${_header}")
+                endif()
                 execute_process(
                     COMMAND ${RUBY_EXECUTABLE} ${CMOCK_DIR}/lib/cmock.rb
                             -o${_cmock_config}
-                            ${_header}
+                            ${_mock_input}
                     RESULT_VARIABLE _res OUTPUT_QUIET)
                 if(NOT _res EQUAL 0)
                     message(FATAL_ERROR "CMock failed on ${_header}")
