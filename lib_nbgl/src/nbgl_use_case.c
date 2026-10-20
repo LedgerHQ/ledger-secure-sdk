@@ -215,7 +215,9 @@ typedef struct {
     const nbgl_contentTagValue_t
         *currentPairs;  // to be used to retrieve the pairs with value alias
     nbgl_contentTagValueCallback_t
-                  currentCallback;  // to be used to retrieve the pairs with value alias
+                  currentCallback;    // to be used to retrieve the pairs with value alias
+    uint8_t       currentNbPairs;     // total number of pairs in currentPairs (or currentCallback)
+    uint8_t       currentStartIndex;  // index of the first pair to get with currentCallback
     nbgl_layout_t modalLayout;
     nbgl_layout_t backgroundLayout;
     const nbgl_contentInfoList_t     *currentInfos;
@@ -509,6 +511,26 @@ static uint8_t getContentNbElement(const nbgl_content_t *content)
     }
 }
 
+// Helper to retrieve the pair at the given index in a tag/value list, either from the pairs array
+// or using the callback. The index is relative to the first pair of the list, so with a callback,
+// the startIndex of the list is added to it
+static const nbgl_contentTagValue_t *getTagValuePair(const nbgl_contentTagValueList_t *tagValueList,
+                                                     uint8_t                           index)
+{
+    if (tagValueList->pairs != NULL) {
+        return PIC(&tagValueList->pairs[index]);
+    }
+    return PIC(tagValueList->callback(tagValueList->startIndex + index));
+}
+
+// Helper to check that all pairs of a tag/value list retrieved with a callback have an index
+// fitting in uint8_t (from startIndex to startIndex + nbPairs - 1)
+static bool isTagValueListValid(const nbgl_contentTagValueList_t *tagValueList)
+{
+    return (tagValueList == NULL) || (tagValueList->pairs != NULL)
+           || (((uint16_t) tagValueList->startIndex + tagValueList->nbPairs) <= (UINT8_MAX + 1));
+}
+
 // Helper to retrieve the content inside a nbgl_genericContents_t using
 // either the contentsList or using the contentGetterCallback
 static const nbgl_content_t *getContentAtIdx(const nbgl_genericContents_t *genericContents,
@@ -530,6 +552,27 @@ static const nbgl_content_t *getContentAtIdx(const nbgl_genericContents_t *gener
         // Retrieve content through list
         return PIC(&genericContents->contentsList[contentIdx]);
     }
+}
+
+// Helper to check that all tag/value lists in a nbgl_genericContents_t are valid
+static bool isGenericContentsValid(const nbgl_genericContents_t *genericContents)
+{
+    nbgl_content_t        content = {0};
+    const nbgl_content_t *p_content;
+
+    for (int i = 0; i < genericContents->nbContents; i++) {
+        p_content = getContentAtIdx(genericContents, i, &content);
+        if (p_content == NULL) {
+            return false;
+        }
+        if (((p_content->type == TAG_VALUE_LIST)
+             && !isTagValueListValid(&p_content->content.tagValueList))
+            || ((p_content->type == TAG_VALUE_CONFIRM)
+                && !isTagValueListValid(&p_content->content.tagValueConfirm.tagValueList))) {
+            return false;
+        }
+    }
+    return true;
 }
 
 static void prepareNavInfo(bool isReview, uint8_t nbPages, const char *rejectText)
@@ -792,14 +835,25 @@ static void pageCallback(int token, uint8_t index)
     }
     else if (token == VALUE_ALIAS_TOKEN) {
         // the icon next to value alias has been touched
-        const nbgl_contentTagValue_t *pair;
-        if (genericContext.currentPairs != NULL) {
-            pair = &genericContext.currentPairs[genericContext.currentElementIdx + index];
+        const nbgl_contentTagValue_t *pair = NULL;
+        // currentPairs (or currentCallback) is the unsliced list, so the absolute index of the
+        // touched pair is the index of the first pair of the page plus the index in the page
+        uint16_t absoluteIdx = (uint16_t) genericContext.currentElementIdx + index;
+        if (absoluteIdx < genericContext.currentNbPairs) {
+            if (genericContext.currentPairs != NULL) {
+                pair = &genericContext.currentPairs[absoluteIdx];
+            }
+            else if (genericContext.currentCallback != NULL) {
+                pair = PIC(
+                    genericContext.currentCallback(genericContext.currentStartIndex + absoluteIdx));
+            }
+        }
+        if ((pair != NULL) && (pair->extension != NULL)) {
+            displayFullValuePage(pair->item, pair->value, PIC(pair->extension));
         }
         else {
-            pair = genericContext.currentCallback(genericContext.currentElementIdx + index);
+            LOG_WARN(USE_CASE_LOGGER, "pageCallback(): no alias for index %d\n", absoluteIdx);
         }
-        displayFullValuePage(pair->item, pair->value, pair->extension);
     }
     else if (token == BLIND_WARNING_TOKEN) {
         reviewWithWarnCtx.isIntro = false;
@@ -1083,22 +1137,18 @@ static bool genericContextPreparePageContent(const nbgl_content_t *p_content,
             nbgl_contentTagValueList_t *p_tagValueList = &pageContent->tagValueList;
 
             // memorize pairs (or callback) for usage when alias is used
-            genericContext.currentPairs    = p_content->content.tagValueList.pairs;
-            genericContext.currentCallback = p_content->content.tagValueList.callback;
+            genericContext.currentPairs      = p_content->content.tagValueList.pairs;
+            genericContext.currentCallback   = p_content->content.tagValueList.callback;
+            genericContext.currentNbPairs    = p_content->content.tagValueList.nbPairs;
+            genericContext.currentStartIndex = p_content->content.tagValueList.startIndex;
 
             if (flag) {
                 // Flag can be set if the pair is too long to fit or because it needs
                 // to be displayed as centered info.
 
                 // First retrieve the pair
-                const nbgl_layoutTagValue_t *pair;
-
-                if (p_content->content.tagValueList.pairs != NULL) {
-                    pair = PIC(&p_content->content.tagValueList.pairs[nextElementIdx]);
-                }
-                else {
-                    pair = PIC(p_content->content.tagValueList.callback(nextElementIdx));
-                }
+                const nbgl_layoutTagValue_t *pair
+                    = getTagValuePair(&p_content->content.tagValueList, nextElementIdx);
 
                 if (pair->centeredInfo) {
                     pageContent->type = EXTENDED_CENTER;
@@ -1141,13 +1191,14 @@ static bool genericContextPreparePageContent(const nbgl_content_t *p_content,
                     }
                 }
                 else {
-                    p_tagValueList->pairs      = NULL;
-                    p_tagValueList->callback   = p_content->content.tagValueList.callback;
-                    p_tagValueList->startIndex = nextElementIdx;
+                    p_tagValueList->pairs    = NULL;
+                    p_tagValueList->callback = p_content->content.tagValueList.callback;
+                    p_tagValueList->startIndex
+                        = p_content->content.tagValueList.startIndex + nextElementIdx;
                     // parse pairs to check if any contains an alias for value
                     for (uint8_t i = 0; i < nbElementsInPage; i++) {
                         const nbgl_layoutTagValue_t *pair
-                            = PIC(p_content->content.tagValueList.callback(nextElementIdx + i));
+                            = getTagValuePair(&p_content->content.tagValueList, nextElementIdx + i);
                         if (pair->aliasValue) {
                             p_tagValueList->token = VALUE_ALIAS_TOKEN;
                             break;
@@ -1182,18 +1233,41 @@ static bool genericContextPreparePageContent(const nbgl_content_t *p_content,
                 p_tagValueList            = &pageContent->tagValueList;
             }
             p_tagValueList->nbPairs = nbElementsInPage;
-            p_tagValueList->pairs
-                = PIC(&p_content->content.tagValueConfirm.tagValueList.pairs[nextElementIdx]);
-            // parse pairs to check if any contains an alias for value
-            for (uint8_t i = 0; i < nbElementsInPage; i++) {
-                if (p_tagValueList->pairs[i].aliasValue) {
-                    p_tagValueList->token = VALUE_ALIAS_TOKEN;
-                    break;
+            if (p_content->content.tagValueConfirm.tagValueList.pairs != NULL) {
+                p_tagValueList->pairs
+                    = PIC(&p_content->content.tagValueConfirm.tagValueList.pairs[nextElementIdx]);
+                // parse pairs to check if any contains an alias for value
+                for (uint8_t i = 0; i < nbElementsInPage; i++) {
+                    if (p_tagValueList->pairs[i].aliasValue) {
+                        p_tagValueList->token = VALUE_ALIAS_TOKEN;
+                        break;
+                    }
                 }
             }
-            // memorize pairs (or callback) for usage when alias is used
-            genericContext.currentPairs    = p_tagValueList->pairs;
-            genericContext.currentCallback = p_tagValueList->callback;
+            else {
+                p_tagValueList->pairs    = NULL;
+                p_tagValueList->callback = p_content->content.tagValueConfirm.tagValueList.callback;
+                p_tagValueList->startIndex
+                    = p_content->content.tagValueConfirm.tagValueList.startIndex + nextElementIdx;
+                // parse pairs to check if any contains an alias for value
+                for (uint8_t i = 0; i < nbElementsInPage; i++) {
+                    const nbgl_layoutTagValue_t *pair = getTagValuePair(
+                        &p_content->content.tagValueConfirm.tagValueList, nextElementIdx + i);
+                    if ((pair != NULL) && (pair->aliasValue)) {
+                        p_tagValueList->token = VALUE_ALIAS_TOKEN;
+                        break;
+                    }
+                }
+            }
+            // memorize pairs (or callback) for usage when alias is used: the unsliced list must
+            // be used, because the touched pair is retrieved with its absolute index
+            genericContext.currentPairs
+                = PIC(p_content->content.tagValueConfirm.tagValueList.pairs);
+            genericContext.currentCallback
+                = p_content->content.tagValueConfirm.tagValueList.callback;
+            genericContext.currentNbPairs = p_content->content.tagValueConfirm.tagValueList.nbPairs;
+            genericContext.currentStartIndex
+                = p_content->content.tagValueConfirm.tagValueList.startIndex;
             break;
         }
         case SWITCHES_LIST:
@@ -1259,6 +1333,18 @@ static bool genericContextPreparePageContent(const nbgl_content_t *p_content,
 
         pageContent->topRightToken
             = (operationType & BLIND_OPERATION) ? BLIND_WARNING_TOKEN : WARNING_BUTTON_TOKEN;
+    }
+    // if first or last page of an advanced review with customized review details, add the
+    // top-right button giving access to these details, with the caller provided icon
+    else if (isFirstOrLastPage && ((navType == STREAMING_NAV) || (navType == GENERIC_NAV))
+             && (sharedContext.usage == SHARE_CTX_REVIEW_WITH_WARNING)
+             && (reviewWithWarnCtx.warning != NULL)
+             && (reviewWithWarnCtx.warning->predefinedSet == 0)
+             && (reviewWithWarnCtx.warning->reviewDetails != NULL)) {
+        pageContent->topRightIcon  = (reviewWithWarnCtx.warning->reviewTopRightIcon != NULL)
+                                         ? reviewWithWarnCtx.warning->reviewTopRightIcon
+                                         : &WARNING_ICON;
+        pageContent->topRightToken = WARNING_BUTTON_TOKEN;
     }
 
     return true;
@@ -1869,6 +1955,7 @@ static void displaySkipWarning(void)
         .centeredInfo.offsetY = 0,
         .confirmationText     = "Yes, skip",
         .confirmationToken    = SKIP_TOKEN,
+        .cancelToken          = SKIP_TOKEN,
         .tuneId               = TUNE_TAP_CASUAL,
         .modal                = true};
     if (modalPageContext != NULL) {
@@ -2046,7 +2133,8 @@ static void keyboardGeneric_cb(int token, uint8_t index)
  *
  * @param nbPairs number of tag/value pairs to use in \b tagValueList
  * @param tagValueList list of tag/value pairs
- * @param startIndex first index to consider in \b tagValueList
+ * @param startIndex first index to consider in \b tagValueList (relative to the startIndex of
+ *        \b tagValueList when its pairs are retrieved with its callback)
  * @param isSkippable if true, a skip header is added
  * @param hasConfirmationButton if true, a confirmation button is added at last page
  * @param requireSpecificDisplay (output) set to true if the tag/value needs a specific display:
@@ -2084,12 +2172,7 @@ static uint8_t getNbTagValuesInPage(uint8_t                           nbPairs,
             currentHeight += INTER_TAG_VALUE_MARGIN;
         }
         // fetch tag/value pair strings.
-        if (tagValueList->pairs != NULL) {
-            pair = PIC(&tagValueList->pairs[startIndex + nbPairsInPage]);
-        }
-        else {
-            pair = PIC(tagValueList->callback(startIndex + nbPairsInPage));
-        }
+        pair = getTagValuePair(tagValueList, startIndex + nbPairsInPage);
 
         if (pair->forcePageStart && nbPairsInPage > 0) {
             // This pair must be at the top of a page
@@ -2149,7 +2232,7 @@ static uint8_t getNbTagValuesInPage(uint8_t                           nbPairs,
         }
 
         // potential subAlias text
-        if ((pair->aliasValue) && (pair->extension->aliasSubName)) {
+        if ((pair->aliasValue) && (pair->extension != NULL) && (pair->extension->aliasSubName)) {
             currentHeight += TAG_VALUE_INTERVALE + nbgl_getFontLineHeight(SMALL_REGULAR_FONT);
         }
         if ((currentHeight >= maxUsableHeight) || (nbLines > NB_MAX_LINES_IN_REVIEW)) {
@@ -2190,7 +2273,8 @@ static uint8_t getNbTagValuesInPage(uint8_t                           nbPairs,
  *
  * @param nbPairs number of tag/value pairs to use in \b tagValueList
  * @param tagValueList list of tag/value pairs
- * @param startIndex first index to consider in \b tagValueList
+ * @param startIndex first index to consider in \b tagValueList (relative to the startIndex of
+ *        \b tagValueList when its pairs are retrieved with its callback)
  * @return the number of tag/value pairs fitting in a page
  */
 static uint8_t getNbTagValuesInDetailsPage(uint8_t                           nbPairs,
@@ -2210,12 +2294,7 @@ static uint8_t getNbTagValuesInDetailsPage(uint8_t                           nbP
             currentHeight += INTER_TAG_VALUE_MARGIN;
         }
         // fetch tag/value pair strings.
-        if (tagValueList->pairs != NULL) {
-            pair = PIC(&tagValueList->pairs[startIndex + nbPairsInPage]);
-        }
-        else {
-            pair = PIC(tagValueList->callback(startIndex + nbPairsInPage));
-        }
+        pair = getTagValuePair(tagValueList, startIndex + nbPairsInPage);
 
         // tag height
         currentHeight += nbgl_getTextHeightInWidth(
@@ -2980,6 +3059,12 @@ static void useCaseReview(nbgl_operationType_t              operationType,
                           bool                              isLight,
                           bool                              playNotifSound)
 {
+    if (!isTagValueListValid(tagValueList)) {
+        if (choiceCallback != NULL) {
+            choiceCallback(false);
+        }
+        return;
+    }
     bundleNavContext.review.operationType  = operationType;
     bundleNavContext.review.choiceCallback = choiceCallback;
 
@@ -3238,6 +3323,16 @@ static void displayTagValueListModal(const nbgl_contentTagValueList_t *tagValues
     displayTagValueListModalPage(0, true);
 }
 
+// returns true if the given warning contains nothing to display, so that a simple review can be
+// used. Every field leading to a warning page (info, prelude) or button must be checked
+static bool isWarningEmpty(const nbgl_warning_t *warning)
+{
+    return (warning == NULL)
+           || ((warning->predefinedSet == 0) && (warning->info == NULL)
+               && (warning->introDetails == NULL) && (warning->reviewDetails == NULL)
+               && (warning->prelude == NULL));
+}
+
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
@@ -3248,7 +3343,8 @@ static void displayTagValueListModal(const nbgl_contentTagValueList_t *tagValues
  *
  * @param nbPairs number of tag/value pairs to use in \b tagValueList
  * @param tagValueList list of tag/value pairs
- * @param startIndex first index to consider in \b tagValueList
+ * @param startIndex first index to consider in \b tagValueList (relative to the startIndex of
+ *        \b tagValueList when its pairs are retrieved with its callback)
  * @param requireSpecificDisplay (output) set to true if the tag/value needs a specific display:
  *        - centeredInfo flag is enabled
  *        - the tag/value doesn't fit in a page
@@ -3749,6 +3845,7 @@ void nbgl_useCaseChoice(const nbgl_icon_details_t *icon,
     info.centeredInfo.icon  = icon;
     info.confirmationText   = confirmText;
     info.confirmationToken  = CHOICE_TOKEN;
+    info.cancelToken        = CHOICE_TOKEN;
     info.tuneId             = TUNE_TAP_CASUAL;
 
     onChoice    = callback;
@@ -3899,6 +3996,7 @@ void nbgl_useCaseConfirm(const char     *message,
                                                .centeredInfo.offsetY = 0,
                                                .confirmationText     = confirmText,
                                                .confirmationToken    = CHOICE_TOKEN,
+                                               .cancelToken          = CHOICE_TOKEN,
                                                .tuneId               = TUNE_TAP_CASUAL,
                                                .modal                = true};
     onModalConfirm                          = callback;
@@ -4007,6 +4105,12 @@ void nbgl_useCaseStaticReview(const nbgl_contentTagValueList_t *tagValueList,
 {
     uint8_t offset = 0;
 
+    if (!isTagValueListValid(tagValueList)) {
+        if (callback != NULL) {
+            callback(false);
+        }
+        return;
+    }
     reset_callbacks_and_context();
 
     // memorize context
@@ -4063,6 +4167,12 @@ void nbgl_useCaseStaticReviewLight(const nbgl_contentTagValueList_t *tagValueLis
 {
     uint8_t offset = 0;
 
+    if (!isTagValueListValid(tagValueList)) {
+        if (callback != NULL) {
+            callback(false);
+        }
+        return;
+    }
     reset_callbacks_and_context();
 
     // memorize context
@@ -4215,9 +4325,7 @@ void nbgl_useCaseAdvancedReview(nbgl_operationType_t              operationType,
         memcpy(&activeTipBox, tipBox, sizeof(activeTipBox));
     }
     // if no warning at all, it's a simple review
-    if ((warning == NULL)
-        || ((warning->predefinedSet == 0) && (warning->introDetails == NULL)
-            && (warning->reviewDetails == NULL) && (warning->prelude == NULL))) {
+    if (isWarningEmpty(warning)) {
         useCaseReview(operationType,
                       tagValueList,
                       icon,
@@ -4319,6 +4427,12 @@ void nbgl_useCaseGenericReview(const nbgl_genericContents_t *contents,
                                const char                   *rejectText,
                                nbgl_callback_t               rejectCallback)
 {
+    if (!isGenericContentsValid(contents)) {
+        if (rejectCallback != NULL) {
+            rejectCallback();
+        }
+        return;
+    }
     reset_callbacks_and_context();
 
     // memorize context
@@ -4414,9 +4528,7 @@ void nbgl_useCaseAdvancedReviewStreamingStart(nbgl_operationType_t       operati
     reset_callbacks_and_context();
 
     // if no warning at all, it's a simple review
-    if ((warning == NULL)
-        || ((warning->predefinedSet == 0) && (warning->introDetails == NULL)
-            && (warning->reviewDetails == NULL) && (warning->prelude == NULL))) {
+    if (isWarningEmpty(warning)) {
         useCaseReviewStreamingStart(
             operationType, icon, reviewTitle, reviewSubTitle, choiceCallback, true);
         return;
@@ -4468,6 +4580,12 @@ void nbgl_useCaseReviewStreamingContinueExt(const nbgl_contentTagValueList_t *ta
                                             nbgl_choiceCallback_t             choiceCallback,
                                             nbgl_callback_t                   skipCallback)
 {
+    if (!isTagValueListValid(tagValueList)) {
+        if (choiceCallback != NULL) {
+            choiceCallback(false);
+        }
+        return;
+    }
     // Should follow a call to nbgl_useCaseReviewStreamingStart
     // Keep the shared context set up by the streaming start.
     memset(&genericContext, 0, offsetof(GenericContext_t, sharedCtx));
@@ -4574,6 +4692,12 @@ void nbgl_useCaseAddressConfirmationExt(const char                       *addres
                                         nbgl_choiceCallback_t             callback,
                                         const nbgl_contentTagValueList_t *tagValueList)
 {
+    if (!isTagValueListValid(tagValueList)) {
+        if (callback != NULL) {
+            callback(false);
+        }
+        return;
+    }
     reset_callbacks_and_context();
     memset(&addressConfirmationContext, 0, sizeof(addressConfirmationContext));
 
@@ -4624,6 +4748,12 @@ void nbgl_useCaseAddressReview(const char                       *address,
                                const char                       *reviewSubTitle,
                                nbgl_choiceCallback_t             choiceCallback)
 {
+    if (!isTagValueListValid(additionalTagValueList)) {
+        if (choiceCallback != NULL) {
+            choiceCallback(false);
+        }
+        return;
+    }
     reset_callbacks_and_context();
 
     // release a potential modal

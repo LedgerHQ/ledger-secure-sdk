@@ -10,6 +10,7 @@
 #include <string.h>
 #include "nbgl_debug.h"
 #include "nbgl_page.h"
+#include "nbgl_layout_internal.h"
 #include "glyphs.h"
 #include "os_pic.h"
 
@@ -28,6 +29,24 @@
 /**********************
  *  STATIC PROTOTYPES
  **********************/
+// The choice buttons of a layout share a single token, both buttons being only distinguished by
+// their index. Rebind the bottom one (index 1) to the given token, so that it can never be
+// reported with the token of the top one.
+static void setChoiceButtonsBottomToken(nbgl_layout_t *layout, uint8_t token)
+{
+    nbgl_layoutInternal_t *layoutInt = (nbgl_layoutInternal_t *) layout;
+
+    if (layoutInt == NULL) {
+        return;
+    }
+    for (uint8_t i = 0; i < layoutInt->nbUsedCallbackObjs; i++) {
+        layoutObj_t *layoutObj = &layoutInt->callbackObjPool[i];
+        if ((layoutObj->obj != NULL) && (layoutObj->obj->touchId == CHOICE_2_ID)) {
+            layoutObj->token = token;
+        }
+    }
+}
+
 static void addEmptyHeader(nbgl_layout_t *layout, uint16_t height)
 {
     nbgl_layoutHeader_t headerDesc
@@ -452,6 +471,8 @@ nbgl_page_t *nbgl_pageDrawConfirmation(nbgl_layoutTouchCallback_t               
 
     addEmptyHeader(layout, MEDIUM_CENTERING_HEADER);
     nbgl_layoutAddChoiceButtons(layout, &buttonsInfo);
+    // the cancel button shall use its own token, not the confirmation one
+    setChoiceButtonsBottomToken(layout, info->cancelToken);
 
     nbgl_layoutAddCenteredInfo(layout, &info->centeredInfo);
 

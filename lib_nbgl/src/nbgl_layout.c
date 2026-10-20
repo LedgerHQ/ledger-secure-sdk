@@ -2122,6 +2122,12 @@ int nbgl_layoutAddTagValueList(nbgl_layout_t *layout, const nbgl_layoutTagValueL
         LOG_WARN(LAYOUT_LOGGER, "nbgl_layoutAddTagValueList(): pairs and callback are both NULL\n");
         return -1;
     }
+    // with callback, all pair indexes (from startIndex) must fit in uint8_t
+    if ((list->pairs == NULL)
+        && (((uint16_t) list->startIndex + list->nbPairs) > (UINT8_MAX + 1))) {
+        LOG_WARN(LAYOUT_LOGGER, "nbgl_layoutAddTagValueList(): pair indexes overflow\n");
+        return -1;
+    }
 
     for (i = 0; i < list->nbPairs; i++) {
         const nbgl_layoutTagValue_t *pair;
