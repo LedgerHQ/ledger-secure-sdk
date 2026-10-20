@@ -6,6 +6,13 @@ include(CTest)
 enable_testing()
 set(LEDGER_UT_DIR ${CMAKE_CURRENT_LIST_DIR})
 
+# App sources, ../src by default: set LEDGER_UT_APP_SRC_DIR before ledger_unit_tests_init() to change it
+if(NOT DEFINED LEDGER_UT_APP_SRC_DIR)
+    set(LEDGER_UT_APP_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../src)
+endif()
+
+option(LEDGER_UT_SANITIZERS "Build the test executables with ASan and UBSan" ON)
+
 #######################################################################
 #                    include defines and includes                     #
 #######################################################################
@@ -69,6 +76,15 @@ macro(ledger_unit_tests_init)
 
     add_compile_definitions(TEST)
     add_compile_options("-DPRINTF(...)=")
+
+    if(NOT TARGET generate_coverage)
+        add_custom_target(generate_coverage
+            COMMAND ${LEDGER_UT_DIR}/gen_coverage.sh ${LEDGER_UT_APP_SRC_DIR}
+            WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+            COMMENT "Generating coverage report"
+            VERBATIM
+        )
+    endif()
 endmacro()
 
 #######################################################################
@@ -76,7 +92,7 @@ endmacro()
 #######################################################################
 macro(ledger_unit_tests_find_sources)
     # Build all app sources except main to have a relevant overall coverage.
-    file(GLOB_RECURSE APP_SOURCES CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/../src/*.c)
+    file(GLOB_RECURSE APP_SOURCES CONFIGURE_DEPENDS ${LEDGER_UT_APP_SRC_DIR}/*.c)
     list(FILTER APP_SOURCES EXCLUDE REGEX "/(app_)?main\\.c$")
 endmacro()
 
@@ -105,8 +121,8 @@ set_property(GLOBAL PROPERTY CMOCK_MOCKED_HEADERS "")
 #       MOCK_HEADERS    ${SDK_DIR}/include/os.h      # headers to be mocked (optional)
 #       INCLUDE_DIRS    ../src                       # extra -I paths (optional)
 #       COMPILE_DEFS    TARGET_NANOX APPNAME="App"   # extra -D flags  (optional)
-#       COMPILE_OPTIONS -Wno-comment -fsanitize=...  # extra compiler flags (optional)
-#       LINK_OPTIONS    -fsanitize=...               # extra linker flags  (optional)
+#       COMPILE_OPTIONS -Wno-comment                 # extra compiler flags (optional)
+#       LINK_OPTIONS    -Wl,--wrap=foo               # extra linker flags  (optional)
 #   )
 #######################################################################
 function(ledger_unit_tests_add_test)
@@ -127,10 +143,20 @@ function(ledger_unit_tests_add_test)
                OR ${_header} IS_NEWER_THAN ${_mock_c}
                OR ${_cmock_config} IS_NEWER_THAN ${_mock_c})
                 message(STATUS "CMock: generating Mock${_basename}")
+                # CMock cuts PLENGTH() annotations holding parentheses: mock a copy without them
+                set(_mock_input ${CMAKE_CURRENT_BINARY_DIR}/mock_headers/${_basename}.h)
+                file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/mock_headers)
+                execute_process(
+                    COMMAND ${RUBY_EXECUTABLE} -e "s = File.binread(ARGV[0]).gsub(/PLENGTH\\s*(\\((?:[^()]|\\g<-1>)*\\))/, ''); abort(\"unbalanced PLENGTH() in #{ARGV[0]}\") if s =~ /\\bPLENGTH\\s*\\(/; File.binwrite(ARGV[1], s)"
+                            ${_header} ${_mock_input}
+                    RESULT_VARIABLE _res)
+                if(NOT _res EQUAL 0)
+                    message(FATAL_ERROR "CMock: cannot strip PLENGTH() from ${_header}")
+                endif()
                 execute_process(
                     COMMAND ${RUBY_EXECUTABLE} ${CMOCK_DIR}/lib/cmock.rb
                             -o${_cmock_config}
-                            ${_header}
+                            ${_mock_input}
                     RESULT_VARIABLE _res OUTPUT_QUIET)
                 if(NOT _res EQUAL 0)
                     message(FATAL_ERROR "CMock failed on ${_header}")
@@ -156,6 +182,12 @@ function(ledger_unit_tests_add_test)
         ${CMOCK_DIR}/src
         ${ARG_INCLUDE_DIRS})
 
+    if(LEDGER_UT_SANITIZERS)
+        target_compile_options(${ARG_NAME} PRIVATE
+            -fsanitize=address,undefined -fno-sanitize-recover=undefined -fno-omit-frame-pointer)
+        target_link_options(${ARG_NAME} PRIVATE -fsanitize=address,undefined)
+    endif()
+
     if(ARG_COMPILE_DEFS)
         target_compile_definitions(${ARG_NAME} PRIVATE ${ARG_COMPILE_DEFS})
     endif()
@@ -171,13 +203,3 @@ function(ledger_unit_tests_add_test)
     # register test
     add_test(NAME ${ARG_NAME} COMMAND ${ARG_NAME})
 endfunction()
-
-#######################################################################
-#                           custom targets                            #
-#######################################################################
-add_custom_target(generate_coverage
-    COMMAND ${LEDGER_UT_DIR}/gen_coverage.sh ${CMAKE_SOURCE_DIR}/../src
-    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-    COMMENT "Generating coverage report"
-    VERBATIM
-)
