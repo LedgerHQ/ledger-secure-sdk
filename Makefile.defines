@@ -192,6 +192,8 @@ DEFINES += HAVE_SE_TOUCH
 DEFINES += NBGL_PAGE
 DEFINES += NBGL_USE_CASE
 DEFINES += SCREEN_SIZE_WALLET
+# No app Home page on Apollo: nbgl_useCaseHomeAndSettings draws an empty page
+DEFINES += NBGL_NO_HOME
 endif # TARGET_APOLLO
 
 ifeq ($(TARGET_NAME),$(filter $(TARGET_NAME),TARGET_APEX_P TARGET_APEX_M))
