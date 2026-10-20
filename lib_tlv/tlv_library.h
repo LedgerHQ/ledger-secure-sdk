@@ -205,6 +205,11 @@ bool get_uint32_t_from_tlv_data(const tlv_data_t *data, uint32_t *value);
 bool get_uint16_t_from_tlv_data(const tlv_data_t *data, uint16_t *value);
 bool get_uint8_t_from_tlv_data(const tlv_data_t *data, uint8_t *value);
 
+bool get_int64_from_tlv_data(const tlv_data_t *data, int64_t *value);
+bool get_int32_from_tlv_data(const tlv_data_t *data, int32_t *value);
+bool get_int16_from_tlv_data(const tlv_data_t *data, int16_t *value);
+bool get_int8_from_tlv_data(const tlv_data_t *data, int8_t *value);
+
 bool get_bool_from_tlv_data(const tlv_data_t *data, bool *value);
 
 bool get_buffer_from_tlv_data(const tlv_data_t *data,

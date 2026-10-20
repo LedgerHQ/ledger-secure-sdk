@@ -156,6 +156,117 @@ bool get_uint8_t_from_tlv_data(const tlv_data_t *data, uint8_t *value)
 }
 
 /**
+ * @brief Extract an int64_t value from TLV data.
+ *
+ * The value is interpreted as a big-endian two's complement integer.
+ * The TLV length must be between 1 and 8 bytes; shorter payloads are sign-extended.
+ *
+ * @param[in]  data  TLV data to read from
+ * @param[out] value Parsed int64_t value
+ * @return true on success, false if @p data is NULL or the length is out of range
+ */
+bool get_int64_from_tlv_data(const tlv_data_t *data, int64_t *value)
+{
+    if (data == NULL || value == NULL) {
+        PRINTF("Received NULL parameter\n");
+        return false;
+    }
+    if (data->value.size == 0 || data->value.size > sizeof(int64_t)) {
+        PRINTF("Invalid length (%u bytes) for tag 0x%x (expected 1-%zu bytes)\n",
+               data->value.size,
+               data->tag,
+               sizeof(int64_t));
+        return false;
+    }
+
+    // Sign-extend before calling U8BE()
+    uint8_t buffer[sizeof(int64_t)];
+    memset(buffer, (data->value.ptr[0] & 0x80) ? 0xFF : 0x00, sizeof(buffer));
+    memcpy(buffer + (sizeof(buffer) - data->value.size), data->value.ptr, data->value.size);
+
+    *value = (int64_t) U8BE(buffer, 0);
+    return true;
+}
+
+/**
+ * @brief Extract an int32_t value from TLV data.
+ *
+ * Delegates to get_int64_from_tlv_data() and rejects values outside
+ * [`INT32_MIN`, `INT32_MAX`].
+ *
+ * @param[in]  data  TLV data to read from
+ * @param[out] value Parsed int32_t value
+ * @return true on success, false if @p data is NULL, the length is invalid,
+ *         or the value does not fit in int32_t
+ */
+bool get_int32_from_tlv_data(const tlv_data_t *data, int32_t *value)
+{
+    if (data == NULL || value == NULL) {
+        PRINTF("Received NULL parameter\n");
+        return false;
+    }
+    int64_t tmp_value;
+    if (!get_int64_from_tlv_data(data, &tmp_value) || (tmp_value < INT32_MIN)
+        || (tmp_value > INT32_MAX)) {
+        return false;
+    }
+    *value = (int32_t) tmp_value;
+    return true;
+}
+
+/**
+ * @brief Extract an int16_t value from TLV data.
+ *
+ * Delegates to get_int64_from_tlv_data() and rejects values outside
+ * [`INT16_MIN`, `INT16_MAX`].
+ *
+ * @param[in]  data  TLV data to read from
+ * @param[out] value Parsed int16_t value
+ * @return true on success, false if @p data is NULL, the length is invalid,
+ *         or the value does not fit in int16_t
+ */
+bool get_int16_from_tlv_data(const tlv_data_t *data, int16_t *value)
+{
+    if (data == NULL || value == NULL) {
+        PRINTF("Received NULL parameter\n");
+        return false;
+    }
+    int64_t tmp_value;
+    if (!get_int64_from_tlv_data(data, &tmp_value) || (tmp_value < INT16_MIN)
+        || (tmp_value > INT16_MAX)) {
+        return false;
+    }
+    *value = (int16_t) tmp_value;
+    return true;
+}
+
+/**
+ * @brief Extract an int8_t value from TLV data.
+ *
+ * Delegates to get_int64_from_tlv_data() and rejects values outside
+ * [`INT8_MIN`, `INT8_MAX`].
+ *
+ * @param[in]  data  TLV data to read from
+ * @param[out] value Parsed int8_t value
+ * @return true on success, false if @p data is NULL, the length is invalid,
+ *         or the value does not fit in int8_t
+ */
+bool get_int8_from_tlv_data(const tlv_data_t *data, int8_t *value)
+{
+    if (data == NULL || value == NULL) {
+        PRINTF("Received NULL parameter\n");
+        return false;
+    }
+    int64_t tmp_value;
+    if (!get_int64_from_tlv_data(data, &tmp_value) || (tmp_value < INT8_MIN)
+        || (tmp_value > INT8_MAX)) {
+        return false;
+    }
+    *value = (int8_t) tmp_value;
+    return true;
+}
+
+/**
  * @brief Extract a boolean value from TLV data.
  *
  * The TLV value must be exactly 1 byte with value 0 or 1.
