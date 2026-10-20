@@ -36,6 +36,9 @@ static void setChoiceButtonsBottomToken(nbgl_layout_t *layout, uint8_t token)
 {
     nbgl_layoutInternal_t *layoutInt = (nbgl_layoutInternal_t *) layout;
 
+    if (layoutInt == NULL) {
+        return;
+    }
     for (uint8_t i = 0; i < layoutInt->nbUsedCallbackObjs; i++) {
         layoutObj_t *layoutObj = &layoutInt->callbackObjPool[i];
         if ((layoutObj->obj != NULL) && (layoutObj->obj->touchId == CHOICE_2_ID)) {
