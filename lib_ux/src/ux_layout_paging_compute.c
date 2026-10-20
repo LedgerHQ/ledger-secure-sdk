@@ -71,8 +71,16 @@ unsigned int ux_layout_paging_compute(const char               *text_to_split,
                     len = last_len_ok;
                 }
                 // don't split an UTF-8 sequence
-                while (len > 1 && ((unsigned char) start[len] & 0xC0) == 0x80) {
+                while (len > 0 && ((unsigned char) start[len] & 0xC0) == 0x80) {
                     len--;
+                }
+                if (len == 0) {
+                    // keep the first character whole to guarantee forward progress
+                    len = 1;
+                    while (start + len < end && len < (sizeof(G_ux.string_buffer) - 1)
+                           && ((unsigned char) start[len] & 0xC0) == 0x80) {
+                        len++;
+                    }
                 }
                 break;
             }
