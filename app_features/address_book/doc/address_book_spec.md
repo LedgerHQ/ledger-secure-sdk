@@ -227,13 +227,14 @@ The tag `HMAC_PROOF` is also used by Ledger Account commands (single HMAC, same 
 
 #### Ledger Account HMAC message
 
-**HMAC_PROOF** covers the account name and network. Used by Register Ledger Account (computed), Edit Ledger Account (verified then re-computed), and Provide Ledger Account Contact (verified).
+**HMAC_PROOF** covers the account name, the derivation path and the network. Used by Register Ledger Account (computed), Edit Ledger Account (verified then re-computed), and Provide Ledger Account Contact (verified).
 
 ```text
-message = name_len(1) | account_name | family(1) [ | chain_id(8) ]
+message = name_len(1) | account_name | depth(1) | indices(4 each, big-endian) | family(1) [ | chain_id(8) ]
 ```
 
 > `chain_id` is included only when `BLOCKCHAIN_FAMILY = 1` (Ethereum).
+> `depth | indices` is the `DERIVATION_PATH` payload: a proof is only valid for the path it was registered with.
 
 ---
 
@@ -552,7 +553,7 @@ type(1) | hmac_proof(32)
 ```
 
 - `type` = `0x2f` (`TYPE_REGISTER_LEDGER_ACCOUNT`)
-- `hmac_proof` = HMAC-SHA256 over: `contact_name_len(1) | contact_name | family(1) [ | chain_id(8) ]`
+- `hmac_proof` = HMAC-SHA256 over: `contact_name_len(1) | contact_name | depth(1) | indices | family(1) [ | chain_id(8) ]`
 
   > `chain_id` is included in the HMAC message only when `BLOCKCHAIN_FAMILY = 1` (Ethereum).
 
@@ -611,7 +612,7 @@ type(1) | hmac_proof(32)
 ```
 
 - `type` = `0x30` (`TYPE_EDIT_LEDGER_ACCOUNT`)
-- `hmac_proof` = new HMAC-SHA256 over: `name_len(1) | new_name | family(1) [ | chain_id(8) ]`
+- `hmac_proof` = new HMAC-SHA256 over: `name_len(1) | new_name | depth(1) | indices | family(1) [ | chain_id(8) ]`
 
 ---
 
@@ -692,7 +693,7 @@ The device verifies the HMAC Proof of Registration, then derives the Ethereum ad
 | DERIVATION_PATH   | 0x69  | Yes       | 41 B     | BIP32 derivation path (same as at registration)                      |
 | CHAIN_ID          | 0x23  | Cond.     | 8 B      | Chain ID (mandatory for Ethereum)                                    |
 | BLOCKCHAIN_FAMILY | 0x51  | Yes       | 1 B      | Blockchain family                                                    |
-| HMAC_PROOF        | 0x29  | Yes       | 32 B     | `HMAC_PROOF` from Register Ledger Account — proves the account name  |
+| HMAC_PROOF        | 0x29  | Yes       | 32 B     | `HMAC_PROOF` from Register Ledger Account — binds name and path      |
 
 > **Payload size:** worst case (Ethereum, max path depth, max name) = **130 B** — fits in a single short APDU ✓
 
