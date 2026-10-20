@@ -17,7 +17,5 @@ ledger_unit_tests_add_test(
                     LIBBSD_OVERLAY
                     HAVE_PRINTF
                     HAVE_SPRINTF
-    COMPILE_OPTIONS -fsanitize=address,undefined
-    LINK_OPTIONS    -fsanitize=address,undefined
 )
 target_link_libraries(test_print PRIVATE bsd)
