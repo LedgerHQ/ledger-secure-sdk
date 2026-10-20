@@ -2536,6 +2536,33 @@ void nbgl_useCaseHomeAndSettings(const char                   *appName,
 }
 
 /**
+ * @brief Displays the Settings pages of the app (or its Info pages if it has no settings), with
+ * the content given to the last @ref nbgl_useCaseHomeAndSettings call. Quitting them leads back to
+ * the Home page.
+ * @note Only possible when the app is idle (Home page displayed), so that no other flow (review,
+ * status...) is interrupted.
+ *
+ * @param initPage page to start with (0 for the first setting page)
+ * @return true if displayed, false if the app is not idle
+ */
+bool nbgl_useCaseShowInfoAndSettings(uint8_t initPage)
+{
+    if (context.type != HOME_USE_CASE) {
+        return false;
+    }
+    if (context.home.settingContents != NULL) {
+        startUseCaseSettingsAtPage(initPage);
+    }
+    else if (context.home.infosList != NULL) {
+        startUseCaseInfo();
+    }
+    else {
+        return false;
+    }
+    return true;
+}
+
+/**
  * @brief Draws the settings pages of an app with automatic pagination depending on content
  *        to be displayed that is passed through settingContents and infosList
  *

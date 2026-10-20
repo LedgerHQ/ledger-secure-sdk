@@ -104,6 +104,36 @@
  */
 #define DEFAULT_APDU_INS_APP_EXIT 0xA7
 
+#if defined(NBGL_USE_CASE)
+/**
+ * @brief Instruction code with CLA = 0xB0 to display the Info & Settings
+ *        pages of the running application.
+ * @details NBGL applications only. The pages are displayed only when the
+ *          application is idle: Home page displayed, or empty page on
+ *          devices without app Home page (NBGL_NO_HOME, apollo). They
+ *          are given by the application to nbgl_useCaseHomeAndSettings.
+ *          On Nano, the Settings pages are displayed (Info pages if the
+ *          application has no settings).
+ *
+ * - Command APDU
+ * |FIELD |LENGTH |VALUE |DESCRIPTION       |
+ * |------|-------|------|------------------|
+ * |CLA   |0x01   |0xB0  |Instruction class |
+ * |INS   |0x01   |0x0A  |Instruction code  |
+ * |P1    |0x01   |0x00  |None              |
+ * |P2    |0x01   |0x00  |None              |
+ * |LC    |0x01   |0x00  |No data           |
+ *
+ * - Response APDU
+ * |DATA        |LENGTH | DESCRIPTION                                   |
+ * |------------|-------|-----------------------------------------------|
+ * |STATUS_WORD |0x02   | 0x9000 on success                             |
+ * |            |       | 0x6985 if the application is not idle         |
+ * |            |       | 0x6B00 if P1 or P2 is not 0                   |
+ */
+#define DEFAULT_APDU_INS_INFO_AND_SETTINGS 0x0A
+#endif  // NBGL_USE_CASE
+
 #if defined(HAVE_LEDGER_PKI)
 /**
  * @brief Instruction code with CLA = 0xB0 to load a certificate.

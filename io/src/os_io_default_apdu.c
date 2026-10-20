@@ -38,6 +38,11 @@
 #if defined(HAVE_ADDRESS_BOOK)
 #include "address_book.h"
 #endif
+#if defined(NBGL_USE_CASE) && !defined(HAVE_BOLOS)
+// Info & Settings of the app displayed on request (the only way without Home, NBGL_NO_HOME)
+#define HAVE_DEFAULT_APDU_INFO_AND_SETTINGS
+#include "nbgl_use_case.h"
+#endif  // NBGL_USE_CASE && !HAVE_BOLOS
 
 /* Private enumerations ------------------------------------------------------*/
 
@@ -305,6 +310,20 @@ bolos_err_t os_io_handle_default_apdu(uint8_t                  *buffer_in,
                     goto end;
                 }
                 break;
+
+#if defined(HAVE_DEFAULT_APDU_INFO_AND_SETTINGS)
+            case DEFAULT_APDU_INS_INFO_AND_SETTINGS:
+                if (buffer_in[APDU_OFF_P1] == 0 && buffer_in[APDU_OFF_P2] == 0) {
+                    *buffer_out_length = 0;
+                    // only when the app is idle, not to interrupt another flow
+                    err = nbgl_useCaseShowInfoAndSettings(0) ? SWO_SUCCESS
+                                                             : SWO_CONDITIONS_NOT_SATISFIED;
+                }
+                else {
+                    err = SWO_WRONG_P1_P2;
+                }
+                break;
+#endif  // HAVE_DEFAULT_APDU_INFO_AND_SETTINGS
 
 #if defined(HAVE_LEDGER_PKI)
             case DEFAULT_APDU_INS_LOAD_CERTIFICATE:
