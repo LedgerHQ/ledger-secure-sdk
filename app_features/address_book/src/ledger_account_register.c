@@ -236,6 +236,7 @@ static bool build_and_send_response(void)
 
     if (!address_book_compute_hmac_proof_ledger_account(
             (const char *) g_ab_payload.ledger_account.account_name,
+            &g_ab_payload.ledger_account.bip32_path,
             g_ab_payload.ledger_account.blockchain_family,
             g_ab_payload.ledger_account.chain_id,
             hmac_proof)) {
