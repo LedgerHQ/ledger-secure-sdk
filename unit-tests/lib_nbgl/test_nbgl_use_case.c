@@ -359,7 +359,12 @@ static nbgl_genericContents_t  contents;
 // index of the first pair to get with the callback (startIndex of the list)
 static uint8_t callbackBase;
 
-static void onReject(void) {}
+static int nb_rejects;
+
+static void onReject(void)
+{
+    nb_rejects++;
+}
 
 static int  nb_choices;
 static bool last_choice;
@@ -426,6 +431,7 @@ void setUp(void)
     layout_top_right_icon = NULL;
     nb_choices            = 0;
     last_choice           = false;
+    nb_rejects            = 0;
     callbackBase          = 0;
 
     memset(extensions, 0, sizeof(extensions));
@@ -566,6 +572,39 @@ void test_alias_shows_touched_pair_on_every_page_with_callback_base(void)
     for (uint8_t maxPairsInPage = 1; maxPairsInPage <= NB_PAIRS; maxPairsInPage++) {
         checkAllAliases(maxPairsInPage, true);
     }
+}
+
+void test_alias_shows_touched_pair_with_callback_base_at_uint8_limit(void)
+{
+    // the last pair is retrieved with callback(UINT8_MAX)
+    callbackBase = UINT8_MAX + 1 - NB_PAIRS;
+    checkAllAliases(NB_PAIRS, true);
+}
+
+void test_generic_review_is_rejected_on_callback_index_overflow(void)
+{
+    // the last pair would be retrieved with callback(UINT8_MAX + 1), wrapping to 0
+    callbackBase = UINT8_MAX + 2 - NB_PAIRS;
+    buildList(NB_PAIRS, true);
+    nbgl_useCaseGenericReview(&contents, "Reject", onReject);
+    TEST_ASSERT_EQUAL_INT(1, nb_rejects);
+    TEST_ASSERT_NULL(page_callback);
+}
+
+void test_review_is_rejected_on_callback_index_overflow(void)
+{
+    callbackBase = UINT8_MAX + 2 - NB_PAIRS;
+    buildList(NB_PAIRS, true);
+    nbgl_useCaseReview(TYPE_TRANSACTION,
+                       &content.content.tagValueConfirm.tagValueList,
+                       &C_Warning_64px,
+                       "Review",
+                       NULL,
+                       "Sign",
+                       onChoice);
+    TEST_ASSERT_EQUAL_INT(1, nb_choices);
+    TEST_ASSERT_FALSE(last_choice);
+    TEST_ASSERT_NULL(page_callback);
 }
 
 void test_alias_without_extension_shows_nothing(void)
@@ -888,6 +927,9 @@ int main(void)
     RUN_TEST(test_alias_shows_touched_pair_on_every_page);
     RUN_TEST(test_alias_shows_touched_pair_on_every_page_with_callback);
     RUN_TEST(test_alias_shows_touched_pair_on_every_page_with_callback_base);
+    RUN_TEST(test_alias_shows_touched_pair_with_callback_base_at_uint8_limit);
+    RUN_TEST(test_generic_review_is_rejected_on_callback_index_overflow);
+    RUN_TEST(test_review_is_rejected_on_callback_index_overflow);
     RUN_TEST(test_alias_without_extension_shows_nothing);
     RUN_TEST(test_alias_without_extension_shows_nothing_with_callback);
     RUN_TEST(test_review_spans_at_least_three_pages);

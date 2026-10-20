@@ -273,23 +273,75 @@ static void test_review_max_pairs_with_subtitle_displays_all_before_approve(void
 }
 
 // index of the first pair to get with the callback (startIndex of the list)
-#define CALLBACK_BASE 50
+static uint8_t callback_base;
 
 static nbgl_contentTagValue_t *get_pair(uint8_t pairIndex)
 {
-    TEST_ASSERT_GREATER_OR_EQUAL_UINT8(CALLBACK_BASE, pairIndex);
-    return &pairs[pairIndex - CALLBACK_BASE];
+    TEST_ASSERT_GREATER_OR_EQUAL_UINT8(callback_base, pairIndex);
+    return &pairs[pairIndex - callback_base];
+}
+
+static nbgl_contentTagValueList_t make_callback_list(uint8_t nbPairs, uint8_t startIndex)
+{
+    nbgl_contentTagValueList_t callbackList = make_tag_value_list(nbPairs);
+    callbackList.pairs                      = NULL;
+    callbackList.callback                   = get_pair;
+    callbackList.startIndex                 = startIndex;
+    callback_base                           = startIndex;
+    return callbackList;
 }
 
 static void test_review_with_callback_starts_at_start_index(void)
 {
-    list            = make_tag_value_list(5);
-    list.pairs      = NULL;
-    list.callback   = get_pair;
-    list.startIndex = CALLBACK_BASE;
+    list = make_callback_list(5, 50);
     nbgl_useCaseReview(TYPE_TRANSACTION, &list, &C_icon_warning, "Review", NULL, NULL, on_choice);
     TEST_ASSERT_EQUAL_INT(0, nb_choices);
     walk_to_approve_checking_pairs(5);
+}
+
+static void test_review_with_callback_up_to_uint8_limit_displays_all(void)
+{
+    // the last pair is retrieved with callback(UINT8_MAX)
+    list = make_callback_list(5, UINT8_MAX + 1 - 5);
+    nbgl_useCaseReview(TYPE_TRANSACTION, &list, &C_icon_warning, "Review", NULL, NULL, on_choice);
+    TEST_ASSERT_EQUAL_INT(0, nb_choices);
+    walk_to_approve_checking_pairs(5);
+}
+
+static void test_review_with_callback_index_overflow_is_rejected(void)
+{
+    // the last pair would be retrieved with callback(UINT8_MAX + 1), wrapping to 0
+    list = make_callback_list(5, UINT8_MAX + 2 - 5);
+    nbgl_useCaseReview(TYPE_TRANSACTION, &list, &C_icon_warning, "Review", NULL, NULL, on_choice);
+    assert_rejected_without_display();
+}
+
+static void test_address_review_with_callback_index_overflow_is_rejected(void)
+{
+    list = make_callback_list(5, UINT8_MAX + 2 - 5);
+    nbgl_useCaseAddressReview("0xADDRESS", &list, &C_icon_warning, "Verify", NULL, on_choice);
+    assert_rejected_without_display();
+}
+
+static void test_streaming_review_with_callback_index_overflow_is_rejected(void)
+{
+    list = make_callback_list(5, UINT8_MAX + 2 - 5);
+    nbgl_useCaseReviewStreamingContinue(&list, on_choice);
+    assert_rejected_without_display();
+}
+
+static void test_generic_review_with_callback_index_overflow_is_rejected(void)
+{
+    nbgl_content_t content                       = {0};
+    content.type                                 = TAG_VALUE_CONFIRM;
+    content.content.tagValueConfirm.tagValueList = make_callback_list(5, UINT8_MAX + 2 - 5);
+    nbgl_genericContents_t contents              = {0};
+    contents.contentsList                        = &content;
+    contents.nbContents                          = 1;
+
+    nbgl_useCaseGenericReview(&contents, "Reject", on_quit);
+    TEST_ASSERT_EQUAL_INT(0, nb_draws);
+    TEST_ASSERT_EQUAL_INT(1, nb_quits);
 }
 
 // ============================================================================
@@ -551,6 +603,11 @@ int main(void)
     RUN_TEST(test_review_max_pairs_displays_all_before_approve);
     RUN_TEST(test_review_max_pairs_with_subtitle_displays_all_before_approve);
     RUN_TEST(test_review_with_callback_starts_at_start_index);
+    RUN_TEST(test_review_with_callback_up_to_uint8_limit_displays_all);
+    RUN_TEST(test_review_with_callback_index_overflow_is_rejected);
+    RUN_TEST(test_address_review_with_callback_index_overflow_is_rejected);
+    RUN_TEST(test_streaming_review_with_callback_index_overflow_is_rejected);
+    RUN_TEST(test_generic_review_with_callback_index_overflow_is_rejected);
     RUN_TEST(test_address_review_overflow_is_rejected);
     RUN_TEST(test_address_review_first_overflowing_counts_are_rejected);
     RUN_TEST(test_address_review_max_pairs_displays_address_and_pairs_before_approve);

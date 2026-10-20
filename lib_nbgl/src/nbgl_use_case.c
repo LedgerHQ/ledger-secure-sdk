@@ -506,6 +506,14 @@ static const nbgl_contentTagValue_t *getTagValuePair(const nbgl_contentTagValueL
     return PIC(tagValueList->callback(tagValueList->startIndex + index));
 }
 
+// Helper to check that all pairs of a tag/value list retrieved with a callback have an index
+// fitting in uint8_t (from startIndex to startIndex + nbPairs - 1)
+static bool isTagValueListValid(const nbgl_contentTagValueList_t *tagValueList)
+{
+    return (tagValueList == NULL) || (tagValueList->pairs != NULL)
+           || (((uint16_t) tagValueList->startIndex + tagValueList->nbPairs) <= (UINT8_MAX + 1));
+}
+
 // Helper to retrieve the content inside a nbgl_genericContents_t using
 // either the contentsList or using the contentGetterCallback
 static const nbgl_content_t *getContentAtIdx(const nbgl_genericContents_t *genericContents,
@@ -527,6 +535,27 @@ static const nbgl_content_t *getContentAtIdx(const nbgl_genericContents_t *gener
         // Retrieve content through list
         return PIC(&genericContents->contentsList[contentIdx]);
     }
+}
+
+// Helper to check that all tag/value lists in a nbgl_genericContents_t are valid
+static bool isGenericContentsValid(const nbgl_genericContents_t *genericContents)
+{
+    nbgl_content_t        content = {0};
+    const nbgl_content_t *p_content;
+
+    for (int i = 0; i < genericContents->nbContents; i++) {
+        p_content = getContentAtIdx(genericContents, i, &content);
+        if (p_content == NULL) {
+            return false;
+        }
+        if (((p_content->type == TAG_VALUE_LIST)
+             && !isTagValueListValid(&p_content->content.tagValueList))
+            || ((p_content->type == TAG_VALUE_CONFIRM)
+                && !isTagValueListValid(&p_content->content.tagValueConfirm.tagValueList))) {
+            return false;
+        }
+    }
+    return true;
 }
 
 static void prepareNavInfo(bool isReview, uint8_t nbPages, const char *rejectText)
@@ -3002,6 +3031,12 @@ static void useCaseReview(nbgl_operationType_t              operationType,
                           bool                              isLight,
                           bool                              playNotifSound)
 {
+    if (!isTagValueListValid(tagValueList)) {
+        if (choiceCallback != NULL) {
+            choiceCallback(false);
+        }
+        return;
+    }
     bundleNavContext.review.operationType  = operationType;
     bundleNavContext.review.choiceCallback = choiceCallback;
 
@@ -4128,6 +4163,12 @@ void nbgl_useCaseStaticReview(const nbgl_contentTagValueList_t *tagValueList,
 {
     uint8_t offset = 0;
 
+    if (!isTagValueListValid(tagValueList)) {
+        if (callback != NULL) {
+            callback(false);
+        }
+        return;
+    }
     reset_callbacks_and_context();
 
     // memorize context
@@ -4184,6 +4225,12 @@ void nbgl_useCaseStaticReviewLight(const nbgl_contentTagValueList_t *tagValueLis
 {
     uint8_t offset = 0;
 
+    if (!isTagValueListValid(tagValueList)) {
+        if (callback != NULL) {
+            callback(false);
+        }
+        return;
+    }
     reset_callbacks_and_context();
 
     // memorize context
@@ -4438,6 +4485,12 @@ void nbgl_useCaseGenericReview(const nbgl_genericContents_t *contents,
                                const char                   *rejectText,
                                nbgl_callback_t               rejectCallback)
 {
+    if (!isGenericContentsValid(contents)) {
+        if (rejectCallback != NULL) {
+            rejectCallback();
+        }
+        return;
+    }
     reset_callbacks_and_context();
 
     // memorize context
@@ -4585,6 +4638,12 @@ void nbgl_useCaseReviewStreamingContinueExt(const nbgl_contentTagValueList_t *ta
                                             nbgl_choiceCallback_t             choiceCallback,
                                             nbgl_callback_t                   skipCallback)
 {
+    if (!isTagValueListValid(tagValueList)) {
+        if (choiceCallback != NULL) {
+            choiceCallback(false);
+        }
+        return;
+    }
     // Should follow a call to nbgl_useCaseReviewStreamingStart
     // Keep the shared context set up by the streaming start.
     memset(&genericContext, 0, offsetof(GenericContext_t, sharedCtx));
@@ -4691,6 +4750,12 @@ void nbgl_useCaseAddressConfirmationExt(const char                       *addres
                                         nbgl_choiceCallback_t             callback,
                                         const nbgl_contentTagValueList_t *tagValueList)
 {
+    if (!isTagValueListValid(tagValueList)) {
+        if (callback != NULL) {
+            callback(false);
+        }
+        return;
+    }
     reset_callbacks_and_context();
     memset(&addressConfirmationContext, 0, sizeof(addressConfirmationContext));
 
@@ -4741,6 +4806,12 @@ void nbgl_useCaseAddressReview(const char                       *address,
                                const char                       *reviewSubTitle,
                                nbgl_choiceCallback_t             choiceCallback)
 {
+    if (!isTagValueListValid(additionalTagValueList)) {
+        if (choiceCallback != NULL) {
+            choiceCallback(false);
+        }
+        return;
+    }
     reset_callbacks_and_context();
 
     // release a potential modal
