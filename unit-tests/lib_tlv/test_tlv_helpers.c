@@ -160,6 +160,84 @@ void test_unsigned_tlv_integer_readers(void)
     }
 }
 
+void test_signed_tlv_integer_readers(void)
+{
+    typedef struct {
+        uint8_t input[9];
+        size_t  input_size;
+        int64_t expected;
+        bool    expect_success_i64;
+        bool    expect_success_i32;
+        bool    expect_success_i16;
+        bool    expect_success_i8;
+    } test_vector_t;
+
+    test_vector_t vectors[] = {
+        {{0x00},                                           1, 0,           true,  true,  true,  true },
+        {{0x7F},                                           1, 127,         true,  true,  true,  true },
+        {{0x80},                                           1, -128,        true,  true,  true,  true },
+        {{0xFF},                                           1, -1,          true,  true,  true,  true },
+        {{0x00, 0x80},                                     2, 128,         true,  true,  true,  false},
+        {{0xFF, 0x7F},                                     2, -129,        true,  true,  true,  false},
+        {{0xFF, 0xFF},                                     2, -1,          true,  true,  true,  true },
+        {{0x80, 0x00},                                     2, INT16_MIN,   true,  true,  true,  false},
+        {{0x00, 0x00, 0x80, 0x00},                         4, 32768,       true,  true,  false, false},
+        {{0x80, 0x00, 0x00, 0x00},                         4, INT32_MIN,   true,  true,  false, false},
+        {{0x7F, 0xFF, 0xFF, 0xFF},                         4, INT32_MAX,   true,  true,  false, false},
+        {{0xFF, 0x7F, 0xFF, 0xFF, 0xFF},                   5, -2147483649, true,  false, false, false},
+        {{0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}, 8, INT64_MIN,   true,  false, false, false},
+        {{0x7F, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF}, 8, INT64_MAX,   true,  false, false, false},
+        {{0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFE}, 8, -2,          true,  true,  true,  true },
+        {{0x00},                                           0, 0,           false, false, false, false},
+        {{0x00},                                           9, 0,           false, false, false, false},
+    };
+
+    for (size_t i = 0; i < sizeof(vectors) / sizeof(vectors[0]); i++) {
+        tlv_data_t tlv_data = {
+            .tag   = 0xAB,
+            .value = {.ptr = vectors[i].input, .size = vectors[i].input_size, .offset = 0},
+        };
+
+        int64_t value_64;
+        TEST_ASSERT_EQUAL_INT(get_int64_from_tlv_data(&tlv_data, &value_64),
+                              vectors[i].expect_success_i64);
+        if (vectors[i].expect_success_i64) {
+            TEST_ASSERT_EQUAL_INT64(vectors[i].expected, value_64);
+        }
+
+        int32_t value_32;
+        TEST_ASSERT_EQUAL_INT(get_int32_from_tlv_data(&tlv_data, &value_32),
+                              vectors[i].expect_success_i32);
+        if (vectors[i].expect_success_i32) {
+            TEST_ASSERT_EQUAL_INT32(vectors[i].expected, value_32);
+        }
+
+        int16_t value_16;
+        TEST_ASSERT_EQUAL_INT(get_int16_from_tlv_data(&tlv_data, &value_16),
+                              vectors[i].expect_success_i16);
+        if (vectors[i].expect_success_i16) {
+            TEST_ASSERT_EQUAL_INT16(vectors[i].expected, value_16);
+        }
+
+        int8_t value_8;
+        TEST_ASSERT_EQUAL_INT(get_int8_from_tlv_data(&tlv_data, &value_8),
+                              vectors[i].expect_success_i8);
+        if (vectors[i].expect_success_i8) {
+            TEST_ASSERT_EQUAL_INT8(vectors[i].expected, value_8);
+        }
+
+        TEST_ASSERT_FALSE(get_int64_from_tlv_data(&tlv_data, NULL));
+        TEST_ASSERT_FALSE(get_int32_from_tlv_data(&tlv_data, NULL));
+        TEST_ASSERT_FALSE(get_int16_from_tlv_data(&tlv_data, NULL));
+        TEST_ASSERT_FALSE(get_int8_from_tlv_data(&tlv_data, NULL));
+    }
+
+    TEST_ASSERT_FALSE(get_int64_from_tlv_data(NULL, NULL));
+    TEST_ASSERT_FALSE(get_int32_from_tlv_data(NULL, NULL));
+    TEST_ASSERT_FALSE(get_int16_from_tlv_data(NULL, NULL));
+    TEST_ASSERT_FALSE(get_int8_from_tlv_data(NULL, NULL));
+}
+
 void test_unsigned_tlv_buffer_readers(void)
 {
     uint8_t    test_data[] = {0xAB, 0x00, 0x03, 0xDE, 0xAD, 0xBE};
@@ -326,6 +404,7 @@ int main(void)
 {
     UNITY_BEGIN();
     RUN_TEST(test_unsigned_tlv_integer_readers);
+    RUN_TEST(test_signed_tlv_integer_readers);
     RUN_TEST(test_unsigned_tlv_buffer_readers);
     RUN_TEST(test_unsigned_tlv_string_readers);
     RUN_TEST(test_tlv_enforce_u8_value);
