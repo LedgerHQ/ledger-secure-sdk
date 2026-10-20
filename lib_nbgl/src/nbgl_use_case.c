@@ -1731,10 +1731,11 @@ static void modalLayoutTouchCallback(int token, uint8_t index)
                 }
             }
         }
-        else if (sharedContext.usage == SHARE_CTX_CHOICE_WITH_DETAILS) {
+        else if ((sharedContext.usage == SHARE_CTX_CHOICE_WITH_DETAILS)
+                 && (choiceWithDetailsCtx.details->barList.details != NULL)) {
             const nbgl_warningDetails_t *details
                 = &choiceWithDetailsCtx.details->barList.details[token - FIRST_WARN_BAR_TOKEN];
-            if (details->title != NO_TYPE_WARNING) {
+            if (details->type != NO_TYPE_WARNING) {
                 // dismiss modal before creating a new one
                 nbgl_layoutRelease(choiceWithDetailsCtx.modalLayout);
                 choiceWithDetailsCtx.level = 2;
@@ -2537,6 +2538,9 @@ static nbgl_layout_t *displayModalDetails(const nbgl_warningDetails_t *details, 
 
     layout                      = nbgl_layoutGet(&layoutDescription);
     headerDesc.backAndText.text = details->title;
+    if (details->type == LEFT_CONTENT_WARNING) {
+        headerDesc.separationLine = false;
+    }
     nbgl_layoutAddHeader(layout, &headerDesc);
     if (details->type == BAR_LIST_WARNING) {
         // if more than one warning, so use a list of touchable bars
@@ -2570,6 +2574,9 @@ static nbgl_layout_t *displayModalDetails(const nbgl_warningDetails_t *details, 
         // display a centered info
         nbgl_layoutAddContentCenter(layout, &details->centeredInfo);
         headerDesc.separationLine = false;
+    }
+    else if (details->type == LEFT_CONTENT_WARNING) {
+        nbgl_layoutAddLeftContent(layout, &details->leftContent);
     }
     nbgl_layoutDraw(layout);
     nbgl_refresh();
