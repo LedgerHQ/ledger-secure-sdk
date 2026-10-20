@@ -2543,7 +2543,7 @@ void nbgl_useCaseHomeAndSettings(const char                   *appName,
  * status...) is interrupted.
  *
  * @param initPage page to start with (0 for the first setting page)
- * @return true if displayed, false if the app is not idle
+ * @return true if displayed, false if the app is not idle or has neither settings nor infos
  */
 bool nbgl_useCaseShowInfoAndSettings(uint8_t initPage)
 {

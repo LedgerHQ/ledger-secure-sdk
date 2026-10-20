@@ -3646,12 +3646,14 @@ void nbgl_useCaseHomeAndSettings(
  * displayed), so that no other flow (review, status, modal...) is interrupted.
  *
  * @param initPage page to start with (0 for the first setting page)
- * @return true if displayed, false if the app is not idle
+ * @return true if displayed, false if the app is not idle or has neither settings nor infos
  */
 bool nbgl_useCaseShowInfoAndSettings(uint8_t initPage)
 {
     if ((genericContext.type != USE_CASE_IDLE) || (modalPageContext != NULL)
-        || (bundleNavContext.homeAndSettings.appName == NULL)) {
+        || (bundleNavContext.homeAndSettings.appName == NULL)
+        || ((bundleNavContext.homeAndSettings.settingContents == NULL)
+            && (bundleNavContext.homeAndSettings.infosList == NULL))) {
         return false;
     }
     bundleNavStartSettingsAtPage(initPage);

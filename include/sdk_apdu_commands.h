@@ -128,7 +128,8 @@
  * |DATA        |LENGTH | DESCRIPTION                                   |
  * |------------|-------|-----------------------------------------------|
  * |STATUS_WORD |0x02   | 0x9000 on success                             |
- * |            |       | 0x6985 if the application is not idle         |
+ * |            |       | 0x6985 if the application is not idle or has  |
+ * |            |       | neither settings nor infos                    |
  * |            |       | 0x6B00 if P1 or P2 is not 0                   |
  */
 #define DEFAULT_APDU_INS_INFO_AND_SETTINGS 0x0A

@@ -207,6 +207,11 @@ void nbgl_useCaseHomeAndSettings(const char                *appName __attribute_
 {
 }
 
+bool nbgl_useCaseShowInfoAndSettings(uint8_t initPage __attribute__((unused)))
+{
+    return _nbgl_approve();
+}
+
 void nbgl_useCaseGenericReview(const nbgl_genericContents_t *contents __attribute__((unused)),
                                const char                   *rejectText __attribute__((unused)),
                                nbgl_callback_t               rejectCallback __attribute__((unused)))
