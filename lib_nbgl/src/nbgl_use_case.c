@@ -193,7 +193,10 @@ typedef struct {
 
 typedef enum {
     USE_CASE_GENERIC = 0,
-    USE_CASE_SPINNER
+    USE_CASE_SPINNER,
+#ifdef NBGL_NO_HOME
+    USE_CASE_IDLE  // No home page for apollo
+#endif
 } GenericContextType_t;
 
 typedef struct {
@@ -392,9 +395,11 @@ static void displayAddressQRCode(void);
 static void modalLayoutTouchCallback(int token, uint8_t index);
 static void displaySkipWarning(void);
 
+#ifndef NBGL_NO_HOME
 static void bundleNavStartHome(void);
 static void bundleNavStartSettingsAtPage(uint8_t initSettingPage);
 static void bundleNavStartSettings(void);
+#endif  // NBGL_NO_HOME
 
 static void           bundleNavReviewStreamingChoice(bool confirm);
 static nbgl_layout_t *displayModalDetails(const nbgl_warningDetails_t *details, uint8_t token);
@@ -2432,6 +2437,7 @@ static void prepareAddressConfirmationPages(const char                       *ad
     }
 }
 
+#ifndef NBGL_NO_HOME
 static void bundleNavStartHome(void)
 {
     nbgl_homeAndSettingsContext_t *context = &bundleNavContext.homeAndSettings;
@@ -2460,6 +2466,20 @@ static void bundleNavStartSettings(void)
 {
     bundleNavStartSettingsAtPage(0);
 }
+#else   // NBGL_NO_HOME
+// No Home page: the app draws an empty page and waits for APDUs
+static void bundleNavStartIdle(void)
+{
+    nbgl_layoutDescription_t layoutDescription = {0};
+
+    reset_callbacks_and_context();
+    genericContext.type = USE_CASE_IDLE;
+
+    genericContext.backgroundLayout = nbgl_layoutGet(&layoutDescription);
+    nbgl_layoutDraw(genericContext.backgroundLayout);
+    nbgl_refreshSpecial(FULL_COLOR_PARTIAL_REFRESH);
+}
+#endif  // NBGL_NO_HOME
 
 static void bundleNavReviewConfirmRejection(void)
 {
@@ -3559,6 +3579,9 @@ void nbgl_useCaseGenericConfiguration(const char                   *title,
  * @param action if not NULL, info used for an action button (on top of "Quit
  * App" button/footer)
  * @param quitCallback callback called when quit button is touched
+ *
+ * @note With NBGL_NO_HOME (Apollo), nothing is displayed but an empty page, whatever
+ * initSettingPage: the given content is only memorized.
  */
 void nbgl_useCaseHomeAndSettings(
     const char                *appName,
@@ -3588,12 +3611,19 @@ void nbgl_useCaseHomeAndSettings(
     }
     context->quitCallback = quitCallback;
 
+#ifdef NBGL_NO_HOME
+    // no Home page: the content is kept for the Info & Settings request,
+    // an empty page is drawn whatever initSettingPage
+    UNUSED(initSettingPage);
+    bundleNavStartIdle();
+#else   // NBGL_NO_HOME
     if (initSettingPage != INIT_HOME_PAGE) {
         bundleNavStartSettingsAtPage(initSettingPage);
     }
     else {
         bundleNavStartHome();
     }
+#endif  // NBGL_NO_HOME
 }
 
 /**
