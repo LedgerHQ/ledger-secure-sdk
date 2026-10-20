@@ -52,8 +52,12 @@
 /** Buffer size for HMAC_PROOF message: gid(32) | name_len(1) | name(max 32) */
 #define HMAC_PROOF_MSG_SIZE (GID_SIZE + 1U + (CONTACT_NAME_LENGTH - 1U))
 
-/** Buffer size for Ledger Account message: name_len(1) | name(max 32) | family(1) | chain_id(8) */
-#define HMAC_LEDGER_MSG_SIZE (1U + (ACCOUNT_NAME_LENGTH - 1U) + 1U + 8U)
+/**
+ * Buffer size for Ledger Account message:
+ * name_len(1) | name(max 32) | depth(1) | indices(4 each, max 10) | family(1) | chain_id(8)
+ */
+#define HMAC_LEDGER_MSG_SIZE \
+    (1U + (ACCOUNT_NAME_LENGTH - 1U) + 1U + (MAX_BIP32_PATH * 4U) + 1U + 8U)
 
 /* Private functions ---------------------------------------------------------*/
 
@@ -392,18 +396,61 @@ end:
 #ifdef HAVE_ADDRESS_BOOK_LEDGER_ACCOUNT
 
 /**
+ * @brief Serialize the Ledger Account HMAC message.
+ *
+ * Builds: name_len(1) | name | depth(1) | indices(4 each, big-endian) | family(1) [| chain_id(8)]
+ *
+ * @param[out] msg         Output buffer
+ * @param[in]  msg_size    Size of @p msg in bytes
+ * @param[in]  name        Account name (null-terminated)
+ * @param[in]  bip32_path  Derivation path of the account
+ * @param[in]  family      Blockchain family
+ * @param[in]  chain_id    Chain ID, appended only for FAMILY_ETHEREUM
+ * @return Number of bytes written to msg, or SIZE_MAX on error
+ */
+static size_t serialize_ledger_account_msg(uint8_t            *msg,
+                                           size_t              msg_size,
+                                           const char         *name,
+                                           const path_bip32_t *bip32_path,
+                                           blockchain_family_e family,
+                                           uint64_t            chain_id)
+{
+    size_t offset = serialize_hmac_msg(msg, msg_size, NULL, name, NULL, 0, false, 0, 0);
+    size_t tail_len;
+
+    if ((offset == SIZE_MAX) || (bip32_path == NULL) || (bip32_path->length == 0)
+        || (bip32_path->length > MAX_BIP32_PATH)
+        || (offset + 1U + (bip32_path->length * 4U) > msg_size)) {
+        return SIZE_MAX;
+    }
+    msg[offset++] = bip32_path->length;
+    for (uint8_t i = 0; i < bip32_path->length; i++) {
+        U4BE_ENCODE(msg, offset, bip32_path->path[i]);
+        offset += 4U;
+    }
+    tail_len = serialize_hmac_msg(
+        &msg[offset], msg_size - offset, NULL, NULL, NULL, 0, true, family, chain_id);
+    if (tail_len == SIZE_MAX) {
+        return SIZE_MAX;
+    }
+    return offset + tail_len;
+}
+
+/**
  * @brief Compute an HMAC-SHA256 Proof of Registration for a Ledger Account.
  *
- * Serializes: name_len(1) | name | family(1) [| chain_id(8)]
+ * Serializes: name_len(1) | name | depth(1) | indices | family(1) [| chain_id(8)]
  * Then delegates to the OS syscall.
  *
  * @param[in]  name        Account name (null-terminated)
+ * @param[in]  bip32_path  Derivation path of the account
  * @param[in]  family      Blockchain family
  * @param[in]  chain_id    Chain ID (ignored for non-Ethereum families)
  * @param[out] hmac_out    Output buffer for the 32-byte HMAC proof
  * @return true if successful, false otherwise
  */
 bool address_book_compute_hmac_proof_ledger_account(const char         *name,
+                                                    const path_bip32_t *bip32_path,
                                                     blockchain_family_e family,
                                                     uint64_t            chain_id,
                                                     uint8_t             hmac_out[CX_SHA256_SIZE])
@@ -411,7 +458,7 @@ bool address_book_compute_hmac_proof_ledger_account(const char         *name,
     uint8_t msg[HMAC_LEDGER_MSG_SIZE] = {0};
     bool    success                   = false;
     size_t  msg_len
-        = serialize_hmac_msg(msg, sizeof(msg), NULL, name, NULL, 0, true, family, chain_id);
+        = serialize_ledger_account_msg(msg, sizeof(msg), name, bip32_path, family, chain_id);
 
     if (msg_len == SIZE_MAX) {
         goto end;
@@ -430,12 +477,14 @@ end:
  * @brief Verify an HMAC Proof of Registration for a Ledger Account.
  *
  * @param[in] name         Account name (null-terminated)
+ * @param[in] bip32_path   Derivation path of the account
  * @param[in] family       Blockchain family
  * @param[in] chain_id     Chain ID (0 for non-Ethereum)
  * @param[in] hmac_expected 32-byte HMAC proof to verify against
  * @return true if the proof is valid, false otherwise
  */
 bool address_book_verify_hmac_proof_ledger_account(const char         *name,
+                                                   const path_bip32_t *bip32_path,
                                                    blockchain_family_e family,
                                                    uint64_t            chain_id,
                                                    const uint8_t hmac_expected[CX_SHA256_SIZE])
@@ -443,7 +492,7 @@ bool address_book_verify_hmac_proof_ledger_account(const char         *name,
     uint8_t msg[HMAC_LEDGER_MSG_SIZE] = {0};
     bool    success                   = false;
     size_t  msg_len
-        = serialize_hmac_msg(msg, sizeof(msg), NULL, name, NULL, 0, true, family, chain_id);
+        = serialize_ledger_account_msg(msg, sizeof(msg), name, bip32_path, family, chain_id);
 
     if (msg_len == SIZE_MAX) {
         goto end;

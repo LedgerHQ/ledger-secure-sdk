@@ -20,6 +20,8 @@
  *  - App callback rejects             → SWO_WRONG_PARAMETER_VALUE
  *  - Valid Bitcoin payload            → SWO_SUCCESS
  *  - Valid Ethereum payload           → SWO_SUCCESS
+ *  - HMAC message covers the path     → SWO_SUCCESS
+ *  - Proof replayed on another path   → SWO_SECURITY_CONDITION_NOT_SATISFIED
  */
 
 #include <stdbool.h>
@@ -110,6 +112,51 @@ static size_t build_provide_la_contact(uint8_t    *buf,
         tlv_append(buf, &off, 0x29, ZERO_32, sizeof(ZERO_32));
     }
     return off;
+}
+
+/* m/44'/60'/1'/0/0: same depth as BIP32_ETH_PATH, different account index */
+static const uint8_t BIP32_ETH_PATH_ACCOUNT_1[21] = {
+    0x05, 0x80, 0x00, 0x00, 0x2C, 0x80, 0x00, 0x00, 0x3C, 0x80, 0x00,
+    0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+};
+
+static size_t build_provide_la_eth_with_path(uint8_t *buf, const uint8_t *path, uint8_t path_len)
+{
+    size_t off = 0;
+
+    tlv_u8(buf, &off, 0x01, 0x34);
+    tlv_u8(buf, &off, 0x02, 0x01);
+    tlv_append(buf, &off, 0xf0, (const uint8_t *) "EthLedger", 9);
+    tlv_append(buf, &off, 0x69, path, path_len);
+    tlv_u8(buf, &off, 0x51, 0x01);
+    tlv_append(buf, &off, 0x23, ETH_CHAIN_ID_1, sizeof(ETH_CHAIN_ID_1));
+    tlv_append(buf, &off, 0x29, ZERO_32, sizeof(ZERO_32));
+    return off;
+}
+
+/* Accept only the message of "EthLedger" registered on BIP32_ETH_PATH, Ethereum chain 1 */
+static bool hmac_verify_registered_on_eth_path(ADDRESS_BOOK_salt_id_t salt_id,
+                                               const uint8_t         *message,
+                                               size_t                 message_len,
+                                               const uint8_t          hmac_expected[CX_SHA256_SIZE],
+                                               int                    cmock_num_calls)
+{
+    uint8_t expected[1 + 9 + sizeof(BIP32_ETH_PATH) + 1 + sizeof(ETH_CHAIN_ID_1)];
+    size_t  off = 0;
+
+    (void) hmac_expected;
+    (void) cmock_num_calls;
+    expected[off++] = 9;
+    memcpy(&expected[off], "EthLedger", 9);
+    off += 9;
+    memcpy(&expected[off], BIP32_ETH_PATH, sizeof(BIP32_ETH_PATH));
+    off += sizeof(BIP32_ETH_PATH);
+    expected[off++] = 0x01;
+    memcpy(&expected[off], ETH_CHAIN_ID_1, sizeof(ETH_CHAIN_ID_1));
+    off += sizeof(ETH_CHAIN_ID_1);
+
+    return (salt_id == ADDRESS_BOOK_SALT_LEDGER_ACCOUNT) && (message_len == off)
+           && (memcmp(message, expected, off) == 0);
 }
 
 static size_t build_valid_provide_la_btc(uint8_t *buf, size_t buf_size)
@@ -204,6 +251,26 @@ static void test_la_success_ethereum(void)
     TEST_ASSERT_EQUAL_INT(SWO_SUCCESS, provide_ledger_account_contact(buf, len));
 }
 
+static void test_la_proof_covers_derivation_path(void)
+{
+    uint8_t buf[512];
+    size_t  len = build_provide_la_eth_with_path(buf, BIP32_ETH_PATH, sizeof(BIP32_ETH_PATH));
+
+    sys_address_book_hmac_verify_StubWithCallback(hmac_verify_registered_on_eth_path);
+    TEST_ASSERT_EQUAL_INT(SWO_SUCCESS, provide_ledger_account_contact(buf, len));
+}
+
+static void test_la_proof_rejected_on_other_path(void)
+{
+    uint8_t buf[512];
+    size_t  len = build_provide_la_eth_with_path(
+        buf, BIP32_ETH_PATH_ACCOUNT_1, sizeof(BIP32_ETH_PATH_ACCOUNT_1));
+
+    sys_address_book_hmac_verify_StubWithCallback(hmac_verify_registered_on_eth_path);
+    TEST_ASSERT_EQUAL_INT(SWO_SECURITY_CONDITION_NOT_SATISFIED,
+                          provide_ledger_account_contact(buf, len));
+}
+
 /* ── Test runner ─────────────────────────────────────────────────────────── */
 
 int main(void)
@@ -219,5 +286,7 @@ int main(void)
     RUN_TEST(test_la_app_callback_rejects);
     RUN_TEST(test_la_success_bitcoin);
     RUN_TEST(test_la_success_ethereum);
+    RUN_TEST(test_la_proof_covers_derivation_path);
+    RUN_TEST(test_la_proof_rejected_on_other_path);
     return UNITY_END();
 }
