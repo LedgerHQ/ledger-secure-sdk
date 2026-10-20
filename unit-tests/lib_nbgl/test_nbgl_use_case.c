@@ -173,6 +173,13 @@ int nbgl_layoutAddTopRightButton(nbgl_layout_t             *layout,
     return 0;
 }
 
+int nbgl_layoutAddLeftContent(nbgl_layout_t *layout, const nbgl_layoutLeftContent_t *info)
+{
+    (void) layout;
+    (void) info;
+    return 0;
+}
+
 int nbgl_layoutAddTextContent(nbgl_layout_t *layout, nbgl_layoutTextContent_t *content)
 {
     (void) layout;
