@@ -403,6 +403,18 @@ static void test_generic_review_with_missing_callback_pair_is_rejected(void)
     TEST_ASSERT_EQUAL_INT(1, nb_quits);
 }
 
+static void test_review_without_list_is_rejected(void)
+{
+    nbgl_useCaseReview(TYPE_TRANSACTION, NULL, &C_icon_warning, "Review", NULL, NULL, on_choice);
+    assert_rejected_without_display();
+}
+
+static void test_streaming_review_without_list_is_rejected(void)
+{
+    nbgl_useCaseReviewStreamingContinue(NULL, on_choice);
+    assert_rejected_without_display();
+}
+
 static void test_review_with_callback_pair_missing_after_start_shows_empty_pair(void)
 {
     bool empty_seen = false;
@@ -693,6 +705,8 @@ int main(void)
     RUN_TEST(test_streaming_review_with_missing_callback_pair_is_rejected);
     RUN_TEST(test_generic_review_with_missing_callback_pair_is_rejected);
     RUN_TEST(test_review_with_callback_pair_missing_after_start_shows_empty_pair);
+    RUN_TEST(test_review_without_list_is_rejected);
+    RUN_TEST(test_streaming_review_without_list_is_rejected);
     RUN_TEST(test_address_review_overflow_is_rejected);
     RUN_TEST(test_address_review_first_overflowing_counts_are_rejected);
     RUN_TEST(test_address_review_max_pairs_displays_address_and_pairs_before_approve);

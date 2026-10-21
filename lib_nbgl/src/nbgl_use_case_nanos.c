@@ -240,14 +240,15 @@ static void displayExtensionStep(nbgl_stepPosition_t pos);
 static void displayWarningStep(void);
 
 // Helper to check that all pairs of a tag/value list retrieved with a callback have an index
-// fitting in uint8_t (from startIndex to startIndex + nbPairs - 1)
+// fitting in uint8_t (from startIndex to startIndex + nbPairs - 1). The list must not be NULL.
 static bool isTagValueListValid(const nbgl_contentTagValueList_t *tagValueList)
 {
     return (tagValueList->pairs != NULL)
            || (((uint16_t) tagValueList->startIndex + tagValueList->nbPairs) <= (UINT8_MAX + 1));
 }
 
-// Helper to check that a tag/value list is valid and that its callback, if any, provides all pairs
+// Helper to check that a tag/value list is valid and that its callback, if any, provides all pairs.
+// The list must not be NULL.
 static bool isTagValueListComplete(const nbgl_contentTagValueList_t *tagValueList)
 {
     if (tagValueList->pairs != NULL) {
@@ -2096,6 +2097,10 @@ static void useCaseReview(ContextType_t                     type,
     context.review.icon           = icon;
     context.review.onChoice       = choiceCallback;
     context.currentPage           = 0;
+    if (tagValueList == NULL) {
+        onReviewReject();
+        return;
+    }
     // 1 page for title and 2 pages at the end for accept/reject
     uint16_t nbPages = (uint16_t) tagValueList->nbPairs + 3;
     if (reviewSubTitle) {
@@ -3187,6 +3192,10 @@ void nbgl_useCaseReviewStreamingContinueExt(const nbgl_contentTagValueList_t *ta
     context.review.skipCallback = skipCallback;
     context.review.nbDataSets   = curNbDataSets + 1;
 
+    if (tagValueList == NULL) {
+        onReviewReject();
+        return;
+    }
     uint16_t nbPages = (uint16_t) tagValueList->nbPairs + 1;  // data + trick for review continue
     if ((nbPages <= UINT8_MAX) && isTagValueListComplete(tagValueList)) {
         context.nbPages = (uint8_t) nbPages;

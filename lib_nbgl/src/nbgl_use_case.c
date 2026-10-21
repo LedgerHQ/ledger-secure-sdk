@@ -536,7 +536,8 @@ static const nbgl_contentTagValue_t *getTagValuePair(const nbgl_contentTagValueL
 }
 
 // Helper to check that all pairs of a tag/value list retrieved with a callback are provided by it,
-// with an index fitting in uint8_t (from startIndex to startIndex + nbPairs - 1)
+// with an index fitting in uint8_t (from startIndex to startIndex + nbPairs - 1).
+// A NULL list is valid: callers where the list is mandatory must reject it themselves.
 static bool isTagValueListValid(const nbgl_contentTagValueList_t *tagValueList)
 {
     if ((tagValueList == NULL) || (tagValueList->pairs != NULL)) {
@@ -3087,7 +3088,7 @@ static void useCaseReview(nbgl_operationType_t              operationType,
                           bool                              isLight,
                           bool                              playNotifSound)
 {
-    if (!isTagValueListValid(tagValueList)) {
+    if ((tagValueList == NULL) || !isTagValueListValid(tagValueList)) {
         if (choiceCallback != NULL) {
             choiceCallback(false);
         }
@@ -4630,7 +4631,7 @@ void nbgl_useCaseReviewStreamingContinueExt(const nbgl_contentTagValueList_t *ta
                                             nbgl_choiceCallback_t             choiceCallback,
                                             nbgl_callback_t                   skipCallback)
 {
-    if (!isTagValueListValid(tagValueList)) {
+    if ((tagValueList == NULL) || !isTagValueListValid(tagValueList)) {
         if (choiceCallback != NULL) {
             choiceCallback(false);
         }
