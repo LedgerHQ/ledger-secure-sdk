@@ -239,8 +239,16 @@ static void statusTickerCallback(void);
 static void displayExtensionStep(nbgl_stepPosition_t pos);
 static void displayWarningStep(void);
 
+// Helper to check that all pairs of a tag/value list retrieved with a callback have an index
+// fitting in uint8_t (from startIndex to startIndex + nbPairs - 1)
+static bool isTagValueListValid(const nbgl_contentTagValueList_t *tagValueList)
+{
+    return (tagValueList->pairs != NULL)
+           || (((uint16_t) tagValueList->startIndex + tagValueList->nbPairs) <= (UINT8_MAX + 1));
+}
+
 // Simple helper to get the number of elements inside a nbgl_content_t
-static uint8_t getContentNbElement(const nbgl_content_t *content)
+static uint16_t getContentNbElement(const nbgl_content_t *content)
 {
     switch (content->type) {
         case CENTERED_INFO:
@@ -248,10 +256,18 @@ static uint8_t getContentNbElement(const nbgl_content_t *content)
         case INFO_BUTTON:
             return 1;
         case TAG_VALUE_LIST:
+            // an invalid list is reported as overflowing, to be rejected by callers
+            if (!isTagValueListValid(&content->content.tagValueList)) {
+                return UINT8_MAX + 1;
+            }
             return content->content.tagValueList.nbPairs;
         case TAG_VALUE_CONFIRM:
+            // an invalid list is reported as overflowing, to be rejected by callers
+            if (!isTagValueListValid(&content->content.tagValueConfirm.tagValueList)) {
+                return UINT8_MAX + 1;
+            }
             // last element is for Confirm page
-            return content->content.tagValueConfirm.tagValueList.nbPairs + 1;
+            return (uint16_t) content->content.tagValueConfirm.tagValueList.nbPairs + 1;
         case SWITCHES_LIST:
             return content->content.switchesList.nbSwitches;
         case INFOS_LIST:
@@ -342,8 +358,8 @@ static const nbgl_content_t *getContentElemAtIdx(uint8_t         elemIdx,
 {
     const nbgl_genericContents_t *genericContents = NULL;
     const nbgl_content_t         *p_content       = NULL;
-    uint8_t                       nbPages         = 0;
-    uint8_t                       elemNbPages     = 0;
+    uint16_t                      nbPages         = 0;
+    uint16_t                      elemNbPages     = 0;
 
     switch (context.type) {
         case SETTINGS_USE_CASE:
@@ -488,7 +504,8 @@ static void getPairData(const nbgl_contentTagValueList_t *tagValueList,
         pair = PIC(&tagValueList->pairs[index]);
     }
     else {
-        pair = PIC(tagValueList->callback(index));
+        // index is relative to the first pair to get with callback
+        pair = PIC(tagValueList->callback(tagValueList->startIndex + index));
     }
     *item  = pair->item;
     *value = pair->value;
@@ -1707,11 +1724,21 @@ static void startUseCaseSettingsAtPage(uint8_t initSettingPage)
         context.type = SETTINGS_USE_CASE;
     }
 
-    context.nbPages = 1;  // For back screen
+    uint16_t nbPages = 1;  // For back screen
     for (unsigned int i = 0; i < context.home.settingContents->nbContents; i++) {
         p_content = getContentAtIdx(context.home.settingContents, i, &content);
-        context.nbPages += getContentNbElement(p_content);
+        nbPages += getContentNbElement(p_content);
+        if (nbPages > UINT8_MAX) {
+            if (context.type == SETTINGS_USE_CASE) {
+                startUseCaseHome();
+            }
+            else if (context.home.quitCallback != NULL) {
+                context.home.quitCallback();
+            }
+            return;
+        }
     }
+    context.nbPages     = (uint8_t) nbPages;
     context.currentPage = initSettingPage;
 
     displaySettingsPage(FORWARD_DIRECTION, false);
@@ -1728,12 +1755,19 @@ static void startUseCaseContent(void)
     const nbgl_content_t *p_content  = NULL;
     nbgl_content_t        content    = {0};
 
-    context.nbPages = 1;  // Quit
+    uint16_t nbPages = 1;  // Quit
 
     for (contentIdx = 0; contentIdx < context.content.genericContents.nbContents; contentIdx++) {
         p_content = getContentAtIdx(&context.content.genericContents, contentIdx, &content);
-        context.nbPages += getContentNbElement(p_content);
+        nbPages += getContentNbElement(p_content);
+        if (nbPages > UINT8_MAX) {
+            if (context.content.quitCallback != NULL) {
+                context.content.quitCallback();
+            }
+            return;
+        }
     }
+    context.nbPages = (uint8_t) nbPages;
 
     // Ensure currentPage is valid
     if (context.currentPage >= context.nbPages) {
@@ -2025,12 +2059,17 @@ static void useCaseReview(ContextType_t                     type,
     context.review.onChoice       = choiceCallback;
     context.currentPage           = 0;
     // 1 page for title and 2 pages at the end for accept/reject
-    context.nbPages = tagValueList->nbPairs + 3;
+    uint16_t nbPages = (uint16_t) tagValueList->nbPairs + 3;
     if (reviewSubTitle) {
-        context.nbPages++;  // 1 page for subtitle page
+        nbPages++;  // 1 page for subtitle page
     }
-
-    displayReviewPage(FORWARD_DIRECTION);
+    if ((nbPages <= UINT8_MAX) && isTagValueListValid(tagValueList)) {
+        context.nbPages = (uint8_t) nbPages;
+        displayReviewPage(FORWARD_DIRECTION);
+    }
+    else {
+        onReviewReject();
+    }
 }
 
 #ifdef NBGL_KEYPAD
@@ -2914,13 +2953,22 @@ void nbgl_useCaseAddressReview(const char                       *address,
     context.currentPage           = 0;
     // + 4 because 1 page for title, 1 for address and 2 pages at the end for approve/reject
     // + 1 if sub Title
-    context.nbPages = reviewSubTitle ? 5 : 4;
+    uint16_t nbPages = reviewSubTitle ? 5 : 4;
     if (additionalTagValueList) {
         context.review.tagValueList = PIC(additionalTagValueList);
-        context.nbPages += additionalTagValueList->nbPairs;
+        nbPages += additionalTagValueList->nbPairs;
+        if (!isTagValueListValid(additionalTagValueList)) {
+            nbPages = UINT8_MAX + 1;
+        }
     }
 
-    displayReviewPage(FORWARD_DIRECTION);
+    if (nbPages <= UINT8_MAX) {
+        context.nbPages = (uint8_t) nbPages;
+        displayReviewPage(FORWARD_DIRECTION);
+    }
+    else {
+        onReviewReject();
+    }
 }
 
 /**
@@ -3181,11 +3229,17 @@ void nbgl_useCaseReviewStreamingContinueExt(const nbgl_contentTagValueList_t *ta
     context.review.tagValueList = tagValueList;
     context.review.onChoice     = choiceCallback;
     context.currentPage         = 0;
-    context.nbPages             = tagValueList->nbPairs + 1;  // data + trick for review continue
     context.review.skipCallback = skipCallback;
     context.review.nbDataSets   = curNbDataSets + 1;
 
-    displayStreamingReviewPage(FORWARD_DIRECTION);
+    uint16_t nbPages = (uint16_t) tagValueList->nbPairs + 1;  // data + trick for review continue
+    if ((nbPages <= UINT8_MAX) && isTagValueListValid(tagValueList)) {
+        context.nbPages = (uint8_t) nbPages;
+        displayStreamingReviewPage(FORWARD_DIRECTION);
+    }
+    else {
+        onReviewReject();
+    }
 }
 
 /**
@@ -3278,15 +3332,21 @@ static void startChoice(const nbgl_icon_details_t *icon,
     context.choice.onChoice    = callback;
     context.choice.details     = details;
     context.currentPage        = 0;
-    context.nbPages            = 2 + getChoiceNbIntroPages();  // 2 pages for confirm/cancel
+    uint16_t nbPages           = 2 + getChoiceNbIntroPages();  // 2 pages for confirm/cancel
     if (details != NULL) {
         // only the first level of details and BAR_LIST type are supported
         if (details->type == BAR_LIST_WARNING) {
-            context.nbPages += details->barList.nbBars;
+            nbPages += details->barList.nbBars;
         }
     }
 
-    displayChoicePage(FORWARD_DIRECTION);
+    if (nbPages <= UINT8_MAX) {
+        context.nbPages = (uint8_t) nbPages;
+        displayChoicePage(FORWARD_DIRECTION);
+    }
+    else {
+        onChoiceReject();
+    }
 }
 
 /**
