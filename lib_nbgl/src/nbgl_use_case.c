@@ -517,18 +517,41 @@ static uint8_t getContentNbElement(const nbgl_content_t *content)
 static const nbgl_contentTagValue_t *getTagValuePair(const nbgl_contentTagValueList_t *tagValueList,
                                                      uint8_t                           index)
 {
+    static nbgl_contentTagValue_t emptyPair;
+    const nbgl_contentTagValue_t *pair;
+
     if (tagValueList->pairs != NULL) {
         return PIC(&tagValueList->pairs[index]);
     }
-    return PIC(tagValueList->callback(tagValueList->startIndex + index));
+    pair = PIC(tagValueList->callback(tagValueList->startIndex + index));
+    if (pair == NULL) {
+        // an empty pair is used if the callback doesn't provide one
+        LOG_WARN(USE_CASE_LOGGER, "getTagValuePair(): no pair for index %d\n", index);
+        memset(&emptyPair, 0, sizeof(emptyPair));
+        emptyPair.item  = "";
+        emptyPair.value = "";
+        pair            = &emptyPair;
+    }
+    return pair;
 }
 
-// Helper to check that all pairs of a tag/value list retrieved with a callback have an index
-// fitting in uint8_t (from startIndex to startIndex + nbPairs - 1)
+// Helper to check that all pairs of a tag/value list retrieved with a callback are provided by it,
+// with an index fitting in uint8_t (from startIndex to startIndex + nbPairs - 1)
 static bool isTagValueListValid(const nbgl_contentTagValueList_t *tagValueList)
 {
-    return (tagValueList == NULL) || (tagValueList->pairs != NULL)
-           || (((uint16_t) tagValueList->startIndex + tagValueList->nbPairs) <= (UINT8_MAX + 1));
+    if ((tagValueList == NULL) || (tagValueList->pairs != NULL)) {
+        return true;
+    }
+    if ((tagValueList->callback == NULL)
+        || (((uint16_t) tagValueList->startIndex + tagValueList->nbPairs) > (UINT8_MAX + 1))) {
+        return false;
+    }
+    for (uint8_t i = 0; i < tagValueList->nbPairs; i++) {
+        if (PIC(tagValueList->callback(tagValueList->startIndex + i)) == NULL) {
+            return false;
+        }
+    }
+    return true;
 }
 
 // Helper to retrieve the content inside a nbgl_genericContents_t using
