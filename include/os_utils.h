@@ -105,8 +105,16 @@ static inline void U8LE_ENCODE(uint8_t *buf, size_t off, uint64_t value)
 void u4be_encode(unsigned char *buffer, unsigned int offset, unsigned int value);
 void u4le_encode(unsigned char *buffer, unsigned int offset, unsigned int value);
 
-int  bytes_to_hex(char *out, size_t outl, const void *value, size_t len);
-int  bytes_to_lowercase_hex(char *out, size_t outl, const void *value, size_t len);
+// Sizes of the hexadecimal rendering of `bytes` bytes
+#define HEX_STRING_LEN(bytes)     (2 * (bytes))                 // digits only
+#define HEX_STRING_SIZE(bytes)    (HEX_STRING_LEN(bytes) + 1)   // digits + NUL
+#define HEX_0X_STRING_SIZE(bytes) (2 + HEX_STRING_SIZE(bytes))  // "0x" + digits + NUL
+
+int bytes_to_hex(char *out, size_t outl, const void *value, size_t len);
+int bytes_to_lowercase_hex(char *out, size_t outl, const void *value, size_t len);
+// Same as above, with a "0x" prefix: `outl` must be at least HEX_0X_STRING_SIZE(len)
+int  bytes_to_hex_0x(char *out, size_t outl, const void *value, size_t len);
+int  bytes_to_lowercase_hex_0x(char *out, size_t outl, const void *value, size_t len);
 bool is_printable_string(const char *str, size_t len);
 bool is_displayable_string(const char *str, size_t len);
 bool is_zeroes_buffer(const void *buf, size_t n);
