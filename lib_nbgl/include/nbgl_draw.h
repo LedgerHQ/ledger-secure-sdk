@@ -7,6 +7,8 @@
 #ifndef NBGL_DRAW_H
 #define NBGL_DRAW_H
 
+#include "nbgl_low_level_guard.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif

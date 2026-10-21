@@ -7,6 +7,8 @@
 #ifndef NBGL_STEP_H
 #define NBGL_STEP_H
 
+#include "nbgl_low_level_guard.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif

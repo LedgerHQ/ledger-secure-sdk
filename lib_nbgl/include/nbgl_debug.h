@@ -7,6 +7,8 @@
 #ifndef NBGL_DEBUG_H
 #define NBGL_DEBUG_H
 
+#include "nbgl_low_level_guard.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif

@@ -16,11 +16,16 @@ extern "C" {
  *********************/
 
 #include "nbgl_content.h"
-#ifdef NBGL_PAGE
+#ifdef NBGL_USE_CASE_ONLY
+// apollo apps: low-level NBGL headers are forbidden, only include the types used by this API
+#include "nbgl_obj_types.h"
+#include "nbgl_layout_types.h"
+#include "nbgl_page_types.h"
+#elif defined(NBGL_PAGE)
 #include "nbgl_page.h"
-#else  // NBGL_PAGE
+#else  // NBGL_USE_CASE_ONLY
 #include "nbgl_flow.h"
-#endif  // NBGL_PAGE
+#endif  // NBGL_USE_CASE_ONLY
 
 /*********************
  *      DEFINES
@@ -72,6 +77,9 @@ extern "C" {
  */
 #define NB_MAX_DISPLAYED_PAIRS_IN_REVIEW 4
 
+#ifndef NBGL_USE_CASE_ONLY
+// pixel heights of the SE-side layout: meaningless on apollo, where the MCU lays out and
+// paginates use cases
 /**
  *  @brief height available for tag/value pairs display
  */
@@ -81,6 +89,7 @@ extern "C" {
  *  @brief height available for infos pairs display
  */
 #define INFOS_AREA_HEIGHT (SCREEN_HEIGHT - TOUCHABLE_HEADER_BAR_HEIGHT)
+#endif  // NBGL_USE_CASE_ONLY
 
 /**
  *  @brief Default strings used in the Home tagline

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "nbgl_low_level_guard.h"
+
 #include "nbgl_obj.h"
 
 #define NBGL_SERIALIZE_OK    0

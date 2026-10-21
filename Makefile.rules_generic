@@ -102,12 +102,12 @@ default: $(BIN_TARGETS) $(DBG_TARGETS)
 # Glyphs target
 $(GEN_SRC_DIR)/%.o: $(GEN_SRC_DIR)/%.c $(BUILD_DEPENDENCIES) prepare
 	@echo "[CC]   $@"
-	$(L)$(call cc_cmdline,$(INCLUDES_PATH_APP), $(DEFINES),$<,$@)
+	$(L)$(call cc_cmdline,$(INCLUDES_PATH_APP), $(DEFINES) $(DEFINES_APP),$<,$@)
 
 # App files targets
 $(OBJ_DIR)/app/%.o: $(APP_DIR)/%.c $(BUILD_DEPENDENCIES) prepare
 	@echo "[CC]   $@"
-	$(L)$(call cc_cmdline,$(INCLUDES_PATH_APP), $(DEFINES),$<,$@)
+	$(L)$(call cc_cmdline,$(INCLUDES_PATH_APP), $(DEFINES) $(DEFINES_APP),$<,$@)
 
 $(OBJ_DIR)/app/%.o: $(APP_DIR)/%.s $(BUILD_DEPENDENCIES) prepare
 	@echo "[AS]   $@"
@@ -133,7 +133,7 @@ $(OBJ_DIR)/sdk/%.o: $(BOLOS_SDK)/%.S $(BUILD_DEPENDENCIES) prepare
 # Generic targets
 $(OBJ_DIR)/%.o: %.c $(BUILD_DEPENDENCIES) prepare
 	@echo "[CC]   $@"
-	$(L)$(call cc_cmdline,$(INCLUDES_PATH_APP), $(DEFINES),$<,$@)
+	$(L)$(call cc_cmdline,$(INCLUDES_PATH_APP), $(DEFINES) $(DEFINES_APP),$<,$@)
 
 $(OBJ_DIR)/%.o: %.s $(BUILD_DEPENDENCIES) prepare
 	@echo "[AS]   $@"

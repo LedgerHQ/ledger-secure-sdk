@@ -21,8 +21,10 @@
 #include "os_math.h"
 #include "os_ux.h"
 #include "os_task.h"
+#ifndef NBGL_USE_CASE_ONLY
 #include "nbgl_screen.h"
 #include "nbgl_touch.h"
+#endif
 #include "seproxyhal_protocol.h"
 
 #include <string.h>
@@ -65,7 +67,13 @@ extern void ux_process_default_event(void);
 /**
  * Initialize the user experience structure
  */
+#ifdef NBGL_USE_CASE_ONLY
+// low-level NBGL is not available to apollo apps: lib_standard_app main() initializes it
+#define UX_INIT() \
+    _Static_assert(0, "UX_INIT() is forbidden on apollo: use the lib_standard_app main()")
+#else
 #define UX_INIT() nbgl_objInit();
+#endif
 
 /**
  * Request a wake up of the device (pin lock screen, ...) to display a new interface to the user.

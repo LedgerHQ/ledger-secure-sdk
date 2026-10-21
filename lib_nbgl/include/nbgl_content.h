@@ -20,7 +20,10 @@ extern "C" {
 #include "os_io_seph_cmd.h"
 
 #include "nbgl_types.h"
+#include "ux_loc.h"
+#ifndef NBGL_USE_CASE_ONLY
 #include "nbgl_obj.h"
+#endif
 
 /**********************
  *      TYPEDEFS
