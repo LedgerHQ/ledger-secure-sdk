@@ -517,18 +517,52 @@ static uint8_t getContentNbElement(const nbgl_content_t *content)
 static const nbgl_contentTagValue_t *getTagValuePair(const nbgl_contentTagValueList_t *tagValueList,
                                                      uint8_t                           index)
 {
+    static nbgl_contentTagValue_t emptyPair;
+    const nbgl_contentTagValue_t *pair;
+
     if (tagValueList->pairs != NULL) {
         return PIC(&tagValueList->pairs[index]);
     }
-    return PIC(tagValueList->callback(tagValueList->startIndex + index));
+    pair = PIC(tagValueList->callback(tagValueList->startIndex + index));
+    if (pair == NULL) {
+        // an empty pair is used if the callback doesn't provide one
+        LOG_WARN(USE_CASE_LOGGER, "getTagValuePair(): no pair for index %d\n", index);
+        memset(&emptyPair, 0, sizeof(emptyPair));
+        emptyPair.item  = "";
+        emptyPair.value = "";
+        pair            = &emptyPair;
+    }
+    return pair;
 }
 
-// Helper to check that all pairs of a tag/value list retrieved with a callback have an index
-// fitting in uint8_t (from startIndex to startIndex + nbPairs - 1)
+// Callback given to the layer drawing the current page, to retrieve its pairs from the application
+// callback, with the same empty pair fallback
+static nbgl_contentTagValue_t *getCurrentPageTagValuePair(uint8_t pairIndex)
+{
+    nbgl_contentTagValueList_t tagValueList = {0};
+
+    tagValueList.callback = genericContext.currentCallback;
+    return (nbgl_contentTagValue_t *) getTagValuePair(&tagValueList, pairIndex);
+}
+
+// Helper to check that all pairs of a tag/value list retrieved with a callback are provided by it,
+// with an index fitting in uint8_t (from startIndex to startIndex + nbPairs - 1).
+// A NULL list is valid: callers where the list is mandatory must reject it themselves.
 static bool isTagValueListValid(const nbgl_contentTagValueList_t *tagValueList)
 {
-    return (tagValueList == NULL) || (tagValueList->pairs != NULL)
-           || (((uint16_t) tagValueList->startIndex + tagValueList->nbPairs) <= (UINT8_MAX + 1));
+    if ((tagValueList == NULL) || (tagValueList->pairs != NULL)) {
+        return true;
+    }
+    if ((tagValueList->callback == NULL)
+        || (((uint16_t) tagValueList->startIndex + tagValueList->nbPairs) > (UINT8_MAX + 1))) {
+        return false;
+    }
+    for (uint8_t i = 0; i < tagValueList->nbPairs; i++) {
+        if (PIC(tagValueList->callback(tagValueList->startIndex + i)) == NULL) {
+            return false;
+        }
+    }
+    return true;
 }
 
 // Helper to retrieve the content inside a nbgl_genericContents_t using
@@ -1192,7 +1226,7 @@ static bool genericContextPreparePageContent(const nbgl_content_t *p_content,
                 }
                 else {
                     p_tagValueList->pairs    = NULL;
-                    p_tagValueList->callback = p_content->content.tagValueList.callback;
+                    p_tagValueList->callback = getCurrentPageTagValuePair;
                     p_tagValueList->startIndex
                         = p_content->content.tagValueList.startIndex + nextElementIdx;
                     // parse pairs to check if any contains an alias for value
@@ -1246,7 +1280,7 @@ static bool genericContextPreparePageContent(const nbgl_content_t *p_content,
             }
             else {
                 p_tagValueList->pairs    = NULL;
-                p_tagValueList->callback = p_content->content.tagValueConfirm.tagValueList.callback;
+                p_tagValueList->callback = getCurrentPageTagValuePair;
                 p_tagValueList->startIndex
                     = p_content->content.tagValueConfirm.tagValueList.startIndex + nextElementIdx;
                 // parse pairs to check if any contains an alias for value
@@ -3064,7 +3098,7 @@ static void useCaseReview(nbgl_operationType_t              operationType,
                           bool                              isLight,
                           bool                              playNotifSound)
 {
-    if (!isTagValueListValid(tagValueList)) {
+    if ((tagValueList == NULL) || !isTagValueListValid(tagValueList)) {
         if (choiceCallback != NULL) {
             choiceCallback(false);
         }
@@ -4607,7 +4641,7 @@ void nbgl_useCaseReviewStreamingContinueExt(const nbgl_contentTagValueList_t *ta
                                             nbgl_choiceCallback_t             choiceCallback,
                                             nbgl_callback_t                   skipCallback)
 {
-    if (!isTagValueListValid(tagValueList)) {
+    if ((tagValueList == NULL) || !isTagValueListValid(tagValueList)) {
         if (choiceCallback != NULL) {
             choiceCallback(false);
         }

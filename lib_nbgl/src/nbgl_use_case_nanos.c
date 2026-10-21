@@ -240,11 +240,41 @@ static void displayExtensionStep(nbgl_stepPosition_t pos);
 static void displayWarningStep(void);
 
 // Helper to check that all pairs of a tag/value list retrieved with a callback have an index
-// fitting in uint8_t (from startIndex to startIndex + nbPairs - 1)
+// fitting in uint8_t (from startIndex to startIndex + nbPairs - 1). The list must not be NULL.
 static bool isTagValueListValid(const nbgl_contentTagValueList_t *tagValueList)
 {
     return (tagValueList->pairs != NULL)
            || (((uint16_t) tagValueList->startIndex + tagValueList->nbPairs) <= (UINT8_MAX + 1));
+}
+
+// Helper to check that a tag/value list is valid and that its callback, if any, provides all pairs.
+// The list must not be NULL.
+static bool isTagValueListComplete(const nbgl_contentTagValueList_t *tagValueList)
+{
+    if (tagValueList->pairs != NULL) {
+        return true;
+    }
+    if ((tagValueList->callback == NULL) || !isTagValueListValid(tagValueList)) {
+        return false;
+    }
+    for (uint8_t i = 0; i < tagValueList->nbPairs; i++) {
+        if (PIC(tagValueList->callback(tagValueList->startIndex + i)) == NULL) {
+            return false;
+        }
+    }
+    return true;
+}
+
+// Helper to check that the tag/value list of a content, if any, is complete
+static bool isContentComplete(const nbgl_content_t *content)
+{
+    if (content->type == TAG_VALUE_LIST) {
+        return isTagValueListComplete(&content->content.tagValueList);
+    }
+    if (content->type == TAG_VALUE_CONFIRM) {
+        return isTagValueListComplete(&content->content.tagValueConfirm.tagValueList);
+    }
+    return true;
 }
 
 // Simple helper to get the number of elements inside a nbgl_content_t
@@ -498,6 +528,7 @@ static void getPairData(const nbgl_contentTagValueList_t *tagValueList,
                         const nbgl_icon_details_t       **icon,
                         bool                             *isCenteredInfo)
 {
+    static nbgl_contentTagValue_t emptyPair;
     const nbgl_contentTagValue_t *pair;
 
     if (tagValueList->pairs != NULL) {
@@ -506,6 +537,14 @@ static void getPairData(const nbgl_contentTagValueList_t *tagValueList,
     else {
         // index is relative to the first pair to get with callback
         pair = PIC(tagValueList->callback(tagValueList->startIndex + index));
+        if (pair == NULL) {
+            // an empty pair is used if the callback doesn't provide one
+            LOG_WARN(USE_CASE_LOGGER, "getPairData(): no pair for index %d\n", index);
+            memset(&emptyPair, 0, sizeof(emptyPair));
+            emptyPair.item  = "";
+            emptyPair.value = "";
+            pair            = &emptyPair;
+        }
     }
     *item  = pair->item;
     *value = pair->value;
@@ -1760,7 +1799,7 @@ static void startUseCaseContent(void)
     for (contentIdx = 0; contentIdx < context.content.genericContents.nbContents; contentIdx++) {
         p_content = getContentAtIdx(&context.content.genericContents, contentIdx, &content);
         nbPages += getContentNbElement(p_content);
-        if (nbPages > UINT8_MAX) {
+        if ((nbPages > UINT8_MAX) || !isContentComplete(p_content)) {
             if (context.content.quitCallback != NULL) {
                 context.content.quitCallback();
             }
@@ -2058,12 +2097,16 @@ static void useCaseReview(ContextType_t                     type,
     context.review.icon           = icon;
     context.review.onChoice       = choiceCallback;
     context.currentPage           = 0;
+    if (tagValueList == NULL) {
+        onReviewReject();
+        return;
+    }
     // 1 page for title and 2 pages at the end for accept/reject
     uint16_t nbPages = (uint16_t) tagValueList->nbPairs + 3;
     if (reviewSubTitle) {
         nbPages++;  // 1 page for subtitle page
     }
-    if ((nbPages <= UINT8_MAX) && isTagValueListValid(tagValueList)) {
+    if ((nbPages <= UINT8_MAX) && isTagValueListComplete(tagValueList)) {
         context.nbPages = (uint8_t) nbPages;
         displayReviewPage(FORWARD_DIRECTION);
     }
@@ -2874,7 +2917,7 @@ void nbgl_useCaseAddressReview(const char                       *address,
     if (additionalTagValueList) {
         context.review.tagValueList = PIC(additionalTagValueList);
         nbPages += additionalTagValueList->nbPairs;
-        if (!isTagValueListValid(additionalTagValueList)) {
+        if (!isTagValueListComplete(additionalTagValueList)) {
             nbPages = UINT8_MAX + 1;
         }
     }
@@ -3149,8 +3192,12 @@ void nbgl_useCaseReviewStreamingContinueExt(const nbgl_contentTagValueList_t *ta
     context.review.skipCallback = skipCallback;
     context.review.nbDataSets   = curNbDataSets + 1;
 
+    if (tagValueList == NULL) {
+        onReviewReject();
+        return;
+    }
     uint16_t nbPages = (uint16_t) tagValueList->nbPairs + 1;  // data + trick for review continue
-    if ((nbPages <= UINT8_MAX) && isTagValueListValid(tagValueList)) {
+    if ((nbPages <= UINT8_MAX) && isTagValueListComplete(tagValueList)) {
         context.nbPages = (uint8_t) nbPages;
         displayStreamingReviewPage(FORWARD_DIRECTION);
     }
