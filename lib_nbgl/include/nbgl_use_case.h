@@ -77,6 +77,9 @@ extern "C" {
  */
 #define NB_MAX_DISPLAYED_PAIRS_IN_REVIEW 4
 
+#ifndef NBGL_USE_CASE_ONLY
+// pixel heights of the SE-side layout: meaningless on apollo, where the MCU lays out and
+// paginates use cases
 /**
  *  @brief height available for tag/value pairs display
  */
@@ -86,6 +89,7 @@ extern "C" {
  *  @brief height available for infos pairs display
  */
 #define INFOS_AREA_HEIGHT (SCREEN_HEIGHT - TOUCHABLE_HEADER_BAR_HEIGHT)
+#endif  // NBGL_USE_CASE_ONLY
 
 /**
  *  @brief Default strings used in the Home tagline

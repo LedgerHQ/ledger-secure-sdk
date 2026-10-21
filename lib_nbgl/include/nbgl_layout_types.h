@@ -21,6 +21,11 @@ extern "C" {
 
 #include "nbgl_types.h"
 
+/*********************
+ *      DEFINES
+ *********************/
+#define NBGL_NO_TUNE NB_TUNES
+
 /**********************
  *      TYPEDEFS
  **********************/

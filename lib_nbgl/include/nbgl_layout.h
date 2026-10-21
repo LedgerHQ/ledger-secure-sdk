@@ -26,7 +26,6 @@ extern "C" {
 /*********************
  *      DEFINES
  *********************/
-#define NBGL_NO_TUNE               NB_TUNES
 #define NBGL_NO_PROGRESS_INDICATOR 0xFF
 
 ///< To be used when a control token shall not be used

@@ -492,8 +492,8 @@ typedef struct PACKED__ nbgl_keyboard_s {
     bool needsRefresh;  ///< if true, means that the keyboard has been redrawn and needs a refresh
     keyboardCase_t casing;  ///< keyboard casing mode (lower, upper once or upper locked)
 #else                       // SCREEN_SIZE_WALLET
-    bool    enableBackspace;   ///< if true, Backspace key is enabled
-    bool    enableValidate;    ///< if true, Validate key is enabled
+    bool    enableBackspace;  ///< if true, Backspace key is enabled
+    bool    enableValidate;   ///< if true, Validate key is enabled
     bool    obfuscated;
     uint8_t selectedCharIndex;
 #endif                      // SCREEN_SIZE_WALLET
