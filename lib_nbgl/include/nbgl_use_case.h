@@ -473,6 +473,7 @@ void nbgl_useCaseHomeAndSettings(const char                   *appName,
                                  const nbgl_contentInfoList_t *infosList,
                                  const nbgl_homeAction_t      *action,
                                  nbgl_callback_t               quitCallback);
+bool nbgl_useCaseShowInfoAndSettings(uint8_t initPage);
 
 void nbgl_useCaseReview(nbgl_operationType_t              operationType,
                         const nbgl_contentTagValueList_t *tagValueList,

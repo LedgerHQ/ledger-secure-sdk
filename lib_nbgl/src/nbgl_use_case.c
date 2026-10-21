@@ -194,9 +194,7 @@ typedef struct {
 typedef enum {
     USE_CASE_GENERIC = 0,
     USE_CASE_SPINNER,
-#ifdef NBGL_NO_HOME
-    USE_CASE_IDLE  // No home page for apollo
-#endif
+    USE_CASE_IDLE  // Home page (or empty page with NBGL_NO_HOME): Info & Settings can be shown
 } GenericContextType_t;
 
 typedef struct {
@@ -397,11 +395,13 @@ static void displayAddressQRCode(void);
 static void modalLayoutTouchCallback(int token, uint8_t index);
 static void displaySkipWarning(void);
 
-#ifndef NBGL_NO_HOME
+#ifdef NBGL_NO_HOME
+static void bundleNavStartIdle(void);
+#else   // NBGL_NO_HOME
 static void bundleNavStartHome(void);
-static void bundleNavStartSettingsAtPage(uint8_t initSettingPage);
 static void bundleNavStartSettings(void);
 #endif  // NBGL_NO_HOME
+static void bundleNavStartSettingsAtPage(uint8_t initSettingPage);
 
 static void           bundleNavReviewStreamingChoice(bool confirm);
 static nbgl_layout_t *displayModalDetails(const nbgl_warningDetails_t *details, uint8_t token);
@@ -2529,17 +2529,7 @@ static void bundleNavStartHome(void)
                    &context->homeAction,
                    bundleNavStartSettings,
                    context->quitCallback);
-}
-
-static void bundleNavStartSettingsAtPage(uint8_t initSettingPage)
-{
-    nbgl_homeAndSettingsContext_t *context = &bundleNavContext.homeAndSettings;
-
-    nbgl_useCaseGenericSettings(context->appName,
-                                initSettingPage,
-                                context->settingContents,
-                                context->infosList,
-                                bundleNavStartHome);
+    genericContext.type = USE_CASE_IDLE;
 }
 
 static void bundleNavStartSettings(void)
@@ -2560,6 +2550,21 @@ static void bundleNavStartIdle(void)
     nbgl_refreshSpecial(FULL_COLOR_PARTIAL_REFRESH);
 }
 #endif  // NBGL_NO_HOME
+
+static void bundleNavStartSettingsAtPage(uint8_t initSettingPage)
+{
+    nbgl_homeAndSettingsContext_t *context = &bundleNavContext.homeAndSettings;
+
+    nbgl_useCaseGenericSettings(context->appName,
+                                initSettingPage,
+                                context->settingContents,
+                                context->infosList,
+#ifdef NBGL_NO_HOME
+                                bundleNavStartIdle);
+#else   // NBGL_NO_HOME
+                                bundleNavStartHome);
+#endif  // NBGL_NO_HOME
+}
 
 static void bundleNavReviewConfirmRejection(void)
 {
@@ -3683,8 +3688,10 @@ void nbgl_useCaseGenericConfiguration(const char                   *title,
  * App" button/footer)
  * @param quitCallback callback called when quit button is touched
  *
- * @note With NBGL_NO_HOME (Apollo), nothing is displayed but an empty page, whatever
- * initSettingPage: the given content is only memorized.
+ * @note With NBGL_NO_HOME (Apollo), there is no Home page: an empty page is displayed instead,
+ * and the given content is memorized for @ref nbgl_useCaseShowInfoAndSettings. If
+ * initSettingPage is not INIT_HOME_PAGE, the corresponding setting page is still displayed (to
+ * come back to settings after a setting confirmation), and quitting it leads to the empty page.
  */
 void nbgl_useCaseHomeAndSettings(
     const char                *appName,
@@ -3714,19 +3721,39 @@ void nbgl_useCaseHomeAndSettings(
     }
     context->quitCallback = quitCallback;
 
-#ifdef NBGL_NO_HOME
-    // no Home page: the content is kept for the Info & Settings request,
-    // an empty page is drawn whatever initSettingPage
-    UNUSED(initSettingPage);
-    bundleNavStartIdle();
-#else   // NBGL_NO_HOME
     if (initSettingPage != INIT_HOME_PAGE) {
         bundleNavStartSettingsAtPage(initSettingPage);
     }
     else {
+#ifdef NBGL_NO_HOME
+        // no Home page: the content is kept for the Info & Settings request
+        bundleNavStartIdle();
+#else   // NBGL_NO_HOME
         bundleNavStartHome();
-    }
 #endif  // NBGL_NO_HOME
+    }
+}
+
+/**
+ * @brief Displays the Info & Settings pages of the app, with the content given to the last
+ * @ref nbgl_useCaseHomeAndSettings call. Quitting them leads back to the Home page (or to the
+ * empty page with NBGL_NO_HOME).
+ * @note Only possible when the app is idle (Home page, or empty page with NBGL_NO_HOME,
+ * displayed), so that no other flow (review, status, modal...) is interrupted.
+ *
+ * @param initPage page to start with (0 for the first setting page)
+ * @return true if displayed, false if the app is not idle or has neither settings nor infos
+ */
+bool nbgl_useCaseShowInfoAndSettings(uint8_t initPage)
+{
+    if ((genericContext.type != USE_CASE_IDLE) || (modalPageContext != NULL)
+        || (bundleNavContext.homeAndSettings.appName == NULL)
+        || ((bundleNavContext.homeAndSettings.settingContents == NULL)
+            && (bundleNavContext.homeAndSettings.infosList == NULL))) {
+        return false;
+    }
+    bundleNavStartSettingsAtPage(initPage);
+    return true;
 }
 
 /**
