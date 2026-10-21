@@ -7,6 +7,8 @@
 #ifndef NBGL_FLOW_H
 #define NBGL_FLOW_H
 
+#include "nbgl_low_level_guard.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif

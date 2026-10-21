@@ -7,11 +7,14 @@
 #ifndef NBGL_OBJ_H
 #define NBGL_OBJ_H
 
+#include "nbgl_low_level_guard.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 #include "nbgl_types.h"
+#include "nbgl_obj_types.h"
 #include "nbgl_fonts.h"
 #include "nbgl_icons.h"
 #include "ux_loc.h"
@@ -475,33 +478,6 @@ typedef struct PACKED__ nbgl_spinner_s {
  * @param touchedKey char typed on keyboard
  */
 typedef void (*keyboardCallback_t)(char touchedKey);
-
-/**
- * @brief Mode in which to open/set the keyboard
- *
- */
-typedef enum {
-#ifdef HAVE_SE_TOUCH
-    MODE_LETTERS = 0,  ///< letters mode
-    MODE_DIGITS,       ///< digits and some special characters mode
-    MODE_SPECIAL       ///< extended special characters mode
-#else                  // HAVE_SE_TOUCH
-    MODE_LOWER_LETTERS,        ///< lower case letters mode
-    MODE_UPPER_LETTERS,        ///< upper case letters mode
-    MODE_DIGITS_AND_SPECIALS,  ///< digits and some special characters mode
-    MODE_NONE                  ///< no mode defined (only for Nanos)
-#endif                 // HAVE_SE_TOUCH
-} keyboardMode_t;
-
-/**
- * @brief Letters casing in which to open/set the keyboard
- *
- */
-typedef enum {
-    LOWER_CASE = 0,    ///< lower case mode
-    UPPER_CASE,        ///< upper case mode for one character
-    LOCKED_UPPER_CASE  ///< locked upper case mode
-} keyboardCase_t;
 
 /**
  * @brief struct to represent a keyboard (@ref KEYBOARD type)

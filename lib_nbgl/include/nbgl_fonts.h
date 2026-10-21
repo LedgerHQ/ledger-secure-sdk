@@ -7,6 +7,8 @@
 #ifndef NBGL_FONTS_H
 #define NBGL_FONTS_H
 
+#include "nbgl_low_level_guard.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif

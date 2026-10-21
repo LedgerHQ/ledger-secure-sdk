@@ -16,11 +16,16 @@ extern "C" {
  *********************/
 
 #include "nbgl_content.h"
-#ifdef NBGL_PAGE
+#ifdef NBGL_USE_CASE_ONLY
+// apollo apps: low-level NBGL headers are forbidden, only include the types used by this API
+#include "nbgl_obj_types.h"
+#include "nbgl_layout_types.h"
+#include "nbgl_page_types.h"
+#elif defined(NBGL_PAGE)
 #include "nbgl_page.h"
-#else  // NBGL_PAGE
+#else  // NBGL_USE_CASE_ONLY
 #include "nbgl_flow.h"
-#endif  // NBGL_PAGE
+#endif  // NBGL_USE_CASE_ONLY
 
 /*********************
  *      DEFINES

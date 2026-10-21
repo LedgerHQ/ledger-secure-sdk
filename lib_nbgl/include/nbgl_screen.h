@@ -7,6 +7,8 @@
 #ifndef NBGL_SCREEN_H
 #define NBGL_SCREEN_H
 
+#include "nbgl_low_level_guard.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
