@@ -535,6 +535,16 @@ static const nbgl_contentTagValue_t *getTagValuePair(const nbgl_contentTagValueL
     return pair;
 }
 
+// Callback given to the layer drawing the current page, to retrieve its pairs from the application
+// callback, with the same empty pair fallback
+static nbgl_contentTagValue_t *getCurrentPageTagValuePair(uint8_t pairIndex)
+{
+    nbgl_contentTagValueList_t tagValueList = {0};
+
+    tagValueList.callback = genericContext.currentCallback;
+    return (nbgl_contentTagValue_t *) getTagValuePair(&tagValueList, pairIndex);
+}
+
 // Helper to check that all pairs of a tag/value list retrieved with a callback are provided by it,
 // with an index fitting in uint8_t (from startIndex to startIndex + nbPairs - 1).
 // A NULL list is valid: callers where the list is mandatory must reject it themselves.
@@ -1216,7 +1226,7 @@ static bool genericContextPreparePageContent(const nbgl_content_t *p_content,
                 }
                 else {
                     p_tagValueList->pairs    = NULL;
-                    p_tagValueList->callback = p_content->content.tagValueList.callback;
+                    p_tagValueList->callback = getCurrentPageTagValuePair;
                     p_tagValueList->startIndex
                         = p_content->content.tagValueList.startIndex + nextElementIdx;
                     // parse pairs to check if any contains an alias for value
@@ -1270,7 +1280,7 @@ static bool genericContextPreparePageContent(const nbgl_content_t *p_content,
             }
             else {
                 p_tagValueList->pairs    = NULL;
-                p_tagValueList->callback = p_content->content.tagValueConfirm.tagValueList.callback;
+                p_tagValueList->callback = getCurrentPageTagValuePair;
                 p_tagValueList->startIndex
                     = p_content->content.tagValueConfirm.tagValueList.startIndex + nextElementIdx;
                 // parse pairs to check if any contains an alias for value

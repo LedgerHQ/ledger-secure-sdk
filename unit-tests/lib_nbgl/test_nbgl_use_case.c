@@ -678,6 +678,26 @@ void test_review_is_displayed_when_callback_pair_is_missing_after_start(void)
     TEST_ASSERT_NOT_NULL(page_callback);
 }
 
+void test_page_shows_empty_pair_when_callback_pair_is_missing_while_drawing(void)
+{
+    const nbgl_contentTagValueList_t *list;
+
+    buildList(3, true);
+    nbgl_useCaseGenericReview(&contents, "Reject", onReject);
+    TEST_ASSERT_NOT_NULL(page_callback);
+
+    // the second pair of the first page is no longer provided, the following one still is
+    missingPair = 1;
+    list        = currentList();
+    TEST_ASSERT_EQUAL_UINT8(3, list->nbPairs);
+    TEST_ASSERT_NOT_NULL(list->callback);
+    TEST_ASSERT_EQUAL_PTR(&pairs[0], list->callback(list->startIndex));
+    TEST_ASSERT_NOT_NULL(list->callback(list->startIndex + 1));
+    TEST_ASSERT_EQUAL_STRING("", list->callback(list->startIndex + 1)->item);
+    TEST_ASSERT_EQUAL_STRING("", list->callback(list->startIndex + 1)->value);
+    TEST_ASSERT_EQUAL_PTR(&pairs[2], list->callback(list->startIndex + 2));
+}
+
 void test_review_is_rejected_without_list(void)
 {
     nbgl_useCaseReview(TYPE_TRANSACTION, NULL, &C_Warning_64px, "Review", NULL, "Sign", onChoice);
@@ -1021,6 +1041,7 @@ int main(void)
     RUN_TEST(test_review_is_rejected_on_missing_callback_pair);
     RUN_TEST(test_review_is_rejected_without_callback);
     RUN_TEST(test_review_is_displayed_when_callback_pair_is_missing_after_start);
+    RUN_TEST(test_page_shows_empty_pair_when_callback_pair_is_missing_while_drawing);
     RUN_TEST(test_review_is_rejected_without_list);
     RUN_TEST(test_streaming_review_is_rejected_without_list);
     RUN_TEST(test_alias_without_extension_shows_nothing);
