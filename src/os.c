@@ -163,40 +163,95 @@ void *os_memset(void *s, int c, size_t n)
     return memset(s, c, n);
 }
 
-int bytes_to_hex(char *out, size_t outl, const void *value, size_t len)
+static int bytes_to_hex_digits(char       *out,
+                               size_t      outl,
+                               const void *value,
+                               size_t      len,
+                               const char *digits)
 {
     const uint8_t *bytes = (const uint8_t *) value;
-    const char    *hex   = "0123456789ABCDEF";
 
-    if (outl < 2 * len + 1) {
-        *out = '\0';
+    if (out == NULL) {
+        return -1;
+    }
+    if ((outl == 0) || (len > (outl - 1) / 2) || ((value == NULL) && (len > 0))) {
+        if (outl > 0) {
+            *out = '\0';
+        }
         return -1;
     }
 
     for (size_t i = 0; i < len; i++) {
-        *out++ = hex[(bytes[i] >> 4) & 0xf];
-        *out++ = hex[bytes[i] & 0xf];
+        *out++ = digits[(bytes[i] >> 4) & 0xf];
+        *out++ = digits[bytes[i] & 0xf];
     }
     *out = 0;
     return 0;
 }
 
+/**
+ * @brief Converts a byte buffer into a NUL-terminated uppercase hexadecimal string
+ *
+ * @param[out] out Output buffer
+ * @param[in] outl Size of @p out, at least HEX_STRING_SIZE(@p len)
+ * @param[in] value Bytes to convert, may be NULL if @p len is 0
+ * @param[in] len Number of bytes to convert
+ * @return 0 on success, -1 on invalid parameters or if @p out is too small, in which case
+ *         @p out is set to an empty string when it can hold one
+ */
+int bytes_to_hex(char *out, size_t outl, const void *value, size_t len)
+{
+    return bytes_to_hex_digits(out, outl, value, len, "0123456789ABCDEF");
+}
+
+/**
+ * @brief Same as bytes_to_hex(), with lowercase hexadecimal digits
+ */
 int bytes_to_lowercase_hex(char *out, size_t outl, const void *value, size_t len)
 {
-    const uint8_t *bytes = (const uint8_t *) value;
-    const char    *hex   = "0123456789abcdef";
+    return bytes_to_hex_digits(out, outl, value, len, "0123456789abcdef");
+}
 
-    if (outl < 2 * len + 1) {
+static int bytes_to_hex_0x_digits(char       *out,
+                                  size_t      outl,
+                                  const void *value,
+                                  size_t      len,
+                                  const char *digits)
+{
+    if (out == NULL) {
+        return -1;
+    }
+    if (outl < 2) {
+        if (outl > 0) {
+            *out = '\0';
+        }
+        return -1;
+    }
+    if (bytes_to_hex_digits(out + 2, outl - 2, value, len, digits) != 0) {
         *out = '\0';
         return -1;
     }
-
-    for (size_t i = 0; i < len; i++) {
-        *out++ = hex[(bytes[i] >> 4) & 0xf];
-        *out++ = hex[bytes[i] & 0xf];
-    }
-    *out = 0;
+    out[0] = '0';
+    out[1] = 'x';
     return 0;
+}
+
+/**
+ * @brief Same as bytes_to_hex(), with a "0x" prefix
+ *
+ * @p outl must be at least HEX_0X_STRING_SIZE(@p len).
+ */
+int bytes_to_hex_0x(char *out, size_t outl, const void *value, size_t len)
+{
+    return bytes_to_hex_0x_digits(out, outl, value, len, "0123456789ABCDEF");
+}
+
+/**
+ * @brief Same as bytes_to_hex_0x(), with lowercase hexadecimal digits
+ */
+int bytes_to_lowercase_hex_0x(char *out, size_t outl, const void *value, size_t len)
+{
+    return bytes_to_hex_0x_digits(out, outl, value, len, "0123456789abcdef");
 }
 
 // BSS wipe bounds
