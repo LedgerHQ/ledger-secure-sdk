@@ -163,40 +163,40 @@ void *os_memset(void *s, int c, size_t n)
     return memset(s, c, n);
 }
 
-int bytes_to_hex(char *out, size_t outl, const void *value, size_t len)
+static int bytes_to_hex_digits(char       *out,
+                               size_t      outl,
+                               const void *value,
+                               size_t      len,
+                               const char *digits)
 {
     const uint8_t *bytes = (const uint8_t *) value;
-    const char    *hex   = "0123456789ABCDEF";
 
-    if (outl < 2 * len + 1) {
-        *out = '\0';
+    if (out == NULL) {
+        return -1;
+    }
+    if ((outl == 0) || (len > (outl - 1) / 2) || ((value == NULL) && (len > 0))) {
+        if (outl > 0) {
+            *out = '\0';
+        }
         return -1;
     }
 
     for (size_t i = 0; i < len; i++) {
-        *out++ = hex[(bytes[i] >> 4) & 0xf];
-        *out++ = hex[bytes[i] & 0xf];
+        *out++ = digits[(bytes[i] >> 4) & 0xf];
+        *out++ = digits[bytes[i] & 0xf];
     }
     *out = 0;
     return 0;
 }
 
+int bytes_to_hex(char *out, size_t outl, const void *value, size_t len)
+{
+    return bytes_to_hex_digits(out, outl, value, len, "0123456789ABCDEF");
+}
+
 int bytes_to_lowercase_hex(char *out, size_t outl, const void *value, size_t len)
 {
-    const uint8_t *bytes = (const uint8_t *) value;
-    const char    *hex   = "0123456789abcdef";
-
-    if (outl < 2 * len + 1) {
-        *out = '\0';
-        return -1;
-    }
-
-    for (size_t i = 0; i < len; i++) {
-        *out++ = hex[(bytes[i] >> 4) & 0xf];
-        *out++ = hex[bytes[i] & 0xf];
-    }
-    *out = 0;
-    return 0;
+    return bytes_to_hex_digits(out, outl, value, len, "0123456789abcdef");
 }
 
 // BSS wipe bounds
