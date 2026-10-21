@@ -678,6 +678,22 @@ void test_review_is_displayed_when_callback_pair_is_missing_after_start(void)
     TEST_ASSERT_NOT_NULL(page_callback);
 }
 
+void test_review_is_rejected_without_list(void)
+{
+    nbgl_useCaseReview(TYPE_TRANSACTION, NULL, &C_Warning_64px, "Review", NULL, "Sign", onChoice);
+    TEST_ASSERT_EQUAL_INT(1, nb_choices);
+    TEST_ASSERT_FALSE(last_choice);
+    TEST_ASSERT_NULL(page_callback);
+}
+
+void test_streaming_review_is_rejected_without_list(void)
+{
+    nbgl_useCaseReviewStreamingContinue(NULL, onChoice);
+    TEST_ASSERT_EQUAL_INT(1, nb_choices);
+    TEST_ASSERT_FALSE(last_choice);
+    TEST_ASSERT_NULL(page_callback);
+}
+
 void test_alias_without_extension_shows_nothing(void)
 {
     checkAliasWithoutExtension(false);
@@ -1005,6 +1021,8 @@ int main(void)
     RUN_TEST(test_review_is_rejected_on_missing_callback_pair);
     RUN_TEST(test_review_is_rejected_without_callback);
     RUN_TEST(test_review_is_displayed_when_callback_pair_is_missing_after_start);
+    RUN_TEST(test_review_is_rejected_without_list);
+    RUN_TEST(test_streaming_review_is_rejected_without_list);
     RUN_TEST(test_alias_without_extension_shows_nothing);
     RUN_TEST(test_alias_without_extension_shows_nothing_with_callback);
     RUN_TEST(test_review_spans_at_least_three_pages);
