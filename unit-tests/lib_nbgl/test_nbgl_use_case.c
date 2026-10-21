@@ -365,6 +365,10 @@ static nbgl_content_t          content;
 static nbgl_genericContents_t  contents;
 // index of the first pair to get with the callback (startIndex of the list)
 static uint8_t callbackBase;
+// index (relative to callbackBase) of the pair not provided by the callback, -1 if none
+static int missingPair;
+// number of times the missing pair is still provided before the callback returns NULL for it
+static int nbCallsBeforeMissing;
 
 static int nb_rejects;
 
@@ -386,6 +390,12 @@ static nbgl_contentTagValue_t *getPair(uint8_t pairIndex)
 {
     TEST_ASSERT_GREATER_OR_EQUAL_UINT8(callbackBase, pairIndex);
     TEST_ASSERT_LESS_THAN_UINT8(NB_PAIRS, pairIndex - callbackBase);
+    if ((pairIndex - callbackBase) == missingPair) {
+        if (nbCallsBeforeMissing == 0) {
+            return NULL;
+        }
+        nbCallsBeforeMissing--;
+    }
     return &pairs[pairIndex - callbackBase];
 }
 
@@ -440,6 +450,8 @@ void setUp(void)
     last_choice           = false;
     nb_rejects            = 0;
     callbackBase          = 0;
+    missingPair           = -1;
+    nbCallsBeforeMissing  = 0;
 
     memset(extensions, 0, sizeof(extensions));
     for (uint8_t i = 0; i < NB_PAIRS; i++) {
@@ -612,6 +624,58 @@ void test_review_is_rejected_on_callback_index_overflow(void)
     TEST_ASSERT_EQUAL_INT(1, nb_choices);
     TEST_ASSERT_FALSE(last_choice);
     TEST_ASSERT_NULL(page_callback);
+}
+
+void test_generic_review_is_rejected_on_missing_callback_pair(void)
+{
+    buildList(NB_PAIRS, true);
+    missingPair = 2;
+    nbgl_useCaseGenericReview(&contents, "Reject", onReject);
+    TEST_ASSERT_EQUAL_INT(1, nb_rejects);
+    TEST_ASSERT_NULL(page_callback);
+}
+
+void test_review_is_rejected_on_missing_callback_pair(void)
+{
+    buildList(NB_PAIRS, true);
+    missingPair = 2;
+    nbgl_useCaseReview(TYPE_TRANSACTION,
+                       &content.content.tagValueConfirm.tagValueList,
+                       &C_Warning_64px,
+                       "Review",
+                       NULL,
+                       "Sign",
+                       onChoice);
+    TEST_ASSERT_EQUAL_INT(1, nb_choices);
+    TEST_ASSERT_FALSE(last_choice);
+    TEST_ASSERT_NULL(page_callback);
+}
+
+void test_review_is_rejected_without_callback(void)
+{
+    buildList(NB_PAIRS, true);
+    content.content.tagValueConfirm.tagValueList.callback = NULL;
+    nbgl_useCaseReview(TYPE_TRANSACTION,
+                       &content.content.tagValueConfirm.tagValueList,
+                       &C_Warning_64px,
+                       "Review",
+                       NULL,
+                       "Sign",
+                       onChoice);
+    TEST_ASSERT_EQUAL_INT(1, nb_choices);
+    TEST_ASSERT_FALSE(last_choice);
+    TEST_ASSERT_NULL(page_callback);
+}
+
+void test_review_is_displayed_when_callback_pair_is_missing_after_start(void)
+{
+    // the pair is only provided when the review is started
+    buildList(1, true);
+    missingPair          = 2;
+    nbCallsBeforeMissing = 1;
+    nbgl_useCaseGenericReview(&contents, "Reject", onReject);
+    TEST_ASSERT_EQUAL_INT(0, nb_rejects);
+    TEST_ASSERT_NOT_NULL(page_callback);
 }
 
 void test_alias_without_extension_shows_nothing(void)
@@ -937,6 +1001,10 @@ int main(void)
     RUN_TEST(test_alias_shows_touched_pair_with_callback_base_at_uint8_limit);
     RUN_TEST(test_generic_review_is_rejected_on_callback_index_overflow);
     RUN_TEST(test_review_is_rejected_on_callback_index_overflow);
+    RUN_TEST(test_generic_review_is_rejected_on_missing_callback_pair);
+    RUN_TEST(test_review_is_rejected_on_missing_callback_pair);
+    RUN_TEST(test_review_is_rejected_without_callback);
+    RUN_TEST(test_review_is_displayed_when_callback_pair_is_missing_after_start);
     RUN_TEST(test_alias_without_extension_shows_nothing);
     RUN_TEST(test_alias_without_extension_shows_nothing_with_callback);
     RUN_TEST(test_review_spans_at_least_three_pages);
