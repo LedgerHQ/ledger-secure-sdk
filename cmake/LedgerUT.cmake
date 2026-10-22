@@ -13,6 +13,11 @@ endif()
 
 option(LEDGER_UT_SANITIZERS "Build the test executables with ASan and UBSan" ON)
 
+# CMock configuration template: set LEDGER_UT_CMOCK_CONFIG before ledger_unit_tests_init() to change it
+if(NOT DEFINED LEDGER_UT_CMOCK_CONFIG)
+    set(LEDGER_UT_CMOCK_CONFIG ${CMAKE_CURRENT_LIST_DIR}/cmock_config.yml.in)
+endif()
+
 #######################################################################
 #                    include defines and includes                     #
 #######################################################################
@@ -70,7 +75,7 @@ macro(ledger_unit_tests_init)
     set(CMOCK_GEN_DIR ${CMAKE_CURRENT_BINARY_DIR}/mocks)
     file(MAKE_DIRECTORY ${CMOCK_GEN_DIR})
     include_directories(${CMAKE_CURRENT_BINARY_DIR}/mocks)
-    configure_file(${LEDGER_UT_DIR}/cmock_config.yml.in
+    configure_file(${LEDGER_UT_CMOCK_CONFIG}
         ${CMAKE_CURRENT_BINARY_DIR}/cmock_config.yml
         @ONLY)
 
