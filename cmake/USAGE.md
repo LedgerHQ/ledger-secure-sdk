@@ -140,7 +140,9 @@ access or an undefined behaviour aborts the test with its location and call stac
 Configure with `-DLEDGER_UT_SANITIZERS=OFF` to build without them.
 
 Mocks are generated at most once per header, even if several tests mock it
-(deduplicated via the `CMOCK_MOCKED_HEADERS` global property).
+(deduplicated via the `CMOCK_MOCKED_HEADERS` global property). With GCC, the
+generated `Mock*.c` files are compiled with `-Wno-nonnull-compare`, since CMock
+compares to NULL the arguments that SDK headers declare `nonnull`.
 
 ### 1.5. Coverage
 
