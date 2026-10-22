@@ -168,6 +168,11 @@ function(ledger_unit_tests_add_test)
         endif()
     endforeach()
 
+    # CMock compares to NULL the arguments that SDK headers declare nonnull
+    if(_mock_sources AND CMAKE_C_COMPILER_ID STREQUAL "GNU")
+        set_source_files_properties(${_mock_sources} PROPERTIES COMPILE_FLAGS -Wno-nonnull-compare)
+    endif()
+
     # add test executable
     add_executable(${ARG_NAME}
         ${ARG_NAME}.c
