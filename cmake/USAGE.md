@@ -99,7 +99,7 @@ Call once, before declaring any test. It:
 - sets C11 and the coverage flags (`--coverage`, `-O0 -g`, `-Wall -pedantic`),
 - forbids in-source builds,
 - creates the mock output directory and renders `cmock_config.yml` from the
-  template,
+  template (`LEDGER_UT_CMOCK_CONFIG`, see [1.7](#17-cmock-configuration)),
 - adds the global `TEST` define and silences `PRINTF(...)`,
 - creates the `generate_coverage` target, for the files under `LEDGER_UT_APP_SRC_DIR`.
 
@@ -171,6 +171,19 @@ different feature set, override or append values via the `COMPILE_DEFS` /
 `INCLUDE_DIRS` arguments of `ledger_unit_tests_build_app_sources_as_lib` and
 `ledger_unit_tests_add_test`, or edit `ut_compile_defines.cmake` /
 `ut_include_dirs.cmake` for project-wide changes.
+
+### 1.7. CMock configuration
+
+The default template `cmock_config.yml.in` enables the `ignore`, `expect_any_args` and
+`callback` plugins. To use another configuration, for instance to enable `return_thru_ptr`,
+set `LEDGER_UT_CMOCK_CONFIG` to your own template before calling `ledger_unit_tests_init()`:
+
+```cmake
+set(LEDGER_UT_CMOCK_CONFIG ${CMAKE_CURRENT_SOURCE_DIR}/cmock_config.yml.in)
+```
+
+The template is rendered with `configure_file(... @ONLY)`: keep `:mock_path: '@CMOCK_GEN_DIR@'`
+and the `:strippables:` of the default template, which SDK headers need to be mocked.
 
 ---
 
