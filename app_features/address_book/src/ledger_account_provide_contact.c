@@ -85,8 +85,10 @@ typedef struct {
  * @param[in] context the received payload
  * @return whether the handling was successful
  */
-static bool handle_struct_type(const tlv_data_t *data, s_provide_ledger_account_ctx *context)
+static bool handle_struct_type(const tlv_data_t *data, void *context_ptr)
 {
+    s_provide_ledger_account_ctx *context = context_ptr;
+
     UNUSED(context);
     if (!tlv_enforce_u8_value(data, TYPE_PROVIDE_LEDGER_ACCOUNT_CONTACT)) {
         PRINTF("[Provide Ledger Account] Invalid STRUCTURE_TYPE value\n");
@@ -102,8 +104,10 @@ static bool handle_struct_type(const tlv_data_t *data, s_provide_ledger_account_
  * @param[in] context the received payload
  * @return whether the handling was successful
  */
-static bool handle_struct_version(const tlv_data_t *data, s_provide_ledger_account_ctx *context)
+static bool handle_struct_version(const tlv_data_t *data, void *context_ptr)
 {
+    s_provide_ledger_account_ctx *context = context_ptr;
+
     UNUSED(context);
     if (!tlv_enforce_u8_value(data, STRUCT_VERSION)) {
         PRINTF("[Provide Ledger Account] Invalid STRUCTURE_VERSION value\n");
@@ -119,8 +123,10 @@ static bool handle_struct_version(const tlv_data_t *data, s_provide_ledger_accou
  * @param[out] context the received payload
  * @return whether the handling was successful
  */
-static bool handle_contact_name(const tlv_data_t *data, s_provide_ledger_account_ctx *context)
+static bool handle_contact_name(const tlv_data_t *data, void *context_ptr)
 {
+    s_provide_ledger_account_ctx *context = context_ptr;
+
     if (!address_book_handle_printable_string(data,
                                               context->ledger_account->account_name,
                                               sizeof(context->ledger_account->account_name))) {
@@ -137,8 +143,10 @@ static bool handle_contact_name(const tlv_data_t *data, s_provide_ledger_account
  * @param[out] context the received payload
  * @return whether the handling was successful
  */
-static bool handle_derivation_path(const tlv_data_t *data, s_provide_ledger_account_ctx *context)
+static bool handle_derivation_path(const tlv_data_t *data, void *context_ptr)
 {
+    s_provide_ledger_account_ctx *context = context_ptr;
+
     return address_book_handle_derivation_path(data, &context->ledger_account->bip32_path);
 }
 
@@ -149,8 +157,10 @@ static bool handle_derivation_path(const tlv_data_t *data, s_provide_ledger_acco
  * @param[out] context the received payload
  * @return whether the handling was successful
  */
-static bool handle_chain_id(const tlv_data_t *data, s_provide_ledger_account_ctx *context)
+static bool handle_chain_id(const tlv_data_t *data, void *context_ptr)
 {
+    s_provide_ledger_account_ctx *context = context_ptr;
+
     return address_book_handle_chain_id(data, &context->ledger_account->chain_id);
 }
 
@@ -161,8 +171,10 @@ static bool handle_chain_id(const tlv_data_t *data, s_provide_ledger_account_ctx
  * @param[out] context the received payload
  * @return whether the handling was successful
  */
-static bool handle_blockchain_family(const tlv_data_t *data, s_provide_ledger_account_ctx *context)
+static bool handle_blockchain_family(const tlv_data_t *data, void *context_ptr)
 {
+    s_provide_ledger_account_ctx *context = context_ptr;
+
     return address_book_handle_blockchain_family(data, &context->ledger_account->blockchain_family);
 }
 
@@ -173,8 +185,10 @@ static bool handle_blockchain_family(const tlv_data_t *data, s_provide_ledger_ac
  * @param[out] context the received payload
  * @return whether the handling was successful
  */
-static bool handle_hmac_proof(const tlv_data_t *data, s_provide_ledger_account_ctx *context)
+static bool handle_hmac_proof(const tlv_data_t *data, void *context_ptr)
 {
+    s_provide_ledger_account_ctx *context = context_ptr;
+
     buffer_t buf = {0};
     if (!get_buffer_from_tlv_data(data, &buf, CX_SHA256_SIZE, CX_SHA256_SIZE)) {
         PRINTF("[Provide Ledger Account] HMAC_PROOF: invalid length (expected %d bytes)\n",

@@ -47,14 +47,22 @@ It takes care of:
 ### 1.3. Quick start
 
 Create a `CMakeLists.txt` for your app's unit tests (e.g. in `tests/unit/`),
-pointing `SDK_DIR` at the SDK checkout and including `LedgerUT.cmake`:
+pointing `SDK_DIR` at the SDK checkout and including `LedgerUT.cmake`.
+
+Take the SDK path from the `BOLOS_SDK` environment variable, as below: the app builder
+images and the shared `reusable_unit_tests.yml` workflow provide it, and the workflow
+checks out the requested SDK reference there. A hard-coded path or a CMake default
+would silently test against another SDK than the one `BOLOS_SDK` points at.
 
 ```cmake
 cmake_minimum_required(VERSION 3.10)
 project(my_app_unit_tests LANGUAGES C)
 
 # Path to the ledger-secure-sdk checkout.
-set(SDK_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../sdk)
+if(NOT DEFINED ENV{BOLOS_SDK})
+    message(FATAL_ERROR "BOLOS_SDK environment variable is not set. Please set it to the path of the Ledger Secure SDK.")
+endif()
+set(SDK_DIR $ENV{BOLOS_SDK})
 
 # App sources, when they are not in ../src (optional, before ledger_unit_tests_init()).
 set(LEDGER_UT_APP_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../src)
@@ -83,6 +91,7 @@ ledger_unit_tests_add_test(
 Then configure, build and run:
 
 ```bash
+export BOLOS_SDK=/path/to/ledger-secure-sdk   # already set in the app builder images
 cmake -B build -S .
 cmake --build build
 ctest --test-dir build --output-on-failure
@@ -99,7 +108,7 @@ Call once, before declaring any test. It:
 - sets C11 and the coverage flags (`--coverage`, `-O0 -g`, `-Wall -pedantic`),
 - forbids in-source builds,
 - creates the mock output directory and renders `cmock_config.yml` from the
-  template,
+  template (`LEDGER_UT_CMOCK_CONFIG`, see [1.7](#17-cmock-configuration)),
 - adds the global `TEST` define and silences `PRINTF(...)`,
 - creates the `generate_coverage` target, for the files under `LEDGER_UT_APP_SRC_DIR`.
 
@@ -139,8 +148,31 @@ Every test executable is built with AddressSanitizer and UndefinedBehaviorSaniti
 access or an undefined behaviour aborts the test with its location and call stack.
 Configure with `-DLEDGER_UT_SANITIZERS=OFF` to build without them.
 
+Each test is stopped and reported as failed after `LEDGER_UT_TEST_TIMEOUT` seconds
+(60 by default): configure with `-DLEDGER_UT_TEST_TIMEOUT=<seconds>` to change it.
+
+Tests can be declared in a subdirectory added with `add_subdirectory()`, after
+`ledger_unit_tests_init()` was called in the parent directory.
+
 Mocks are generated at most once per header, even if several tests mock it
-(deduplicated via the `CMOCK_MOCKED_HEADERS` global property).
+(deduplicated via the `CMOCK_MOCKED_HEADERS` global property). With GCC, the
+generated `Mock*.c` files are compiled with `-Wno-nonnull-compare`, since CMock
+compares to NULL the arguments that SDK headers declare `nonnull`.
+
+#### Exceptions (`TRY` / `CATCH` / `THROW`)
+
+`LEDGER_UT_EXCEPTION_STUBS` is a source file implementing `try_context_get()`,
+`try_context_set()` and `os_longjmp()` on the host, as the device does: a `THROW` jumps to
+the innermost `TRY`, and a `THROW` outside of any `TRY` fails the test. Add it to the
+`SOURCES` of the tests running code that can throw:
+
+```cmake
+ledger_unit_tests_add_test(
+    NAME    test_foo
+    SOURCES ../../src/foo.c ${LEDGER_UT_EXCEPTION_STUBS})
+```
+
+Its functions are weak symbols: a test can still define its own versions.
 
 ### 1.5. Coverage
 
@@ -169,6 +201,19 @@ different feature set, override or append values via the `COMPILE_DEFS` /
 `INCLUDE_DIRS` arguments of `ledger_unit_tests_build_app_sources_as_lib` and
 `ledger_unit_tests_add_test`, or edit `ut_compile_defines.cmake` /
 `ut_include_dirs.cmake` for project-wide changes.
+
+### 1.7. CMock configuration
+
+The default template `cmock_config.yml.in` enables the `ignore`, `expect_any_args` and
+`callback` plugins. To use another configuration, for instance to enable `return_thru_ptr`,
+set `LEDGER_UT_CMOCK_CONFIG` to your own template before calling `ledger_unit_tests_init()`:
+
+```cmake
+set(LEDGER_UT_CMOCK_CONFIG ${CMAKE_CURRENT_SOURCE_DIR}/cmock_config.yml.in)
+```
+
+The template is rendered with `configure_file(... @ONLY)`: keep `:mock_path: '@CMOCK_GEN_DIR@'`
+and the `:strippables:` of the default template, which SDK headers need to be mocked.
 
 ---
 

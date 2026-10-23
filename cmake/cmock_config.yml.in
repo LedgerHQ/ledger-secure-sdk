@@ -16,3 +16,7 @@
     - :ignore
     - :expect_any_args
     - :callback
+  # Function types: compare the pointers, not sizeof(function) bytes of code
+  :treat_as:
+    'tlv_handler_cb_t*': 'PTR'
+    'tag_to_flag_function_t*': 'PTR'

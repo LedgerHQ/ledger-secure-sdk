@@ -47,50 +47,66 @@ typedef struct tlv_extracted_s {
     cx_sha256_t hash_ctx;
 } tlv_extracted_t;
 
-static bool handle_structure_type(const tlv_data_t *data, tlv_extracted_t *tlv_extracted)
+static bool handle_structure_type(const tlv_data_t *data, void *tlv_extracted_ptr)
 {
+    tlv_extracted_t *tlv_extracted = tlv_extracted_ptr;
+
     return get_uint8_t_from_tlv_data(data, &tlv_extracted->structure_type);
 }
 
-static bool handle_version(const tlv_data_t *data, tlv_extracted_t *tlv_extracted)
+static bool handle_version(const tlv_data_t *data, void *tlv_extracted_ptr)
 {
+    tlv_extracted_t *tlv_extracted = tlv_extracted_ptr;
+
     return get_uint8_t_from_tlv_data(data, &tlv_extracted->output->version);
 }
 
-static bool handle_coin_type(const tlv_data_t *data, tlv_extracted_t *tlv_extracted)
+static bool handle_coin_type(const tlv_data_t *data, void *tlv_extracted_ptr)
 {
+    tlv_extracted_t *tlv_extracted = tlv_extracted_ptr;
+
     return get_uint32_t_from_tlv_data(data, &tlv_extracted->output->coin_type);
 }
 
-static bool handle_application_name(const tlv_data_t *data, tlv_extracted_t *tlv_extracted)
+static bool handle_application_name(const tlv_data_t *data, void *tlv_extracted_ptr)
 {
+    tlv_extracted_t *tlv_extracted = tlv_extracted_ptr;
+
     return get_string_from_tlv_data(
         data, tlv_extracted->application_name, 1, sizeof(tlv_extracted->application_name));
 }
 
-static bool handle_ticker(const tlv_data_t *data, tlv_extracted_t *tlv_extracted)
+static bool handle_ticker(const tlv_data_t *data, void *tlv_extracted_ptr)
 {
+    tlv_extracted_t *tlv_extracted = tlv_extracted_ptr;
+
     return get_string_from_tlv_data(
         data, tlv_extracted->output->ticker, 1, sizeof(tlv_extracted->output->ticker));
 }
 
-static bool handle_magnitude(const tlv_data_t *data, tlv_extracted_t *tlv_extracted)
+static bool handle_magnitude(const tlv_data_t *data, void *tlv_extracted_ptr)
 {
+    tlv_extracted_t *tlv_extracted = tlv_extracted_ptr;
+
     return get_uint8_t_from_tlv_data(data, &tlv_extracted->output->magnitude);
 }
 
-static bool handle_tuid(const tlv_data_t *data, tlv_extracted_t *tlv_extracted)
+static bool handle_tuid(const tlv_data_t *data, void *tlv_extracted_ptr)
 {
+    tlv_extracted_t *tlv_extracted = tlv_extracted_ptr;
+
     return get_buffer_from_tlv_data(data, &tlv_extracted->output->TUID, 0, 0);
 }
 
-static bool handle_signature(const tlv_data_t *data, tlv_extracted_t *tlv_extracted)
+static bool handle_signature(const tlv_data_t *data, void *tlv_extracted_ptr)
 {
+    tlv_extracted_t *tlv_extracted = tlv_extracted_ptr;
+
     return get_buffer_from_tlv_data(
         data, &tlv_extracted->input_sig, DER_SIGNATURE_MIN_SIZE, DER_SIGNATURE_MAX_SIZE);
 }
 
-static bool handle_common(const tlv_data_t *data, tlv_extracted_t *tlv_extracted);
+static bool handle_common(const tlv_data_t *data, void *tlv_extracted_ptr);
 
 // clang-format off
 // List of TLV tags recognized by the Solana application
@@ -107,8 +123,10 @@ static bool handle_common(const tlv_data_t *data, tlv_extracted_t *tlv_extracted
 
 DEFINE_TLV_PARSER(TLV_TAGS, &handle_common, parse_dynamic_token_tag)
 
-static bool handle_common(const tlv_data_t *data, tlv_extracted_t *tlv_extracted)
+static bool handle_common(const tlv_data_t *data, void *tlv_extracted_ptr)
 {
+    tlv_extracted_t *tlv_extracted = tlv_extracted_ptr;
+
     if (data->tag != TAG_SIGNATURE) {
         CX_ASSERT(
             cx_hash_update((cx_hash_t *) &tlv_extracted->hash_ctx, data->raw.ptr, data->raw.size));
