@@ -732,6 +732,56 @@ void test_review_spans_at_least_three_pages(void)
 }
 
 // ============================================================================
+// nbgl_useCaseAddressReview: first page + address page with QR code button
+// ============================================================================
+
+// Starts an address review with the given additional list, and checks that it is displayed and
+// that the address page, reached from the first page, has the QR code button
+static void checkAddressReviewWithQrCode(const nbgl_contentTagValueList_t *additionalList)
+{
+    nbgl_useCaseAddressReview(
+        "0xADDRESS", additionalList, &C_Warning_64px, "Verify address", NULL, onChoice);
+    TEST_ASSERT_EQUAL_INT(0, nb_choices);
+    TEST_ASSERT_NOT_NULL(page_callback);
+    TEST_ASSERT_EQUAL(EXTENDED_CENTER, page_content.type);
+
+    page_callback(page_nav.navWithButtons.navToken, 1);
+    TEST_ASSERT_EQUAL(TAG_VALUE_CONFIRM, page_content.type);
+    TEST_ASSERT_EQUAL_UINT8(1, page_content.tagValueConfirm.tagValueList.nbPairs);
+    TEST_ASSERT_EQUAL_STRING("0xADDRESS", page_content.tagValueConfirm.tagValueList.pairs[0].value);
+    TEST_ASSERT_EQUAL_PTR(&QRCODE_ICON, page_content.tagValueConfirm.detailsButtonIcon);
+    TEST_ASSERT_EQUAL_INT(0, nb_choices);
+}
+
+void test_address_review_with_empty_list_is_displayed(void)
+{
+    // a zeroed list (no pairs, no callback), as given by the Rust SDK without extra fields
+    nbgl_contentTagValueList_t emptyList = {0};
+
+    checkAddressReviewWithQrCode(&emptyList);
+}
+
+void test_address_review_without_list_is_displayed(void)
+{
+    checkAddressReviewWithQrCode(NULL);
+}
+
+void test_address_review_is_rejected_without_callback(void)
+{
+    buildList(NB_PAIRS, true);
+    content.content.tagValueConfirm.tagValueList.callback = NULL;
+    nbgl_useCaseAddressReview("0xADDRESS",
+                              &content.content.tagValueConfirm.tagValueList,
+                              &C_Warning_64px,
+                              "Verify address",
+                              NULL,
+                              onChoice);
+    TEST_ASSERT_EQUAL_INT(1, nb_choices);
+    TEST_ASSERT_FALSE(last_choice);
+    TEST_ASSERT_NULL(page_callback);
+}
+
+// ============================================================================
 // V-293: custom warning only made of the info field
 // ============================================================================
 
@@ -1047,6 +1097,9 @@ int main(void)
     RUN_TEST(test_alias_without_extension_shows_nothing);
     RUN_TEST(test_alias_without_extension_shows_nothing_with_callback);
     RUN_TEST(test_review_spans_at_least_three_pages);
+    RUN_TEST(test_address_review_with_empty_list_is_displayed);
+    RUN_TEST(test_address_review_without_list_is_displayed);
+    RUN_TEST(test_address_review_is_rejected_without_callback);
     RUN_TEST(test_info_only_warning_is_displayed_before_review);
     RUN_TEST(test_info_only_warning_can_be_rejected);
     RUN_TEST(test_info_only_warning_is_displayed_before_streaming_review);

@@ -531,9 +531,10 @@ static nbgl_contentTagValue_t *getCurrentPageTagValuePair(uint8_t pairIndex)
 // Helper to check that all pairs of a tag/value list retrieved with a callback are provided by it,
 // with an index fitting in uint8_t (from startIndex to startIndex + nbPairs - 1).
 // A NULL list is valid: callers where the list is mandatory must reject it themselves.
+// An empty list is valid too, since no pair is retrieved from it.
 static bool isTagValueListValid(const nbgl_contentTagValueList_t *tagValueList)
 {
-    if ((tagValueList == NULL) || (tagValueList->pairs != NULL)) {
+    if ((tagValueList == NULL) || (tagValueList->pairs != NULL) || (tagValueList->nbPairs == 0)) {
         return true;
     }
     if ((tagValueList->callback == NULL)

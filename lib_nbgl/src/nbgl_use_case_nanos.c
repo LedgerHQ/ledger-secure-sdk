@@ -248,10 +248,10 @@ static bool isTagValueListValid(const nbgl_contentTagValueList_t *tagValueList)
 }
 
 // Helper to check that a tag/value list is valid and that its callback, if any, provides all pairs.
-// The list must not be NULL.
+// The list must not be NULL. An empty list is complete, since no pair is retrieved from it.
 static bool isTagValueListComplete(const nbgl_contentTagValueList_t *tagValueList)
 {
-    if (tagValueList->pairs != NULL) {
+    if ((tagValueList->pairs != NULL) || (tagValueList->nbPairs == 0)) {
         return true;
     }
     if ((tagValueList->callback == NULL) || !isTagValueListValid(tagValueList)) {
