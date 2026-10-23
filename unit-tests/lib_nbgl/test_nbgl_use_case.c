@@ -706,6 +706,23 @@ void test_review_is_rejected_without_list(void)
     TEST_ASSERT_NULL(page_callback);
 }
 
+void test_review_is_rejected_with_empty_list(void)
+{
+    // without pairs, the review could not go further than its first page
+    nbgl_contentTagValueList_t emptyList = {0};
+
+    for (uint8_t withPairs = 0; withPairs < 2; withPairs++) {
+        emptyList.pairs = withPairs ? pairs : NULL;
+        nb_choices      = 0;
+        page_callback   = NULL;
+        nbgl_useCaseReview(
+            TYPE_TRANSACTION, &emptyList, &C_Warning_64px, "Review", NULL, "Sign", onChoice);
+        TEST_ASSERT_EQUAL_INT(1, nb_choices);
+        TEST_ASSERT_FALSE(last_choice);
+        TEST_ASSERT_NULL(page_callback);
+    }
+}
+
 void test_streaming_review_is_rejected_without_list(void)
 {
     nbgl_useCaseReviewStreamingContinue(NULL, onChoice);
@@ -1093,6 +1110,7 @@ int main(void)
     RUN_TEST(test_review_is_displayed_when_callback_pair_is_missing_after_start);
     RUN_TEST(test_page_shows_empty_pair_when_callback_pair_is_missing_while_drawing);
     RUN_TEST(test_review_is_rejected_without_list);
+    RUN_TEST(test_review_is_rejected_with_empty_list);
     RUN_TEST(test_streaming_review_is_rejected_without_list);
     RUN_TEST(test_alias_without_extension_shows_nothing);
     RUN_TEST(test_alias_without_extension_shows_nothing_with_callback);

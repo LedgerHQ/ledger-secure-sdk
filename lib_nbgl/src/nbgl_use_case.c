@@ -3066,7 +3066,9 @@ static void useCaseReview(nbgl_operationType_t              operationType,
                           bool                              isLight,
                           bool                              playNotifSound)
 {
-    if ((tagValueList == NULL) || !isTagValueListValid(tagValueList)) {
+    // an empty list would give a page without content, preventing to reach the approval page
+    if ((tagValueList == NULL) || (tagValueList->nbPairs == 0)
+        || !isTagValueListValid(tagValueList)) {
         if (choiceCallback != NULL) {
             choiceCallback(false);
         }
