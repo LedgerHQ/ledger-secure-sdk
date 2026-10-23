@@ -47,14 +47,22 @@ It takes care of:
 ### 1.3. Quick start
 
 Create a `CMakeLists.txt` for your app's unit tests (e.g. in `tests/unit/`),
-pointing `SDK_DIR` at the SDK checkout and including `LedgerUT.cmake`:
+pointing `SDK_DIR` at the SDK checkout and including `LedgerUT.cmake`.
+
+Take the SDK path from the `BOLOS_SDK` environment variable, as below: the app builder
+images and the shared `reusable_unit_tests.yml` workflow provide it, and the workflow
+checks out the requested SDK reference there. A hard-coded path or a CMake default
+would silently test against another SDK than the one `BOLOS_SDK` points at.
 
 ```cmake
 cmake_minimum_required(VERSION 3.10)
 project(my_app_unit_tests LANGUAGES C)
 
 # Path to the ledger-secure-sdk checkout.
-set(SDK_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../sdk)
+if(NOT DEFINED ENV{BOLOS_SDK})
+    message(FATAL_ERROR "BOLOS_SDK environment variable is not set. Please set it to the path of the Ledger Secure SDK.")
+endif()
+set(SDK_DIR $ENV{BOLOS_SDK})
 
 # App sources, when they are not in ../src (optional, before ledger_unit_tests_init()).
 set(LEDGER_UT_APP_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../src)
@@ -83,6 +91,7 @@ ledger_unit_tests_add_test(
 Then configure, build and run:
 
 ```bash
+export BOLOS_SDK=/path/to/ledger-secure-sdk   # already set in the app builder images
 cmake -B build -S .
 cmake --build build
 ctest --test-dir build --output-on-failure
