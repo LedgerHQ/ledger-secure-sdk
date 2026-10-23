@@ -14,6 +14,9 @@ endif()
 option(LEDGER_UT_SANITIZERS "Build the test executables with ASan and UBSan" ON)
 set(LEDGER_UT_TEST_TIMEOUT 60 CACHE STRING "Timeout of each unit test, in seconds")
 
+# Host TRY / CATCH / THROW support, to add to the SOURCES of the tests that need it
+set(LEDGER_UT_EXCEPTION_STUBS ${CMAKE_CURRENT_LIST_DIR}/ut_exceptions.c)
+
 # CMock configuration template: set LEDGER_UT_CMOCK_CONFIG before ledger_unit_tests_init() to change it
 if(NOT DEFINED LEDGER_UT_CMOCK_CONFIG)
     set(LEDGER_UT_CMOCK_CONFIG ${CMAKE_CURRENT_LIST_DIR}/cmock_config.yml.in)
