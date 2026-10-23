@@ -15,3 +15,14 @@ ledger_unit_tests_add_test(
                  ${UT_INCLUDE_DIRS_SDK}
     COMPILE_DEFS ${UT_COMPILE_DEFS_SDK}
 )
+
+# os.c linked with the framework's exception stubs
+ledger_unit_tests_add_test(
+    NAME         test_os_longjmp
+    SOURCES      ${SDK_DIR}/src/os.c
+                 ${CMAKE_CURRENT_SOURCE_DIR}/stubs.c
+                 ${LEDGER_UT_EXCEPTION_STUBS}
+    INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}
+                 ${UT_INCLUDE_DIRS_SDK}
+    COMPILE_DEFS ${UT_COMPILE_DEFS_SDK}
+)
