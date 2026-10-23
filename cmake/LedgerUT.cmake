@@ -12,6 +12,7 @@ if(NOT DEFINED LEDGER_UT_APP_SRC_DIR)
 endif()
 
 option(LEDGER_UT_SANITIZERS "Build the test executables with ASan and UBSan" ON)
+set(LEDGER_UT_TEST_TIMEOUT 60 CACHE STRING "Timeout of each unit test, in seconds")
 
 # CMock configuration template: set LEDGER_UT_CMOCK_CONFIG before ledger_unit_tests_init() to change it
 if(NOT DEFINED LEDGER_UT_CMOCK_CONFIG)
@@ -211,4 +212,5 @@ function(ledger_unit_tests_add_test)
 
     # register test
     add_test(NAME ${ARG_NAME} COMMAND ${ARG_NAME})
+    set_tests_properties(${ARG_NAME} PROPERTIES TIMEOUT ${LEDGER_UT_TEST_TIMEOUT})
 endfunction()

@@ -139,6 +139,9 @@ Every test executable is built with AddressSanitizer and UndefinedBehaviorSaniti
 access or an undefined behaviour aborts the test with its location and call stack.
 Configure with `-DLEDGER_UT_SANITIZERS=OFF` to build without them.
 
+Each test is stopped and reported as failed after `LEDGER_UT_TEST_TIMEOUT` seconds
+(60 by default): configure with `-DLEDGER_UT_TEST_TIMEOUT=<seconds>` to change it.
+
 Tests can be declared in a subdirectory added with `add_subdirectory()`, after
 `ledger_unit_tests_init()` was called in the parent directory.
 
