@@ -723,6 +723,42 @@ void test_review_is_rejected_with_empty_list(void)
     }
 }
 
+void test_generic_review_is_rejected_with_empty_list(void)
+{
+    // an intro, an empty tag/value content and an approval page: the empty content would block
+    // the review on its intro
+    nbgl_content_t         emptyContents[3] = {0};
+    nbgl_genericContents_t emptyGeneric     = {0};
+
+    emptyContents[0].type                                = CENTERED_INFO;
+    emptyContents[0].content.centeredInfo.text1          = "Intro";
+    emptyContents[2].type                                = INFO_LONG_PRESS;
+    emptyContents[2].content.infoLongPress.text          = "Sign";
+    emptyContents[2].content.infoLongPress.longPressText = "Hold to sign";
+    emptyGeneric.contentsList                            = emptyContents;
+    emptyGeneric.nbContents                              = 3;
+
+    for (uint8_t confirm = 0; confirm < 2; confirm++) {
+        for (uint8_t withPairs = 0; withPairs < 2; withPairs++) {
+            memset(&emptyContents[1], 0, sizeof(emptyContents[1]));
+            emptyContents[1].type = confirm ? TAG_VALUE_CONFIRM : TAG_VALUE_LIST;
+            if (confirm) {
+                emptyContents[1].content.tagValueConfirm.tagValueList.pairs
+                    = withPairs ? pairs : NULL;
+                emptyContents[1].content.tagValueConfirm.confirmationText = "Confirm";
+            }
+            else {
+                emptyContents[1].content.tagValueList.pairs = withPairs ? pairs : NULL;
+            }
+            nb_rejects    = 0;
+            page_callback = NULL;
+            nbgl_useCaseGenericReview(&emptyGeneric, "Reject", onReject);
+            TEST_ASSERT_EQUAL_INT(1, nb_rejects);
+            TEST_ASSERT_NULL(page_callback);
+        }
+    }
+}
+
 void test_streaming_review_is_rejected_without_list(void)
 {
     nbgl_useCaseReviewStreamingContinue(NULL, onChoice);
@@ -1111,6 +1147,7 @@ int main(void)
     RUN_TEST(test_page_shows_empty_pair_when_callback_pair_is_missing_while_drawing);
     RUN_TEST(test_review_is_rejected_without_list);
     RUN_TEST(test_review_is_rejected_with_empty_list);
+    RUN_TEST(test_generic_review_is_rejected_with_empty_list);
     RUN_TEST(test_streaming_review_is_rejected_without_list);
     RUN_TEST(test_alias_without_extension_shows_nothing);
     RUN_TEST(test_alias_without_extension_shows_nothing_with_callback);
