@@ -12,6 +12,15 @@ if(NOT DEFINED LEDGER_UT_APP_SRC_DIR)
 endif()
 
 option(LEDGER_UT_SANITIZERS "Build the test executables with ASan and UBSan" ON)
+set(LEDGER_UT_TEST_TIMEOUT 60 CACHE STRING "Timeout of each unit test, in seconds")
+
+# Host TRY / CATCH / THROW support, to add to the SOURCES of the tests that need it
+set(LEDGER_UT_EXCEPTION_STUBS ${CMAKE_CURRENT_LIST_DIR}/ut_exceptions.c)
+
+# CMock configuration template: set LEDGER_UT_CMOCK_CONFIG before ledger_unit_tests_init() to change it
+if(NOT DEFINED LEDGER_UT_CMOCK_CONFIG)
+    set(LEDGER_UT_CMOCK_CONFIG ${CMAKE_CURRENT_LIST_DIR}/cmock_config.yml.in)
+endif()
 
 #######################################################################
 #                    include defines and includes                     #
@@ -68,11 +77,10 @@ macro(ledger_unit_tests_init)
     endif()
 
     set(CMOCK_GEN_DIR ${CMAKE_CURRENT_BINARY_DIR}/mocks)
+    set(CMOCK_CONFIG_FILE ${CMAKE_CURRENT_BINARY_DIR}/cmock_config.yml)
     file(MAKE_DIRECTORY ${CMOCK_GEN_DIR})
     include_directories(${CMAKE_CURRENT_BINARY_DIR}/mocks)
-    configure_file(${LEDGER_UT_DIR}/cmock_config.yml.in
-        ${CMAKE_CURRENT_BINARY_DIR}/cmock_config.yml
-        @ONLY)
+    configure_file(${LEDGER_UT_CMOCK_CONFIG} ${CMOCK_CONFIG_FILE} @ONLY)
 
     add_compile_definitions(TEST)
     add_compile_options("-DPRINTF(...)=")
@@ -130,7 +138,7 @@ function(ledger_unit_tests_add_test)
     cmake_parse_arguments(ARG "" "NAME" "SOURCES;MOCK_HEADERS;INCLUDE_DIRS;COMPILE_DEFS;COMPILE_OPTIONS;LINK_OPTIONS" ${ARGN})
 
     # for all MOCK_HEADERS, generate a mock source file if not already generated
-    set(_cmock_config ${CMAKE_CURRENT_BINARY_DIR}/cmock_config.yml)
+    set(_cmock_config ${CMOCK_CONFIG_FILE})
     set(_mock_sources "")
     foreach(_header ${ARG_MOCK_HEADERS})
         get_filename_component(_basename ${_header} NAME_WE)
@@ -168,6 +176,11 @@ function(ledger_unit_tests_add_test)
         endif()
     endforeach()
 
+    # CMock compares to NULL the arguments that SDK headers declare nonnull
+    if(_mock_sources AND CMAKE_C_COMPILER_ID STREQUAL "GNU")
+        set_source_files_properties(${_mock_sources} PROPERTIES COMPILE_FLAGS -Wno-nonnull-compare)
+    endif()
+
     # add test executable
     add_executable(${ARG_NAME}
         ${ARG_NAME}.c
@@ -202,4 +215,5 @@ function(ledger_unit_tests_add_test)
 
     # register test
     add_test(NAME ${ARG_NAME} COMMAND ${ARG_NAME})
+    set_tests_properties(${ARG_NAME} PROPERTIES TIMEOUT ${LEDGER_UT_TEST_TIMEOUT})
 endfunction()

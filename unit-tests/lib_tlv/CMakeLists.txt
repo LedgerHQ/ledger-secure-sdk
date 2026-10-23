@@ -60,7 +60,7 @@ ledger_unit_tests_add_test(
                     ${SDK_DIR}/lib_pki/ledger_pki.h
     INCLUDE_DIRS    ${TLV_INCLUDE_DIRS}
     COMPILE_DEFS    ${TLV_COMPILE_DEFS}
-    COMPILE_OPTIONS ${TLV_COMPILE_OPTIONS} -Wno-nonnull-compare
+    COMPILE_OPTIONS ${TLV_COMPILE_OPTIONS}
 )
 
 # trusted_name uses all hash init functions + cx_hash_update/final + CX_ASSERT
@@ -79,7 +79,7 @@ ledger_unit_tests_add_test(
                     ${SDK_DIR}/lib_pki/ledger_pki.h
     INCLUDE_DIRS    ${TLV_INCLUDE_DIRS}
     COMPILE_DEFS    ${TLV_COMPILE_DEFS}
-    COMPILE_OPTIONS ${TLV_COMPILE_OPTIONS} -Wno-nonnull-compare
+    COMPILE_OPTIONS ${TLV_COMPILE_OPTIONS}
                     -include ${SDK_DIR}/lib_cxng/include/lcx_hash.h
 )
 
@@ -100,6 +100,6 @@ ledger_unit_tests_add_test(
                     /usr/include/bsd
     COMPILE_DEFS    ${TLV_COMPILE_DEFS}
                     LIBBSD_OVERLAY
-    COMPILE_OPTIONS ${TLV_COMPILE_OPTIONS} -Wno-nonnull-compare
+    COMPILE_OPTIONS ${TLV_COMPILE_OPTIONS}
 )
 target_link_libraries(test_tlv_use_case_transaction_check PRIVATE bsd)

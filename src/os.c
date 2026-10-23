@@ -94,6 +94,8 @@ int compute_address_location(int address)
                   + MAIN_LINKER_SCRIPT_LOCATION);
 }
 
+// Host unit tests use the framework's os_longjmp
+#ifndef OS_UNIT_TEST
 void os_longjmp(unsigned int exception)
 {
 #ifdef HAVE_DEBUG_THROWS
@@ -109,6 +111,7 @@ void os_longjmp(unsigned int exception)
 
     longjmp(try_context_get()->jmp_buf, exception);
 }
+#endif  // OS_UNIT_TEST
 #endif  // HAVE_BOLOS
 
 #ifndef BOLOS_OS_UPGRADER_APP
