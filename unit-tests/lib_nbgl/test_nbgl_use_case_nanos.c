@@ -481,6 +481,49 @@ static void test_address_review_max_pairs_displays_address_and_pairs_before_appr
     TEST_ASSERT_TRUE(last_choice);
 }
 
+// Starts an address review with the given additional list, and checks that the address is
+// displayed before the approval page, which can be approved
+static void check_address_review_is_approved(const nbgl_contentTagValueList_t *additionalList)
+{
+    bool address_seen = false;
+
+    nbgl_useCaseAddressReview(
+        "0xADDRESS", additionalList, &C_icon_warning, "Verify", NULL, on_choice);
+    TEST_ASSERT_EQUAL_INT(0, nb_choices);
+    for (int presses = 0; !approve_displayed(); presses++) {
+        TEST_ASSERT_LESS_THAN_MESSAGE(8, presses, "approval page never reached");
+        TEST_ASSERT_LESS_THAN(0, displayed_pair());
+        if ((last_subtext != NULL) && (strcmp(last_subtext, "0xADDRESS") == 0)) {
+            address_seen = true;
+        }
+        press(BUTTON_RIGHT_PRESSED);
+    }
+    TEST_ASSERT_TRUE(address_seen);
+    press(BUTTON_BOTH_PRESSED);
+    TEST_ASSERT_EQUAL_INT(1, nb_choices);
+    TEST_ASSERT_TRUE(last_choice);
+}
+
+static void test_address_review_with_empty_list_is_displayed(void)
+{
+    // a zeroed list (no pairs, no callback), as given by the Rust SDK without extra fields
+    memset(&list, 0, sizeof(list));
+    check_address_review_is_approved(&list);
+}
+
+static void test_address_review_without_list_is_displayed(void)
+{
+    check_address_review_is_approved(NULL);
+}
+
+static void test_address_review_without_callback_is_rejected(void)
+{
+    list          = make_callback_list(5, 50);
+    list.callback = NULL;
+    nbgl_useCaseAddressReview("0xADDRESS", &list, &C_icon_warning, "Verify", NULL, on_choice);
+    assert_rejected_without_display();
+}
+
 // ============================================================================
 // nbgl_useCaseReviewStreamingContinue: pairs + 1 page to request more data
 // ============================================================================
@@ -710,6 +753,9 @@ int main(void)
     RUN_TEST(test_address_review_overflow_is_rejected);
     RUN_TEST(test_address_review_first_overflowing_counts_are_rejected);
     RUN_TEST(test_address_review_max_pairs_displays_address_and_pairs_before_approve);
+    RUN_TEST(test_address_review_with_empty_list_is_displayed);
+    RUN_TEST(test_address_review_without_list_is_displayed);
+    RUN_TEST(test_address_review_without_callback_is_rejected);
     RUN_TEST(test_streaming_continue_overflow_is_rejected);
     RUN_TEST(test_streaming_continue_max_pairs_displays_all_then_continues);
     RUN_TEST(test_choice_overflow_is_rejected);
