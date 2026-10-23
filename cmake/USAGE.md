@@ -159,6 +159,21 @@ Mocks are generated at most once per header, even if several tests mock it
 generated `Mock*.c` files are compiled with `-Wno-nonnull-compare`, since CMock
 compares to NULL the arguments that SDK headers declare `nonnull`.
 
+#### Exceptions (`TRY` / `CATCH` / `THROW`)
+
+`LEDGER_UT_EXCEPTION_STUBS` is a source file implementing `try_context_get()`,
+`try_context_set()` and `os_longjmp()` on the host, as the device does: a `THROW` jumps to
+the innermost `TRY`, and a `THROW` outside of any `TRY` fails the test. Add it to the
+`SOURCES` of the tests running code that can throw:
+
+```cmake
+ledger_unit_tests_add_test(
+    NAME    test_foo
+    SOURCES ../../src/foo.c ${LEDGER_UT_EXCEPTION_STUBS})
+```
+
+Its functions are weak symbols: a test can still define its own versions.
+
 ### 1.5. Coverage
 
 `ledger_unit_tests_init()` creates a `generate_coverage` target. After building and running
