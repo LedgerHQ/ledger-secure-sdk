@@ -91,8 +91,10 @@ typedef struct {
  * @param[in] context the received payload
  * @return whether the handling was successful
  */
-static bool handle_struct_type(const tlv_data_t *data, s_edit_ctx *context)
+static bool handle_struct_type(const tlv_data_t *data, void *context_ptr)
 {
+    s_edit_ctx *context = context_ptr;
+
     UNUSED(context);
     if (!tlv_enforce_u8_value(data, TYPE_EDIT_IDENTIFIER)) {
         PRINTF("[Edit Identifier] Invalid STRUCTURE_TYPE value\n");
@@ -108,8 +110,10 @@ static bool handle_struct_type(const tlv_data_t *data, s_edit_ctx *context)
  * @param[in] context the received payload
  * @return whether the handling was successful
  */
-static bool handle_struct_version(const tlv_data_t *data, s_edit_ctx *context)
+static bool handle_struct_version(const tlv_data_t *data, void *context_ptr)
 {
+    s_edit_ctx *context = context_ptr;
+
     UNUSED(context);
     if (!tlv_enforce_u8_value(data, STRUCT_VERSION)) {
         PRINTF("[Edit Identifier] Invalid STRUCTURE_VERSION value\n");
@@ -125,8 +129,10 @@ static bool handle_struct_version(const tlv_data_t *data, s_edit_ctx *context)
  * @param[in] context the received payload
  * @return whether the handling was successful
  */
-static bool handle_contact_name(const tlv_data_t *data, s_edit_ctx *context)
+static bool handle_contact_name(const tlv_data_t *data, void *context_ptr)
 {
+    s_edit_ctx *context = context_ptr;
+
     if (!address_book_handle_printable_string(data,
                                               context->edit->identity.contact_name,
                                               sizeof(context->edit->identity.contact_name))) {
@@ -143,8 +149,10 @@ static bool handle_contact_name(const tlv_data_t *data, s_edit_ctx *context)
  * @param[in] context the received payload
  * @return whether the handling was successful
  */
-static bool handle_scope(const tlv_data_t *data, s_edit_ctx *context)
+static bool handle_scope(const tlv_data_t *data, void *context_ptr)
 {
+    s_edit_ctx *context = context_ptr;
+
     if (!address_book_handle_printable_string(
             data, context->edit->identity.scope, sizeof(context->edit->identity.scope))) {
         PRINTF("[Edit Identifier] SCOPE: failed to parse\n");
@@ -160,8 +168,10 @@ static bool handle_scope(const tlv_data_t *data, s_edit_ctx *context)
  * @param[in] context the received payload
  * @return whether the handling was successful
  */
-static bool handle_identifier(const tlv_data_t *data, s_edit_ctx *context)
+static bool handle_identifier(const tlv_data_t *data, void *context_ptr)
 {
+    s_edit_ctx *context = context_ptr;
+
     buffer_t buf = {0};
     if (!get_buffer_from_tlv_data(data, &buf, 1, IDENTIFIER_MAX_LENGTH)) {
         PRINTF("[Edit Identifier] IDENTIFIER: failed to extract\n");
@@ -181,8 +191,10 @@ static bool handle_identifier(const tlv_data_t *data, s_edit_ctx *context)
  * @param[in] context the received payload
  * @return whether the handling was successful
  */
-static bool handle_previous_identifier(const tlv_data_t *data, s_edit_ctx *context)
+static bool handle_previous_identifier(const tlv_data_t *data, void *context_ptr)
 {
+    s_edit_ctx *context = context_ptr;
+
     buffer_t buf = {0};
     if (!get_buffer_from_tlv_data(data, &buf, 1, IDENTIFIER_MAX_LENGTH)) {
         PRINTF("[Edit Identifier] PREVIOUS_IDENTIFIER: failed to extract\n");
@@ -200,8 +212,10 @@ static bool handle_previous_identifier(const tlv_data_t *data, s_edit_ctx *conte
  * @param[in] context the received payload
  * @return whether the handling was successful
  */
-static bool handle_group_handle(const tlv_data_t *data, s_edit_ctx *context)
+static bool handle_group_handle(const tlv_data_t *data, void *context_ptr)
 {
+    s_edit_ctx *context = context_ptr;
+
     buffer_t buf = {0};
     if (!get_buffer_from_tlv_data(data, &buf, GROUP_HANDLE_SIZE, GROUP_HANDLE_SIZE)) {
         PRINTF("[Edit Identifier] GROUP_HANDLE: invalid length (expected %d bytes)\n",
@@ -219,8 +233,10 @@ static bool handle_group_handle(const tlv_data_t *data, s_edit_ctx *context)
  * @param[in] context the received payload
  * @return whether the handling was successful
  */
-static bool handle_chain_id(const tlv_data_t *data, s_edit_ctx *context)
+static bool handle_chain_id(const tlv_data_t *data, void *context_ptr)
 {
+    s_edit_ctx *context = context_ptr;
+
     return address_book_handle_chain_id(data, &context->edit->identity.chain_id);
 }
 
@@ -231,8 +247,10 @@ static bool handle_chain_id(const tlv_data_t *data, s_edit_ctx *context)
  * @param[in] context the received payload
  * @return whether the handling was successful
  */
-static bool handle_blockchain_family(const tlv_data_t *data, s_edit_ctx *context)
+static bool handle_blockchain_family(const tlv_data_t *data, void *context_ptr)
 {
+    s_edit_ctx *context = context_ptr;
+
     return address_book_handle_blockchain_family(data, &context->edit->identity.blockchain_family);
 }
 
@@ -243,8 +261,10 @@ static bool handle_blockchain_family(const tlv_data_t *data, s_edit_ctx *context
  * @param[in] context the received payload
  * @return whether the handling was successful
  */
-static bool handle_hmac_proof(const tlv_data_t *data, s_edit_ctx *context)
+static bool handle_hmac_proof(const tlv_data_t *data, void *context_ptr)
 {
+    s_edit_ctx *context = context_ptr;
+
     buffer_t buf = {0};
     if (!get_buffer_from_tlv_data(data, &buf, CX_SHA256_SIZE, CX_SHA256_SIZE)) {
         PRINTF("[Edit Identifier] HMAC_PROOF: invalid length (expected %d bytes)\n",
@@ -262,8 +282,10 @@ static bool handle_hmac_proof(const tlv_data_t *data, s_edit_ctx *context)
  * @param[in] context the received payload
  * @return whether the handling was successful
  */
-static bool handle_hmac_rest(const tlv_data_t *data, s_edit_ctx *context)
+static bool handle_hmac_rest(const tlv_data_t *data, void *context_ptr)
 {
+    s_edit_ctx *context = context_ptr;
+
     buffer_t buf = {0};
     if (!get_buffer_from_tlv_data(data, &buf, CX_SHA256_SIZE, CX_SHA256_SIZE)) {
         PRINTF("[Edit Identifier] HMAC_REST: invalid length (expected %d bytes)\n", CX_SHA256_SIZE);

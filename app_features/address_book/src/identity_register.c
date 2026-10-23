@@ -80,8 +80,10 @@ typedef struct {
  * @param[in] context the received payload
  * @return whether the handling was successful
  */
-static bool handle_struct_type(const tlv_data_t *data, s_identity_ctx *context)
+static bool handle_struct_type(const tlv_data_t *data, void *context_ptr)
 {
+    s_identity_ctx *context = context_ptr;
+
     UNUSED(context);
     if (!tlv_enforce_u8_value(data, TYPE_REGISTER_IDENTITY)) {
         PRINTF("[Register Identity] Invalid STRUCTURE_TYPE value\n");
@@ -97,8 +99,10 @@ static bool handle_struct_type(const tlv_data_t *data, s_identity_ctx *context)
  * @param[in] context the received payload
  * @return whether the handling was successful
  */
-static bool handle_struct_version(const tlv_data_t *data, s_identity_ctx *context)
+static bool handle_struct_version(const tlv_data_t *data, void *context_ptr)
 {
+    s_identity_ctx *context = context_ptr;
+
     UNUSED(context);
     if (!tlv_enforce_u8_value(data, STRUCT_VERSION)) {
         PRINTF("[Register Identity] Invalid STRUCTURE_VERSION value\n");
@@ -114,8 +118,10 @@ static bool handle_struct_version(const tlv_data_t *data, s_identity_ctx *contex
  * @param[in] context the received payload
  * @return whether the handling was successful
  */
-static bool handle_contact_name(const tlv_data_t *data, s_identity_ctx *context)
+static bool handle_contact_name(const tlv_data_t *data, void *context_ptr)
 {
+    s_identity_ctx *context = context_ptr;
+
     if (!address_book_handle_printable_string(data,
                                               context->state->identity.contact_name,
                                               sizeof(context->state->identity.contact_name))) {
@@ -132,8 +138,10 @@ static bool handle_contact_name(const tlv_data_t *data, s_identity_ctx *context)
  * @param[in] context the received payload
  * @return whether the handling was successful
  */
-static bool handle_scope(const tlv_data_t *data, s_identity_ctx *context)
+static bool handle_scope(const tlv_data_t *data, void *context_ptr)
 {
+    s_identity_ctx *context = context_ptr;
+
     if (!address_book_handle_printable_string(
             data, context->state->identity.scope, sizeof(context->state->identity.scope))) {
         PRINTF("SCOPE: failed to parse\n");
@@ -149,8 +157,10 @@ static bool handle_scope(const tlv_data_t *data, s_identity_ctx *context)
  * @param[in] context the received payload
  * @return whether the handling was successful
  */
-static bool handle_identifier(const tlv_data_t *data, s_identity_ctx *context)
+static bool handle_identifier(const tlv_data_t *data, void *context_ptr)
 {
+    s_identity_ctx *context = context_ptr;
+
     buffer_t buf = {0};
     if (!get_buffer_from_tlv_data(data, &buf, 1, IDENTIFIER_MAX_LENGTH)) {
         PRINTF("IDENTIFIER: failed to extract\n");
@@ -168,8 +178,10 @@ static bool handle_identifier(const tlv_data_t *data, s_identity_ctx *context)
  * @param[in] context the received payload
  * @return whether the handling was successful
  */
-static bool handle_chain_id(const tlv_data_t *data, s_identity_ctx *context)
+static bool handle_chain_id(const tlv_data_t *data, void *context_ptr)
 {
+    s_identity_ctx *context = context_ptr;
+
     return address_book_handle_chain_id(data, &context->state->identity.chain_id);
 }
 
@@ -180,8 +192,10 @@ static bool handle_chain_id(const tlv_data_t *data, s_identity_ctx *context)
  * @param[in] context the received payload
  * @return whether the handling was successful
  */
-static bool handle_blockchain_family(const tlv_data_t *data, s_identity_ctx *context)
+static bool handle_blockchain_family(const tlv_data_t *data, void *context_ptr)
 {
+    s_identity_ctx *context = context_ptr;
+
     return address_book_handle_blockchain_family(data, &context->state->identity.blockchain_family);
 }
 
@@ -192,8 +206,10 @@ static bool handle_blockchain_family(const tlv_data_t *data, s_identity_ctx *con
  * @param[in] context the received payload
  * @return whether the handling was successful
  */
-static bool handle_group_handle(const tlv_data_t *data, s_identity_ctx *context)
+static bool handle_group_handle(const tlv_data_t *data, void *context_ptr)
 {
+    s_identity_ctx *context = context_ptr;
+
     buffer_t buf = {0};
     if (!get_buffer_from_tlv_data(data, &buf, GROUP_HANDLE_SIZE, GROUP_HANDLE_SIZE)) {
         PRINTF("[Register Identity] GROUP_HANDLE: invalid length (expected %d bytes)\n",
@@ -211,8 +227,10 @@ static bool handle_group_handle(const tlv_data_t *data, s_identity_ctx *context)
  * @param[in] context the received payload
  * @return whether the handling was successful
  */
-static bool handle_hmac_proof(const tlv_data_t *data, s_identity_ctx *context)
+static bool handle_hmac_proof(const tlv_data_t *data, void *context_ptr)
 {
+    s_identity_ctx *context = context_ptr;
+
     buffer_t buf = {0};
     if (!get_buffer_from_tlv_data(data, &buf, CX_SHA256_SIZE, CX_SHA256_SIZE)) {
         PRINTF("[Register Identity] HMAC_PROOF: invalid length (expected %d bytes)\n",
