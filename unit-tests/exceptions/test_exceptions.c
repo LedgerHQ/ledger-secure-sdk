@@ -109,11 +109,32 @@ void test_uncaught_exception_reaches_outer_try(void)
     TEST_ASSERT_NULL(try_context_get());
 }
 
+// Run in this order: the first test leaves its TRY context behind, the second checks it is gone
+void test_abort_inside_try(void)
+{
+    BEGIN_TRY
+    {
+        TRY
+        {
+            TEST_IGNORE_MESSAGE("Aborts the test inside a TRY block");
+        }
+        FINALLY {}
+    }
+    END_TRY;
+}
+
+void test_no_context_after_abort_inside_try(void)
+{
+    TEST_ASSERT_NULL(try_context_get());
+}
+
 int main(void)
 {
     UNITY_BEGIN();
     RUN_TEST(test_throw_is_caught);
     RUN_TEST(test_no_throw_restores_context);
     RUN_TEST(test_uncaught_exception_reaches_outer_try);
+    RUN_TEST(test_abort_inside_try);
+    RUN_TEST(test_no_context_after_abort_inside_try);
     return UNITY_END();
 }
