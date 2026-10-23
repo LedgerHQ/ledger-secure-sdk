@@ -160,6 +160,11 @@ int os_io_stop(void)
     return 0;
 }
 
+int os_io_seph_cmd_se_reset(void)
+{
+    return 0;
+}
+
 int os_io_seph_cmd_general_status(void)
 {
     return 0;
