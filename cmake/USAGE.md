@@ -139,6 +139,9 @@ Every test executable is built with AddressSanitizer and UndefinedBehaviorSaniti
 access or an undefined behaviour aborts the test with its location and call stack.
 Configure with `-DLEDGER_UT_SANITIZERS=OFF` to build without them.
 
+Tests can be declared in a subdirectory added with `add_subdirectory()`, after
+`ledger_unit_tests_init()` was called in the parent directory.
+
 Mocks are generated at most once per header, even if several tests mock it
 (deduplicated via the `CMOCK_MOCKED_HEADERS` global property). With GCC, the
 generated `Mock*.c` files are compiled with `-Wno-nonnull-compare`, since CMock

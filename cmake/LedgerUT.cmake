@@ -73,11 +73,10 @@ macro(ledger_unit_tests_init)
     endif()
 
     set(CMOCK_GEN_DIR ${CMAKE_CURRENT_BINARY_DIR}/mocks)
+    set(CMOCK_CONFIG_FILE ${CMAKE_CURRENT_BINARY_DIR}/cmock_config.yml)
     file(MAKE_DIRECTORY ${CMOCK_GEN_DIR})
     include_directories(${CMAKE_CURRENT_BINARY_DIR}/mocks)
-    configure_file(${LEDGER_UT_CMOCK_CONFIG}
-        ${CMAKE_CURRENT_BINARY_DIR}/cmock_config.yml
-        @ONLY)
+    configure_file(${LEDGER_UT_CMOCK_CONFIG} ${CMOCK_CONFIG_FILE} @ONLY)
 
     add_compile_definitions(TEST)
     add_compile_options("-DPRINTF(...)=")
@@ -135,7 +134,7 @@ function(ledger_unit_tests_add_test)
     cmake_parse_arguments(ARG "" "NAME" "SOURCES;MOCK_HEADERS;INCLUDE_DIRS;COMPILE_DEFS;COMPILE_OPTIONS;LINK_OPTIONS" ${ARGN})
 
     # for all MOCK_HEADERS, generate a mock source file if not already generated
-    set(_cmock_config ${CMAKE_CURRENT_BINARY_DIR}/cmock_config.yml)
+    set(_cmock_config ${CMOCK_CONFIG_FILE})
     set(_mock_sources "")
     foreach(_header ${ARG_MOCK_HEADERS})
         get_filename_component(_basename ${_header} NAME_WE)
