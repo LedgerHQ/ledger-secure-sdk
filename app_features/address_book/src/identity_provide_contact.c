@@ -88,8 +88,10 @@ typedef struct {
  * @param[in] context the received payload
  * @return whether the handling was successful
  */
-static bool handle_struct_type(const tlv_data_t *data, s_provide_contact_ctx *context)
+static bool handle_struct_type(const tlv_data_t *data, void *context_ptr)
 {
+    s_provide_contact_ctx *context = context_ptr;
+
     UNUSED(context);
     if (!tlv_enforce_u8_value(data, TYPE_PROVIDE_CONTACT)) {
         PRINTF("[Provide Contact] Invalid STRUCTURE_TYPE value\n");
@@ -105,8 +107,10 @@ static bool handle_struct_type(const tlv_data_t *data, s_provide_contact_ctx *co
  * @param[in] context the received payload
  * @return whether the handling was successful
  */
-static bool handle_struct_version(const tlv_data_t *data, s_provide_contact_ctx *context)
+static bool handle_struct_version(const tlv_data_t *data, void *context_ptr)
 {
+    s_provide_contact_ctx *context = context_ptr;
+
     UNUSED(context);
     if (!tlv_enforce_u8_value(data, STRUCT_VERSION)) {
         PRINTF("[Provide Contact] Invalid STRUCTURE_VERSION value\n");
@@ -122,8 +126,10 @@ static bool handle_struct_version(const tlv_data_t *data, s_provide_contact_ctx 
  * @param[out] context the received payload
  * @return whether the handling was successful
  */
-static bool handle_contact_name(const tlv_data_t *data, s_provide_contact_ctx *context)
+static bool handle_contact_name(const tlv_data_t *data, void *context_ptr)
 {
+    s_provide_contact_ctx *context = context_ptr;
+
     if (!address_book_handle_printable_string(
             data, context->identity->contact_name, sizeof(context->identity->contact_name))) {
         PRINTF("[Provide Contact] CONTACT_NAME: failed to parse\n");
@@ -139,8 +145,10 @@ static bool handle_contact_name(const tlv_data_t *data, s_provide_contact_ctx *c
  * @param[out] context the received payload
  * @return whether the handling was successful
  */
-static bool handle_scope(const tlv_data_t *data, s_provide_contact_ctx *context)
+static bool handle_scope(const tlv_data_t *data, void *context_ptr)
 {
+    s_provide_contact_ctx *context = context_ptr;
+
     if (!address_book_handle_printable_string(
             data, context->identity->scope, sizeof(context->identity->scope))) {
         PRINTF("[Provide Contact] SCOPE: failed to parse\n");
@@ -156,8 +164,10 @@ static bool handle_scope(const tlv_data_t *data, s_provide_contact_ctx *context)
  * @param[out] context the received payload
  * @return whether the handling was successful
  */
-static bool handle_identifier(const tlv_data_t *data, s_provide_contact_ctx *context)
+static bool handle_identifier(const tlv_data_t *data, void *context_ptr)
 {
+    s_provide_contact_ctx *context = context_ptr;
+
     buffer_t buf = {0};
     if (!get_buffer_from_tlv_data(data, &buf, 1, IDENTIFIER_MAX_LENGTH)) {
         PRINTF("[Provide Contact] IDENTIFIER: failed to extract\n");
@@ -175,8 +185,10 @@ static bool handle_identifier(const tlv_data_t *data, s_provide_contact_ctx *con
  * @param[out] context the received payload
  * @return whether the handling was successful
  */
-static bool handle_group_handle(const tlv_data_t *data, s_provide_contact_ctx *context)
+static bool handle_group_handle(const tlv_data_t *data, void *context_ptr)
 {
+    s_provide_contact_ctx *context = context_ptr;
+
     buffer_t buf = {0};
     if (!get_buffer_from_tlv_data(data, &buf, GROUP_HANDLE_SIZE, GROUP_HANDLE_SIZE)) {
         PRINTF("[Provide Contact] GROUP_HANDLE: invalid length (expected %d bytes)\n",
@@ -194,8 +206,10 @@ static bool handle_group_handle(const tlv_data_t *data, s_provide_contact_ctx *c
  * @param[out] context the received payload
  * @return whether the handling was successful
  */
-static bool handle_chain_id(const tlv_data_t *data, s_provide_contact_ctx *context)
+static bool handle_chain_id(const tlv_data_t *data, void *context_ptr)
 {
+    s_provide_contact_ctx *context = context_ptr;
+
     return address_book_handle_chain_id(data, &context->identity->chain_id);
 }
 
@@ -206,8 +220,10 @@ static bool handle_chain_id(const tlv_data_t *data, s_provide_contact_ctx *conte
  * @param[out] context the received payload
  * @return whether the handling was successful
  */
-static bool handle_blockchain_family(const tlv_data_t *data, s_provide_contact_ctx *context)
+static bool handle_blockchain_family(const tlv_data_t *data, void *context_ptr)
 {
+    s_provide_contact_ctx *context = context_ptr;
+
     return address_book_handle_blockchain_family(data, &context->identity->blockchain_family);
 }
 
@@ -218,8 +234,10 @@ static bool handle_blockchain_family(const tlv_data_t *data, s_provide_contact_c
  * @param[out] context the received payload
  * @return whether the handling was successful
  */
-static bool handle_hmac_proof(const tlv_data_t *data, s_provide_contact_ctx *context)
+static bool handle_hmac_proof(const tlv_data_t *data, void *context_ptr)
 {
+    s_provide_contact_ctx *context = context_ptr;
+
     buffer_t buf = {0};
     if (!get_buffer_from_tlv_data(data, &buf, CX_SHA256_SIZE, CX_SHA256_SIZE)) {
         PRINTF("[Provide Contact] HMAC_PROOF: invalid length (expected %d bytes)\n",
@@ -237,8 +255,10 @@ static bool handle_hmac_proof(const tlv_data_t *data, s_provide_contact_ctx *con
  * @param[out] context the received payload
  * @return whether the handling was successful
  */
-static bool handle_hmac_rest(const tlv_data_t *data, s_provide_contact_ctx *context)
+static bool handle_hmac_rest(const tlv_data_t *data, void *context_ptr)
 {
+    s_provide_contact_ctx *context = context_ptr;
+
     buffer_t buf = {0};
     if (!get_buffer_from_tlv_data(data, &buf, CX_SHA256_SIZE, CX_SHA256_SIZE)) {
         PRINTF("[Provide Contact] HMAC_REST: invalid length (expected %d bytes)\n", CX_SHA256_SIZE);

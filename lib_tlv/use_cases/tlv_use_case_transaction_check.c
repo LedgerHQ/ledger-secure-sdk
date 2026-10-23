@@ -49,47 +49,61 @@ typedef struct tlv_extracted_s {
 // Tag handlers
 // ─────────────────────────────────────────────────────────────────────────────
 
-static bool handle_structure_type(const tlv_data_t *data, tlv_extracted_t *tlv_extracted)
+static bool handle_structure_type(const tlv_data_t *data, void *tlv_extracted_ptr)
 {
+    tlv_extracted_t *tlv_extracted = tlv_extracted_ptr;
+
     return get_uint8_t_from_tlv_data(data, &tlv_extracted->structure_type);
 }
 
-static bool handle_structure_version(const tlv_data_t *data, tlv_extracted_t *tlv_extracted)
+static bool handle_structure_version(const tlv_data_t *data, void *tlv_extracted_ptr)
 {
+    tlv_extracted_t *tlv_extracted = tlv_extracted_ptr;
+
     return get_uint8_t_from_tlv_data(data, &tlv_extracted->structure_version);
 }
 
-static bool handle_tx_hash(const tlv_data_t *data, tlv_extracted_t *tlv_extracted)
+static bool handle_tx_hash(const tlv_data_t *data, void *tlv_extracted_ptr)
 {
+    tlv_extracted_t *tlv_extracted = tlv_extracted_ptr;
+
     return get_buffer_from_tlv_data(data,
                                     &tlv_extracted->output->tx_hash,
                                     TRANSACTION_CHECK_HASH_SIZE,
                                     TRANSACTION_CHECK_HASH_SIZE);
 }
 
-static bool handle_domain_hash(const tlv_data_t *data, tlv_extracted_t *tlv_extracted)
+static bool handle_domain_hash(const tlv_data_t *data, void *tlv_extracted_ptr)
 {
+    tlv_extracted_t *tlv_extracted = tlv_extracted_ptr;
+
     return get_buffer_from_tlv_data(data,
                                     &tlv_extracted->output->domain_hash,
                                     TRANSACTION_CHECK_HASH_SIZE,
                                     TRANSACTION_CHECK_HASH_SIZE);
 }
 
-static bool handle_address(const tlv_data_t *data, tlv_extracted_t *tlv_extracted)
+static bool handle_address(const tlv_data_t *data, void *tlv_extracted_ptr)
 {
+    tlv_extracted_t *tlv_extracted = tlv_extracted_ptr;
+
     return get_buffer_from_tlv_data(data,
                                     &tlv_extracted->output->address,
                                     TRANSACTION_CHECK_MIN_ADDRESS_SIZE,
                                     TRANSACTION_CHECK_MAX_ADDRESS_SIZE);
 }
 
-static bool handle_chain_id(const tlv_data_t *data, tlv_extracted_t *tlv_extracted)
+static bool handle_chain_id(const tlv_data_t *data, void *tlv_extracted_ptr)
 {
+    tlv_extracted_t *tlv_extracted = tlv_extracted_ptr;
+
     return get_uint64_t_from_tlv_data(data, &tlv_extracted->output->chain_id);
 }
 
-static bool handle_risk(const tlv_data_t *data, tlv_extracted_t *tlv_extracted)
+static bool handle_risk(const tlv_data_t *data, void *tlv_extracted_ptr)
 {
+    tlv_extracted_t *tlv_extracted = tlv_extracted_ptr;
+
     uint8_t value = 0;
     if (!get_uint8_t_from_tlv_data(data, &value)) {
         PRINTF("TX_CHECK_NORMALIZED_RISK: failed to extract\n");
@@ -103,8 +117,10 @@ static bool handle_risk(const tlv_data_t *data, tlv_extracted_t *tlv_extracted)
     return true;
 }
 
-static bool handle_category(const tlv_data_t *data, tlv_extracted_t *tlv_extracted)
+static bool handle_category(const tlv_data_t *data, void *tlv_extracted_ptr)
 {
+    tlv_extracted_t *tlv_extracted = tlv_extracted_ptr;
+
     uint8_t value = 0;
     if (!get_uint8_t_from_tlv_data(data, &value)) {
         PRINTF("TX_CHECK_NORMALIZED_CATEGORY: failed to extract\n");
@@ -118,8 +134,10 @@ static bool handle_category(const tlv_data_t *data, tlv_extracted_t *tlv_extract
     return true;
 }
 
-static bool handle_type(const tlv_data_t *data, tlv_extracted_t *tlv_extracted)
+static bool handle_type(const tlv_data_t *data, void *tlv_extracted_ptr)
 {
+    tlv_extracted_t *tlv_extracted = tlv_extracted_ptr;
+
     uint8_t value = 0;
     if (!get_uint8_t_from_tlv_data(data, &value)) {
         PRINTF("TX_CHECK_SIMULATION_TYPE: failed to extract\n");
@@ -133,8 +151,10 @@ static bool handle_type(const tlv_data_t *data, tlv_extracted_t *tlv_extracted)
     return true;
 }
 
-static bool handle_provider_msg(const tlv_data_t *data, tlv_extracted_t *tlv_extracted)
+static bool handle_provider_msg(const tlv_data_t *data, void *tlv_extracted_ptr)
 {
+    tlv_extracted_t *tlv_extracted = tlv_extracted_ptr;
+
     if (!get_string_from_tlv_data(data,
                                   tlv_extracted->output->provider_msg,
                                   0,
@@ -150,8 +170,10 @@ static bool handle_provider_msg(const tlv_data_t *data, tlv_extracted_t *tlv_ext
     return true;
 }
 
-static bool handle_tiny_url(const tlv_data_t *data, tlv_extracted_t *tlv_extracted)
+static bool handle_tiny_url(const tlv_data_t *data, void *tlv_extracted_ptr)
 {
+    tlv_extracted_t *tlv_extracted = tlv_extracted_ptr;
+
     if (!get_string_from_tlv_data(
             data, tlv_extracted->output->tiny_url, 0, sizeof(tlv_extracted->output->tiny_url))) {
         PRINTF("TX_CHECK_TINY_URL: failed to extract\n");
@@ -165,8 +187,10 @@ static bool handle_tiny_url(const tlv_data_t *data, tlv_extracted_t *tlv_extract
     return true;
 }
 
-static bool handle_signature(const tlv_data_t *data, tlv_extracted_t *tlv_extracted)
+static bool handle_signature(const tlv_data_t *data, void *tlv_extracted_ptr)
 {
+    tlv_extracted_t *tlv_extracted = tlv_extracted_ptr;
+
     return get_buffer_from_tlv_data(data,
                                     &tlv_extracted->input_sig,
                                     CX_ECDSA_SHA256_SIG_MIN_ASN1_LENGTH,
@@ -177,7 +201,7 @@ static bool handle_signature(const tlv_data_t *data, tlv_extracted_t *tlv_extrac
 // TLV parser macro
 // ─────────────────────────────────────────────────────────────────────────────
 
-static bool handle_common(const tlv_data_t *data, tlv_extracted_t *tlv_extracted);
+static bool handle_common(const tlv_data_t *data, void *tlv_extracted_ptr);
 
 // clang-format off
 #define TRANSACTION_CHECK_TLV_TAGS(X)                                                 \
@@ -201,8 +225,10 @@ DEFINE_TLV_PARSER(TRANSACTION_CHECK_TLV_TAGS, &handle_common, parse_transaction_
 /**
  * @brief Common handler called for all tags to progressively hash them (except signature).
  */
-static bool handle_common(const tlv_data_t *data, tlv_extracted_t *tlv_extracted)
+static bool handle_common(const tlv_data_t *data, void *tlv_extracted_ptr)
 {
+    tlv_extracted_t *tlv_extracted = tlv_extracted_ptr;
+
     if (data->tag != TAG_DER_SIGNATURE) {
         CX_ASSERT(
             cx_hash_update((cx_hash_t *) &tlv_extracted->hash_ctx, data->raw.ptr, data->raw.size));

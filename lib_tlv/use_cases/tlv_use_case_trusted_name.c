@@ -136,64 +136,88 @@ typedef struct tlv_extracted_s {
     multi_hash_ctx_t hash_ctx;
 } tlv_extracted_t;
 
-static bool handle_structure_type(const tlv_data_t *data, tlv_extracted_t *tlv_extracted)
+static bool handle_structure_type(const tlv_data_t *data, void *tlv_extracted_ptr)
 {
+    tlv_extracted_t *tlv_extracted = tlv_extracted_ptr;
+
     return get_uint8_t_from_tlv_data(data, &tlv_extracted->structure_type);
 }
 
-static bool handle_version(const tlv_data_t *data, tlv_extracted_t *tlv_extracted)
+static bool handle_version(const tlv_data_t *data, void *tlv_extracted_ptr)
 {
+    tlv_extracted_t *tlv_extracted = tlv_extracted_ptr;
+
     return get_uint8_t_from_tlv_data(data, &tlv_extracted->output->version);
 }
 
-static bool handle_trusted_name_type(const tlv_data_t *data, tlv_extracted_t *tlv_extracted)
+static bool handle_trusted_name_type(const tlv_data_t *data, void *tlv_extracted_ptr)
 {
+    tlv_extracted_t *tlv_extracted = tlv_extracted_ptr;
+
     return get_uint8_t_from_tlv_data(data, &tlv_extracted->output->trusted_name_type);
 }
 
-static bool handle_trusted_name_source(const tlv_data_t *data, tlv_extracted_t *tlv_extracted)
+static bool handle_trusted_name_source(const tlv_data_t *data, void *tlv_extracted_ptr)
 {
+    tlv_extracted_t *tlv_extracted = tlv_extracted_ptr;
+
     return get_uint8_t_from_tlv_data(data, &tlv_extracted->output->trusted_name_source);
 }
 
-static bool handle_blockchain_family(const tlv_data_t *data, tlv_extracted_t *tlv_extracted)
+static bool handle_blockchain_family(const tlv_data_t *data, void *tlv_extracted_ptr)
 {
+    tlv_extracted_t *tlv_extracted = tlv_extracted_ptr;
+
     return get_uint8_t_from_tlv_data(data, &tlv_extracted->output->blockchain_family);
 }
 
-static bool handle_trusted_name(const tlv_data_t *data, tlv_extracted_t *tlv_extracted)
+static bool handle_trusted_name(const tlv_data_t *data, void *tlv_extracted_ptr)
 {
+    tlv_extracted_t *tlv_extracted = tlv_extracted_ptr;
+
     return get_buffer_from_tlv_data(
         data, &tlv_extracted->output->trusted_name, 1, TRUSTED_NAME_STRINGS_MAX_SIZE);
 }
 
-static bool handle_chain_id(const tlv_data_t *data, tlv_extracted_t *tlv_extracted)
+static bool handle_chain_id(const tlv_data_t *data, void *tlv_extracted_ptr)
 {
+    tlv_extracted_t *tlv_extracted = tlv_extracted_ptr;
+
     return get_uint64_t_from_tlv_data(data, &tlv_extracted->output->chain_id);
 }
 
-static bool handle_address(const tlv_data_t *data, tlv_extracted_t *tlv_extracted)
+static bool handle_address(const tlv_data_t *data, void *tlv_extracted_ptr)
 {
+    tlv_extracted_t *tlv_extracted = tlv_extracted_ptr;
+
     return get_buffer_from_tlv_data(data, &tlv_extracted->output->address, 1, 0);
 }
 
-static bool handle_nft_id(const tlv_data_t *data, tlv_extracted_t *tlv_extracted)
+static bool handle_nft_id(const tlv_data_t *data, void *tlv_extracted_ptr)
 {
+    tlv_extracted_t *tlv_extracted = tlv_extracted_ptr;
+
     return get_buffer_from_tlv_data(data, &tlv_extracted->output->nft_id, NFT_ID_SIZE, NFT_ID_SIZE);
 }
 
-static bool handle_source_contract(const tlv_data_t *data, tlv_extracted_t *tlv_extracted)
+static bool handle_source_contract(const tlv_data_t *data, void *tlv_extracted_ptr)
 {
+    tlv_extracted_t *tlv_extracted = tlv_extracted_ptr;
+
     return get_buffer_from_tlv_data(data, &tlv_extracted->output->source_contract, 1, 0);
 }
 
-static bool handle_challenge(const tlv_data_t *data, tlv_extracted_t *tlv_extracted)
+static bool handle_challenge(const tlv_data_t *data, void *tlv_extracted_ptr)
 {
+    tlv_extracted_t *tlv_extracted = tlv_extracted_ptr;
+
     return get_uint32_t_from_tlv_data(data, &tlv_extracted->output->challenge);
 }
 
-static bool handle_not_valid_after(const tlv_data_t *data, tlv_extracted_t *tlv_extracted)
+static bool handle_not_valid_after(const tlv_data_t *data, void *tlv_extracted_ptr)
 {
+    tlv_extracted_t *tlv_extracted = tlv_extracted_ptr;
+
     switch (data->value.size) {
         case 3:
             // uint8 major, uint8 minor, uint8 patch
@@ -216,23 +240,29 @@ static bool handle_not_valid_after(const tlv_data_t *data, tlv_extracted_t *tlv_
     return true;
 }
 
-static bool handle_signer_key_id(const tlv_data_t *data, tlv_extracted_t *tlv_extracted)
+static bool handle_signer_key_id(const tlv_data_t *data, void *tlv_extracted_ptr)
 {
+    tlv_extracted_t *tlv_extracted = tlv_extracted_ptr;
+
     return get_uint16_t_from_tlv_data(data, &tlv_extracted->signer_key_id);
 }
 
-static bool handle_signer_algorithm(const tlv_data_t *data, tlv_extracted_t *tlv_extracted)
+static bool handle_signer_algorithm(const tlv_data_t *data, void *tlv_extracted_ptr)
 {
+    tlv_extracted_t *tlv_extracted = tlv_extracted_ptr;
+
     return get_uint8_t_from_tlv_data(data, &tlv_extracted->signer_algo);
 }
 
-static bool handle_der_signature(const tlv_data_t *data, tlv_extracted_t *tlv_extracted)
+static bool handle_der_signature(const tlv_data_t *data, void *tlv_extracted_ptr)
 {
+    tlv_extracted_t *tlv_extracted = tlv_extracted_ptr;
+
     return get_buffer_from_tlv_data(
         data, &tlv_extracted->input_sig, DER_SIGNATURE_MIN_SIZE, DER_SIGNATURE_MAX_SIZE);
 }
 
-static bool handle_common(const tlv_data_t *data, tlv_extracted_t *tlv_extracted);
+static bool handle_common(const tlv_data_t *data, void *tlv_extracted_ptr);
 
 // clang-format off
 // List of TLV tags recognized by the Solana application
@@ -256,8 +286,10 @@ static bool handle_common(const tlv_data_t *data, tlv_extracted_t *tlv_extracted
 
 DEFINE_TLV_PARSER(TLV_TAGS, &handle_common, parse_tlv_trusted_name)
 
-static bool handle_common(const tlv_data_t *data, tlv_extracted_t *tlv_extracted)
+static bool handle_common(const tlv_data_t *data, void *tlv_extracted_ptr)
 {
+    tlv_extracted_t *tlv_extracted = tlv_extracted_ptr;
+
     if (data->tag != TAG_DER_SIGNATURE) {
         update_multi_hash_ctx(&tlv_extracted->hash_ctx, data->raw);
     }
