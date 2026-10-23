@@ -572,21 +572,29 @@ static const nbgl_content_t *getContentAtIdx(const nbgl_genericContents_t *gener
     }
 }
 
-// Helper to check that all tag/value lists in a nbgl_genericContents_t are valid
+// Helper to check that all tag/value lists in a nbgl_genericContents_t are valid and not empty
+// (an empty list would give a page without content, preventing to go further in the review)
 static bool isGenericContentsValid(const nbgl_genericContents_t *genericContents)
 {
-    nbgl_content_t        content = {0};
-    const nbgl_content_t *p_content;
+    nbgl_content_t                    content = {0};
+    const nbgl_content_t             *p_content;
+    const nbgl_contentTagValueList_t *tagValueList;
 
     for (int i = 0; i < genericContents->nbContents; i++) {
         p_content = getContentAtIdx(genericContents, i, &content);
         if (p_content == NULL) {
             return false;
         }
-        if (((p_content->type == TAG_VALUE_LIST)
-             && !isTagValueListValid(&p_content->content.tagValueList))
-            || ((p_content->type == TAG_VALUE_CONFIRM)
-                && !isTagValueListValid(&p_content->content.tagValueConfirm.tagValueList))) {
+        if (p_content->type == TAG_VALUE_LIST) {
+            tagValueList = &p_content->content.tagValueList;
+        }
+        else if (p_content->type == TAG_VALUE_CONFIRM) {
+            tagValueList = &p_content->content.tagValueConfirm.tagValueList;
+        }
+        else {
+            continue;
+        }
+        if ((tagValueList->nbPairs == 0) || !isTagValueListValid(tagValueList)) {
             return false;
         }
     }
