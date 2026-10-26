@@ -706,6 +706,59 @@ void test_review_is_rejected_without_list(void)
     TEST_ASSERT_NULL(page_callback);
 }
 
+void test_review_is_rejected_with_empty_list(void)
+{
+    // without pairs, the review could not go further than its first page
+    nbgl_contentTagValueList_t emptyList = {0};
+
+    for (uint8_t withPairs = 0; withPairs < 2; withPairs++) {
+        emptyList.pairs = withPairs ? pairs : NULL;
+        nb_choices      = 0;
+        page_callback   = NULL;
+        nbgl_useCaseReview(
+            TYPE_TRANSACTION, &emptyList, &C_Warning_64px, "Review", NULL, "Sign", onChoice);
+        TEST_ASSERT_EQUAL_INT(1, nb_choices);
+        TEST_ASSERT_FALSE(last_choice);
+        TEST_ASSERT_NULL(page_callback);
+    }
+}
+
+void test_generic_review_is_rejected_with_empty_list(void)
+{
+    // an intro, an empty tag/value content and an approval page: the empty content would block
+    // the review on its intro
+    nbgl_content_t         emptyContents[3] = {0};
+    nbgl_genericContents_t emptyGeneric     = {0};
+
+    emptyContents[0].type                                = CENTERED_INFO;
+    emptyContents[0].content.centeredInfo.text1          = "Intro";
+    emptyContents[2].type                                = INFO_LONG_PRESS;
+    emptyContents[2].content.infoLongPress.text          = "Sign";
+    emptyContents[2].content.infoLongPress.longPressText = "Hold to sign";
+    emptyGeneric.contentsList                            = emptyContents;
+    emptyGeneric.nbContents                              = 3;
+
+    for (uint8_t confirm = 0; confirm < 2; confirm++) {
+        for (uint8_t withPairs = 0; withPairs < 2; withPairs++) {
+            memset(&emptyContents[1], 0, sizeof(emptyContents[1]));
+            emptyContents[1].type = confirm ? TAG_VALUE_CONFIRM : TAG_VALUE_LIST;
+            if (confirm) {
+                emptyContents[1].content.tagValueConfirm.tagValueList.pairs
+                    = withPairs ? pairs : NULL;
+                emptyContents[1].content.tagValueConfirm.confirmationText = "Confirm";
+            }
+            else {
+                emptyContents[1].content.tagValueList.pairs = withPairs ? pairs : NULL;
+            }
+            nb_rejects    = 0;
+            page_callback = NULL;
+            nbgl_useCaseGenericReview(&emptyGeneric, "Reject", onReject);
+            TEST_ASSERT_EQUAL_INT(1, nb_rejects);
+            TEST_ASSERT_NULL(page_callback);
+        }
+    }
+}
+
 void test_streaming_review_is_rejected_without_list(void)
 {
     nbgl_useCaseReviewStreamingContinue(NULL, onChoice);
@@ -729,6 +782,56 @@ void test_review_spans_at_least_three_pages(void)
     buildList(NB_PAIRS / 3, false);
     nbgl_useCaseGenericReview(&contents, "Reject", onReject);
     TEST_ASSERT_GREATER_OR_EQUAL_UINT8(3, page_nav.nbPages);
+}
+
+// ============================================================================
+// nbgl_useCaseAddressReview: first page + address page with QR code button
+// ============================================================================
+
+// Starts an address review with the given additional list, and checks that it is displayed and
+// that the address page, reached from the first page, has the QR code button
+static void checkAddressReviewWithQrCode(const nbgl_contentTagValueList_t *additionalList)
+{
+    nbgl_useCaseAddressReview(
+        "0xADDRESS", additionalList, &C_Warning_64px, "Verify address", NULL, onChoice);
+    TEST_ASSERT_EQUAL_INT(0, nb_choices);
+    TEST_ASSERT_NOT_NULL(page_callback);
+    TEST_ASSERT_EQUAL(EXTENDED_CENTER, page_content.type);
+
+    page_callback(page_nav.navWithButtons.navToken, 1);
+    TEST_ASSERT_EQUAL(TAG_VALUE_CONFIRM, page_content.type);
+    TEST_ASSERT_EQUAL_UINT8(1, page_content.tagValueConfirm.tagValueList.nbPairs);
+    TEST_ASSERT_EQUAL_STRING("0xADDRESS", page_content.tagValueConfirm.tagValueList.pairs[0].value);
+    TEST_ASSERT_EQUAL_PTR(&QRCODE_ICON, page_content.tagValueConfirm.detailsButtonIcon);
+    TEST_ASSERT_EQUAL_INT(0, nb_choices);
+}
+
+void test_address_review_with_empty_list_is_displayed(void)
+{
+    // a zeroed list (no pairs, no callback), as given by the Rust SDK without extra fields
+    nbgl_contentTagValueList_t emptyList = {0};
+
+    checkAddressReviewWithQrCode(&emptyList);
+}
+
+void test_address_review_without_list_is_displayed(void)
+{
+    checkAddressReviewWithQrCode(NULL);
+}
+
+void test_address_review_is_rejected_without_callback(void)
+{
+    buildList(NB_PAIRS, true);
+    content.content.tagValueConfirm.tagValueList.callback = NULL;
+    nbgl_useCaseAddressReview("0xADDRESS",
+                              &content.content.tagValueConfirm.tagValueList,
+                              &C_Warning_64px,
+                              "Verify address",
+                              NULL,
+                              onChoice);
+    TEST_ASSERT_EQUAL_INT(1, nb_choices);
+    TEST_ASSERT_FALSE(last_choice);
+    TEST_ASSERT_NULL(page_callback);
 }
 
 // ============================================================================
@@ -1043,10 +1146,15 @@ int main(void)
     RUN_TEST(test_review_is_displayed_when_callback_pair_is_missing_after_start);
     RUN_TEST(test_page_shows_empty_pair_when_callback_pair_is_missing_while_drawing);
     RUN_TEST(test_review_is_rejected_without_list);
+    RUN_TEST(test_review_is_rejected_with_empty_list);
+    RUN_TEST(test_generic_review_is_rejected_with_empty_list);
     RUN_TEST(test_streaming_review_is_rejected_without_list);
     RUN_TEST(test_alias_without_extension_shows_nothing);
     RUN_TEST(test_alias_without_extension_shows_nothing_with_callback);
     RUN_TEST(test_review_spans_at_least_three_pages);
+    RUN_TEST(test_address_review_with_empty_list_is_displayed);
+    RUN_TEST(test_address_review_without_list_is_displayed);
+    RUN_TEST(test_address_review_is_rejected_without_callback);
     RUN_TEST(test_info_only_warning_is_displayed_before_review);
     RUN_TEST(test_info_only_warning_can_be_rejected);
     RUN_TEST(test_info_only_warning_is_displayed_before_streaming_review);
