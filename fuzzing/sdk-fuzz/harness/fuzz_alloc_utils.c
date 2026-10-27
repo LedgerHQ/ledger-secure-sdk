@@ -12,6 +12,13 @@
 
 #include "fuzz_harness.h"
 
+/* lib_alloc poisons free chunks under ASan: unpoison the heap before clearing it. */
+#if __has_include(<sanitizer/asan_interface.h>)
+#include <sanitizer/asan_interface.h>
+#else
+#define ASAN_UNPOISON_MEMORY_REGION(addr, size) ((void) (addr), (void) (size))
+#endif
+
 #define HEAP_SIZE 0x7FF0
 #define MAX_ALLOC 0x100
 
@@ -131,6 +138,7 @@ FUZZ_COMMAND_COUNT();
 
 void fuzz_app_reset(void)
 {
+    ASAN_UNPOISON_MEMORY_REGION(heap, HEAP_SIZE);
     memset(heap, 0, HEAP_SIZE);
     memset(allocs, 0, sizeof(allocs));
     mem_utils_init(heap, HEAP_SIZE);
