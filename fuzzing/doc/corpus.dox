@@ -2,7 +2,8 @@
 
 A campaign's merged **corpus** is its most valuable output: a compact set of
 inputs that together reach a lot of code. Promoting it into the app lets future
-runs and CI start from that coverage instead of rediscovering it every time.
+local campaigns start from that coverage instead of rediscovering it every time.
+CI keeps its own corpus and does not depend on it (@ref cor_ci).
 
 @section cor_promote Promoting a corpus
 
@@ -25,9 +26,8 @@ archive, never inside it.
 
 @section cor_reuse Reusing a corpus
 
-Reuse is automatic. On the next run the campaign (and CI) stage
-`base-corpus.zip` into the starting corpus — but only when its sidecar key
-matches the current build. A mismatch is reported and the stale corpus is
+Reuse is automatic. On the next run the campaign stages `base-corpus.zip` into
+the starting corpus — but only when its sidecar key matches the current build. A mismatch is reported and the stale corpus is
 skipped, so a changed binary is never fed inputs shaped for an old one. Set
 `BASE_CORPUS_ZIP=` (empty) to skip a promoted corpus for one run.
 
@@ -36,7 +36,20 @@ The end-to-end loop:
 1. Run a campaign (@ref fuzzing_running).
 2. `corpus.py promote` its corpus to `fuzzing/base-corpus.zip`.
 3. Commit `base-corpus.zip` and `base-corpus.compat-key`.
-4. The next campaign and every CI run start from it automatically.
+4. The next local campaign starts from it automatically.
+
+@section cor_ci Corpus in CI
+
+CI does not rely on the promoted corpus. ClusterFuzzLite publishes each target's
+corpus as a `cifuzz-corpus-<target>` artifact and every run starts from the newest
+one, so the CI corpus grows and is pruned from run to run without any commit (see
+@ref fuzzing_ci).
+
+The promoted corpus is also normally skipped in CI: the key depends on the
+invariant model, which depends on the toolchain, and CI builds with the OSS-Fuzz
+Clang. The "Build Fuzzers" step then reports the base corpus as incompatible and
+logs both keys (`compat_key: <key>` for each target). That message is expected
+and does not affect the CI corpus.
 
 @section cor_key The compatibility key
 
@@ -61,9 +74,8 @@ of a few thousand evolved inputs changes the result materially.
 @section cor_when When to promote
 
 - After a long run that reached coverage you want to keep.
-- Before relying on CI to guard a feature — a good base corpus makes short CI
-  runs meaningful.
-- After a change that invalidated the key (the previous corpus is now skipped).
+- After a change that invalidated the key (the previous corpus is now skipped),
+  so local campaigns do not restart from generated seeds.
 
 One promoted corpus per target is the intended shape.
 
