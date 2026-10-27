@@ -168,6 +168,8 @@ build_fuzzer_target() {
   local fuzzer_name="${2:?missing fuzzer name}"
   local jobs="${BUILD_JOBS:-$(pick_default_build_jobs)}"
 
+  # Absolution does not track the invariant as a generator dependency: always regenerate.
+  rm -f "${build_dir}/_absolution/${fuzzer_name}/fuzzer.c"
   cmake --build "${build_dir}" --target "${fuzzer_name}" -j "${jobs}"
 }
 
@@ -217,37 +219,26 @@ sync_invariant() {
     extra_args+=(--app-zeros "${app_zeros}")
   fi
 
-  local _inv_hash_file="${build_dir}/.fuzz-invariant-hash-${fuzzer_name}"
-  local _inv_hash=""
-  for _f in "${generated_zon}" "${app_invariant}" "${fw_zeros}" "${app_zeros}"; do
-    if [[ -f "${_f}" ]]; then
-      _inv_hash="${_inv_hash}$(sha256sum "${_f}" | cut -d' ' -f1)"
-    fi
-  done
-  _inv_hash=$(printf '%s' "${_inv_hash}" | sha256sum | cut -d' ' -f1)
-
-  if [[ -f "${_inv_hash_file}" ]]; then
-    local _cached_inv_hash
-    _cached_inv_hash=$(cat "${_inv_hash_file}" 2>/dev/null || echo "")
-    if [[ "${_cached_inv_hash}" == "${_inv_hash}" ]]; then
-      echo "  (invariant unchanged for ${fuzzer_name} — skipping sync)"
-      INVARIANT_CHANGED=0
-      return 0
-    fi
-  fi
-
   local domain_overrides
   domain_overrides="$(dirname "${app_invariant}")/domain-overrides.txt"
   if [[ -f "${domain_overrides}" ]]; then
     extra_args+=(--domain-overrides "${domain_overrides}")
   fi
 
+  # invariant.py is idempotent and cheap, so it always runs; only a model that
+  # actually changed asks the caller to rebuild.
+  local _previous
+  _previous="$(cat "${app_invariant}" 2>/dev/null || true)"
+
   python3 "${SCRIPT_DIR}/invariant.py" \
     "${generated_zon}" "${app_invariant}" "${extra_args[@]}"
 
-  mkdir -p "$(dirname "${_inv_hash_file}")"
-  echo "${_inv_hash}" > "${_inv_hash_file}"
-  INVARIANT_CHANGED=1
+  if [[ "$(cat "${app_invariant}")" == "${_previous}" ]]; then
+    echo "  (invariant unchanged for ${fuzzer_name})"
+    INVARIANT_CHANGED=0
+  else
+    INVARIANT_CHANGED=1
+  fi
 }
 
 check_build_dir_app_match() {
