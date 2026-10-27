@@ -16,8 +16,23 @@ small `.clusterfuzzlite/` folder:
 | File | Purpose |
 |------|---------|
 | `build.sh`     | Builds the fuzz targets (a thin caller, below) |
-| `Dockerfile`   | The build image (based on the Ledger fuzz dev-tools image) |
+| `Dockerfile`   | The build image: OSS-Fuzz `base-builder`, plus the SDK copied from `ledger-app-builder-lite` |
 | `project.yaml` | ClusterFuzzLite project settings (`language: c`) |
+
+The Dockerfile takes the SDK from the public `ledger-app-builder-lite` image:
+
+@verbatim
+FROM ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder-lite:latest AS app-builder
+FROM gcr.io/oss-fuzz-base/base-builder:v1
+COPY --from=app-builder /opt/flex-secure-sdk /ledger-secure-sdk
+@endverbatim
+
+The compiler and sanitizer runtimes come from `base-builder`; only the SDK is
+taken from the Ledger image. When the repository defines the
+`APP_BUILDER_REGISTRY` variable, the reusable workflow pulls that registry's
+lite image and tags it with the public name before building, so the same
+Dockerfile builds against that registry's SDK. A Dockerfile based on another
+app-builder image keeps the public SDK.
 
 On a PR, ClusterFuzzLite builds the targets with `build.sh`, runs each one under
 a sanitizer for a time budget, and reports any crash on the PR with the input
