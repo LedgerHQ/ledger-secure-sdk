@@ -92,13 +92,22 @@ app:
 Because these are input bytes rather than restored globals, the mutator can flip
 lane or command directly — see @ref har_mutator.
 
-**Structured lane** — the harness selects a command from the table, clamps
-P1/P2 to their declared maxima, and builds a syntactically correct APDU.
-It drives the happy path and multi-step flows efficiently.
+The two lanes differ in how the custom mutator edits the input:
 
-**Raw lane** — `P1`/`P2` are passed through without clamping and the payload is
-whatever the fuzzer produced.  It exercises parsing edges and error paths that
-well-formed inputs never reach.
+**Structured lane** — the mutator changes the payload or the control bytes and
+mostly leaves the prefix alone, so the command and the restored state stay
+stable while its arguments evolve. It drives the happy path and multi-step flows
+efficiently.
+
+**Raw lane** — the mutator applies generic mutations to the whole harness input,
+and to the prefix one time in four. It explores arguments and states that
+structure-preserving edits rarely produce.
+
+Dispatch is the same in both lanes by default: the harness selects the command
+from the table and clamps P1/P2 to their declared maxima, so CLA/INS always come
+from the table and the APDU is always well-framed. An app that wants the raw lane
+to reach other commands or malformed framing overrides `FUZZ_PICK_COMMAND_RAW`,
+or checks `fuzz_use_structured_lane()` in its dispatch.
 
 The threshold 102 divides the 0–255 range roughly 40 / 60 (raw / structured)
 so each lane gets a meaningful share of the corpus automatically.
