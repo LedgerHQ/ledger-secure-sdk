@@ -233,6 +233,8 @@ sync_invariant() {
   python3 "${SCRIPT_DIR}/invariant.py" \
     "${generated_zon}" "${app_invariant}" "${extra_args[@]}"
 
+  # INVARIANT_CHANGED is read by the scripts that source this file.
+  # shellcheck disable=SC2034
   if [[ "$(cat "${app_invariant}")" == "${_previous}" ]]; then
     echo "  (invariant unchanged for ${fuzzer_name})"
     INVARIANT_CHANGED=0
@@ -350,7 +352,10 @@ fi
 export IS_MULTI_TARGET
 
 FUZZER="${FUZZER:-fuzz_globals}"
+# Defaults read by the scripts that source this file, overridden by the manifest below.
+# shellcheck disable=SC2034
 KEY_FILES_REL=()
+# shellcheck disable=SC2034
 COVERAGE_EXCLUDE_REGEXES=(
   '.*ledger-secure-sdk.*'
   '.*fuzz_dispatcher\.c'
@@ -401,25 +406,25 @@ export BASE_CORPUS_ZIP BASE_CORPUS_KEY
 
 write_app_dictionary() {
   local manifest_path="${_APP_MANIFEST}"
-  local fuzzer_flag=""
+  local -a fuzzer_flag=()
   if [[ "${IS_MULTI_TARGET}" == "1" && -n "${2:-}" ]]; then
-    fuzzer_flag="--fuzzer ${2}"
+    fuzzer_flag=(--fuzzer "${2}")
   fi
-  # shellcheck disable=SC2086
-  python3 "${SCRIPT_DIR}/fuzz_manifest.py" --dict "${manifest_path}" "${1}" ${fuzzer_flag} >/dev/null
+  python3 "${SCRIPT_DIR}/fuzz_manifest.py" --dict "${manifest_path}" "${1}" "${fuzzer_flag[@]}" >/dev/null
 }
 
 generate_app_seed_corpus() {
   local output_dir="${1:?missing output dir}"
-  local fuzzer_flag=""
+  local -a fuzzer_flag=()
   if [[ "${IS_MULTI_TARGET}" == "1" && -n "${2:-}" ]]; then
-    fuzzer_flag="--fuzzer ${2}"
+    fuzzer_flag=(--fuzzer "${2}")
   fi
   local build_fast="${BUILD_DIR_FAST:-${APP_DIR}/build/fast}"
+  local build_cov="${BUILD_DIR_COV:-${APP_DIR}/build/cov}"
   APP_DIR="${APP_DIR}" \
   BUILD_DIR_FAST="${build_fast}" \
   BUILD_DIR="${build_fast}" \
-  BUILD_DIR_COV="${BUILD_DIR_COV:-${APP_DIR}/build/cov}" \
+  BUILD_DIR_COV="${build_cov}" \
   FUZZER="${FUZZER}" \
-  python3 "${SCRIPT_DIR}/seeds.py" "${_APP_MANIFEST}" "${output_dir}" ${fuzzer_flag}
+  python3 "${SCRIPT_DIR}/seeds.py" "${_APP_MANIFEST}" "${output_dir}" "${fuzzer_flag[@]}"
 }
