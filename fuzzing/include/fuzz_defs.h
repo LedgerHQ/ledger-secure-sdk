@@ -76,10 +76,16 @@ extern try_context_t fuzz_exit_jump_ctx;
  * @brief Control byte 0 above this value selects the structured lane; at or
  *        below it the harness takes the raw lane.
  *
- * Structured lane (@c data[0] > 102): the harness picks a command from the table
- * via @c data[1], clamps P1/P2, and builds a valid APDU — drives the happy path.
- * Raw lane (≤ 102): all APDU fields come straight from the input bytes without
- * clamping — exercises parsing edges and error paths.
+ * The lanes differ in how the custom mutator edits the input. Structured lane
+ * (@c data[0] > 102): it mutates the payload or the control bytes and leaves the
+ * prefix alone most of the time. Raw lane (≤ 102): it applies generic mutations
+ * to the whole harness input, and to the prefix one time in four.
+ *
+ * Dispatch is the same in both lanes by default: the harness picks the command
+ * from @c fuzz_commands[] via @c data[1] and clamps P1/P2 to @c p1_max / @c p2_max,
+ * so CLA/INS always come from the table. An app that wants the raw lane to reach
+ * other commands or malformed framing overrides @c FUZZ_PICK_COMMAND_RAW, or
+ * checks @c fuzz_use_structured_lane() in @c fuzz_app_dispatch().
  *
  * The value 102 gives a ≈40/60 raw/structured split across 0–255; apps do not
  * tune it. Most apps define one @c fuzz_commands[] and let both lanes share it.

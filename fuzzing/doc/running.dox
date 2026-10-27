@@ -5,12 +5,41 @@ see @ref fuzzing_integrate.
 
 @section fuzzing_run_prereq Prerequisites
 
-The framework runs out of the box in the standard
-`ledger-app-builder/ledger-app-dev-tools` image, which ships Clang, the
-matching `llvm-*` tools, and Ninja. The only required setup is `BOLOS_SDK`
-pointing at an SDK checkout. On first configure, CMake downloads the pinned
-Absolution release; set `LEDGER_FUZZ_ABSOLUTION_LOCAL_DIR` to a local install
-to run offline (see @ref fuzzing_cmake).
+The framework runs in the `ghcr.io/ledgerhq/ledger-app-builder-dev/ledger-app-dev-tools`
+image, which ships Clang, the matching `llvm-*` tools, Ninja and the SDKs
+(`$FLEX_SDK`, `$STAX_SDK`, …). It does not ship Clang's runtime libraries
+(compiler-rt), which libFuzzer and the sanitizers link against: without them the
+link fails on `libclang_rt.fuzzer.a`. Install `libclang-rt-<N>-dev` matching the
+image's Clang, from the LLVM apt repository the image already configures.
+
+`BOLOS_SDK` must point at an SDK checkout. On first configure, CMake downloads
+the pinned Absolution release; set `LEDGER_FUZZ_ABSOLUTION_LOCAL_DIR` to a local
+install to run offline (see @ref fuzzing_cmake).
+
+@subsection fuzzing_run_docker Running locally with Docker
+
+Use a container dedicated to fuzzing, with the app mounted at `/app`. Create it
+once and install the runtimes as root; the package stays across
+`docker stop` / `docker start`:
+
+@verbatim
+docker run -d --name my-app-fuzz -v "$(pwd)":/app -w /app --entrypoint sleep \
+  ghcr.io/ledgerhq/ledger-app-builder-dev/ledger-app-dev-tools:latest infinity
+docker exec -u 0 my-app-fuzz bash -c \
+  'apt-get update && apt-get install -y "libclang-rt-$(clang -dumpversion | cut -d. -f1)-dev"'
+@endverbatim
+
+Run campaigns as your host user, so that `build/` and `.fuzz-artifacts/` stay
+owned by you:
+
+@verbatim
+docker exec -u "$(id -u)" -e HOME=/tmp my-app-fuzz bash -c \
+  'export BOLOS_SDK="$FLEX_SDK"; "$BOLOS_SDK"/fuzzing/scripts/app-campaign.sh --app-dir /app my-campaign'
+@endverbatim
+
+The campaign writes `build/fast` and `build/cov` in the app tree. The app's
+`make clean` deletes the whole `build/` directory, so do not build the app
+while a campaign runs on the same checkout.
 
 @section fuzzing_run_basic Basic usage
 
@@ -18,8 +47,8 @@ Run the campaign script from the SDK, pointing it at the app. The last
 argument is an optional run name (a UTC timestamp is used if omitted):
 
 @verbatim
-BOLOS_SDK=/path/to/ledger-secure-sdk \
-  "$BOLOS_SDK"/fuzzing/scripts/app-campaign.sh \
+export BOLOS_SDK=/path/to/ledger-secure-sdk
+"$BOLOS_SDK"/fuzzing/scripts/app-campaign.sh \
   --app-dir /path/to/app my-campaign
 @endverbatim
 
