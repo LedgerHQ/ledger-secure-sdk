@@ -36,6 +36,8 @@ ship_target() {
   # shellcheck disable=SC2086
   compat_key="$(python3 "${SCRIPT_DIR}/fuzz_manifest.py" --compat-key "${_APP_MANIFEST}" \
       --prefix-size "${prefix_size}" --invariant "${inv}" ${fuzzer_flag})"
+  # Logged so a base corpus mismatch can be traced to the key CI computes.
+  echo "  compat_key: ${compat_key}"
 
   seed_dir="${BUILD_DIR}/cfl-seed/${target}"
   rm -rf "${seed_dir}"
@@ -58,7 +60,8 @@ merge_base_corpus() {
   local dest="${1}" compat_key="${2}"
   # Incompatible base corpus is skipped (not fatal) for CFL builds.
   if ! stage_base_corpus "${dest}" "${compat_key}"; then
-    echo "  skipping incompatible base-corpus"
+    echo "  skipping incompatible base-corpus (expected in CI: it is promoted from local" \
+      "campaigns, and CI fuzzes from its own corpus artifacts)"
   fi
 }
 

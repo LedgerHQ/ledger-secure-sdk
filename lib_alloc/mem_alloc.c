@@ -54,10 +54,43 @@
 // index is basically the offset in u64 from beginning of full heap buffer
 #define GET_PTR(_heap, index) ((header_t *) (((uint8_t *) _heap) + ((index) << 3)))
 #define GET_IDX(_heap, _ptr)  ((((uint8_t *) (_ptr)) - ((uint8_t *) _heap)) >> 3)
-#define GET_PREV(_heap, _ptr) ((header_t *) (((uint8_t *) _heap) + ((_ptr)->fprev << 3)))
-#define GET_NEXT(_heap, _ptr) ((header_t *) (((uint8_t *) _heap) + ((_ptr)->fnext << 3)))
 
 #define GET_SEGMENT(_size) MAX(NB_LINEAR_SEGMENTS, (31 - __builtin_clz(size)))
+
+// Under AddressSanitizer, the bytes of a chunk its caller does not own are poisoned, so an
+// overflow into a neighbouring chunk or a use after free is reported. Only the size/phys_prev
+// header word stays addressable; free-list links are unpoisoned just for the allocator's accesses.
+#if defined(__has_feature)
+#if __has_feature(address_sanitizer)
+#define MEM_ALLOC_ASAN
+#endif
+#endif
+#if defined(__SANITIZE_ADDRESS__) && !defined(MEM_ALLOC_ASAN)
+#define MEM_ALLOC_ASAN
+#endif
+
+#ifdef MEM_ALLOC_ASAN
+#include <sanitizer/asan_interface.h>
+#define MEM_POISON(_addr, _size)   ASAN_POISON_MEMORY_REGION((_addr), (_size))
+#define MEM_UNPOISON(_addr, _size) ASAN_UNPOISON_MEMORY_REGION((_addr), (_size))
+#else
+#define MEM_POISON(_addr, _size)   ((void) (_addr), (void) (_size))
+#define MEM_UNPOISON(_addr, _size) ((void) (_addr), (void) (_size))
+#endif
+
+// Fuzzing builds reserve a poisoned gap after every allocation, so an overflow is caught even on
+// an exact fit. Other builds keep the exact chunk geometry.
+#if defined(MEM_ALLOC_ASAN) && defined(FUZZING)
+#define MEM_REDZONE_SIZE 8
+#else
+#define MEM_REDZONE_SIZE 0
+#endif
+
+// free-list links of a free chunk, overlapping the first payload bytes
+#define LINKS_ADDR(_ptr)     (((uint8_t *) (_ptr)) + ALLOC_CHUNK_HEADER_SIZE)
+#define LINKS_SIZE           (FREE_CHUNK_HEADER_SIZE - ALLOC_CHUNK_HEADER_SIZE)
+#define LINKS_UNPOISON(_ptr) MEM_UNPOISON(LINKS_ADDR(_ptr), LINKS_SIZE)
+#define LINKS_POISON(_ptr)   MEM_POISON(LINKS_ADDR(_ptr), LINKS_SIZE)
 
 /**********************
  *      TYPEDEFS
@@ -176,26 +209,44 @@ static inline int seglist_index_up(heap_t *heap, size_t size)
     return seg * NB_SUB_SEGMENTS + sub_segment;
 }
 
+static inline void set_fprev(header_t *header, uint16_t fprev)
+{
+    LINKS_UNPOISON(header);
+    header->fprev = fprev;
+    LINKS_POISON(header);
+}
+
+static inline void set_fnext(header_t *header, uint16_t fnext)
+{
+    LINKS_UNPOISON(header);
+    header->fnext = fnext;
+    LINKS_POISON(header);
+}
+
 // remove item from linked list
 static inline void list_remove(heap_t *heap, uint16_t *first_free, uint16_t elem)
 {
     header_t *elem_ptr = GET_PTR(heap, elem);
+    LINKS_UNPOISON(elem_ptr);
+    uint16_t fprev = elem_ptr->fprev;
+    uint16_t fnext = elem_ptr->fnext;
+    LINKS_POISON(elem_ptr);
     // if was the first, set a new first
     if (*first_free == elem) {
-        *first_free = elem_ptr->fnext;
+        *first_free = fnext;
         // if the current first was not alone
         if (*first_free) {
-            GET_PTR(heap, *first_free)->fprev = 0;
+            set_fprev(GET_PTR(heap, *first_free), 0);
         }
         return;
     }
     // link previous to following, if existing previous
-    if (elem_ptr->fprev) {
-        GET_PREV(heap, elem_ptr)->fnext = elem_ptr->fnext;
+    if (fprev) {
+        set_fnext(GET_PTR(heap, fprev), fnext);
     }
     // link following to previous, if existing following
-    if (elem_ptr->fnext) {
-        GET_NEXT(heap, elem_ptr)->fprev = elem_ptr->fprev;
+    if (fnext) {
+        set_fprev(GET_PTR(heap, fnext), fprev);
     }
 }
 
@@ -212,13 +263,14 @@ static inline void list_push(heap_t *heap, header_t *header)
         return;
     }
     // link this new first to following (previous first)
-    header->fnext     = first_idx;
-    header->fprev     = 0;
+    LINKS_UNPOISON(header);
+    header->fnext = first_idx;
+    header->fprev = 0;
+    LINKS_POISON(header);
     header->allocated = 0;
     // link following (previous first) to new first
     if (first_idx != 0) {
-        header_t *first = GET_PTR(heap, first_idx);
-        first->fprev    = GET_IDX(heap, header);
+        set_fprev(GET_PTR(heap, first_idx), GET_IDX(heap, header));
     }
     // replace new first
     heap->free_segments[seg_index] = GET_IDX(heap, header);
@@ -272,6 +324,7 @@ static header_t *coalesce(heap_t *heap, header_t *header, header_t *neighbour)
             }
             header->size += neighbour->size;
             // clean-up neighbour to avoid leaking
+            LINKS_UNPOISON(neighbour);
             memset(neighbour, 0, sizeof(*neighbour));
         }
         else {
@@ -339,6 +392,9 @@ mem_ctx_t mem_init(void *heap_start, size_t heap_size)
         return NULL;
     }
 
+    // a previous allocator on this buffer may have left it poisoned
+    MEM_UNPOISON(heap_start, heap_size);
+
     heap->end = ((uint8_t *) heap_start) + heap_size;
 
     // compute number of segments
@@ -353,6 +409,8 @@ mem_ctx_t mem_init(void *heap_start, size_t heap_size)
     first_free->size      = heap_size - HEAP_HEADER_SIZE;
     first_free->phys_prev = 0;
     list_push(heap, first_free);
+    MEM_POISON(((uint8_t *) first_free) + ALLOC_CHUNK_HEADER_SIZE,
+               first_free->size - ALLOC_CHUNK_HEADER_SIZE);
 
     return (mem_ctx_t) heap_start;
 }
@@ -370,6 +428,7 @@ void *mem_alloc(mem_ctx_t ctx, size_t nb_bytes)
 {
     heap_t *heap = (heap_t *) ctx;
     int     seg;
+    size_t  requested = nb_bytes;
 
     // nb_bytes must be > 0
     if (nb_bytes == 0) {
@@ -379,12 +438,13 @@ void *mem_alloc(mem_ctx_t ctx, size_t nb_bytes)
     // Reject sizes that would overflow the unsigned arithmetic below
     // or exceed the maximum chunk size storable in the header.
     if (nb_bytes > MAX_BLOCK_SIZE
-                       - (PAYLOAD_ALIGNEMENT - 1 + ALLOC_CHUNK_HEADER_SIZE + PAYLOAD_ALIGNEMENT)) {
+                       - (PAYLOAD_ALIGNEMENT - 1 + ALLOC_CHUNK_HEADER_SIZE + PAYLOAD_ALIGNEMENT
+                          + MEM_REDZONE_SIZE)) {
         return NULL;
     }
 
     // Adjust size to include header and satisfy alignment requirements, etc.
-    nb_bytes = align_alloc_size(nb_bytes);
+    nb_bytes = align_alloc_size(nb_bytes + MEM_REDZONE_SIZE);
 
     // get the segment sure to be holding this size
     // if nb_bytes == 2^n , all chunks in [2^n: 2^(n+1)[ are ok
@@ -415,7 +475,8 @@ void *mem_alloc(mem_ctx_t ctx, size_t nb_bytes)
             // the minimum size is the size of an empty chunk
             if (header->size >= (nb_bytes + FREE_CHUNK_HEADER_SIZE)) {
                 header_t *new_free = (header_t *) &block[nb_bytes];
-                new_free->size     = header->size - nb_bytes;
+                MEM_UNPOISON(new_free, ALLOC_CHUNK_HEADER_SIZE);
+                new_free->size = header->size - nb_bytes;
                 // link this new chunk to previous (found) one
                 new_free->phys_prev = chunk_idx;
                 // link the current next physical chunk to this new chunk (if existing)
@@ -432,7 +493,13 @@ void *mem_alloc(mem_ctx_t ctx, size_t nb_bytes)
             header->allocated = 0x1;
 
             // clean-up previous empty header info
+            LINKS_UNPOISON(header);
             header->fnext = header->fprev = 0;
+
+            // the caller owns the requested bytes only, not the redzone and alignment padding
+            MEM_UNPOISON(block + ALLOC_CHUNK_HEADER_SIZE, requested);
+            MEM_POISON(block + ALLOC_CHUNK_HEADER_SIZE + requested,
+                       header->size - ALLOC_CHUNK_HEADER_SIZE - requested);
 
             // Return a pointer to the payload
             return block + ALLOC_CHUNK_HEADER_SIZE;
@@ -480,7 +547,8 @@ void *mem_realloc(mem_ctx_t ctx, void *ptr, size_t size)
     // align_alloc_size (which adds up to PAYLOAD_ALIGNEMENT - 1 +
     // ALLOC_CHUNK_HEADER_SIZE + PAYLOAD_ALIGNEMENT bytes of overhead).
     if (size > MAX_BLOCK_SIZE
-                   - (PAYLOAD_ALIGNEMENT - 1 + ALLOC_CHUNK_HEADER_SIZE + PAYLOAD_ALIGNEMENT)) {
+                   - (PAYLOAD_ALIGNEMENT - 1 + ALLOC_CHUNK_HEADER_SIZE + PAYLOAD_ALIGNEMENT
+                      + MEM_REDZONE_SIZE)) {
         return NULL;
     }
 
@@ -496,10 +564,10 @@ void *mem_realloc(mem_ctx_t ctx, void *ptr, size_t size)
     // Save the size of the data portion of the old block
     size_t old_payload_size = old_block_size - ALLOC_CHUNK_HEADER_SIZE;
     // Adjust size of the new block to include header and satisfy alignment requirements, etc.
-    size_t new_block_size = align_alloc_size(size);
+    size_t new_block_size = align_alloc_size(size + MEM_REDZONE_SIZE);
 
     // If the old block is already big enough, return the same pointer
-    if (old_payload_size >= size) {
+    if (old_payload_size >= size + MEM_REDZONE_SIZE) {
         // Shrink optimization : split the original block in two
         // if remaining size is enough for a free chunk
         size_t remainder = old_block_size - new_block_size;
@@ -509,7 +577,8 @@ void *mem_realloc(mem_ctx_t ctx, void *ptr, size_t size)
             // Create new free chunk in the remaining space,
             // located just after the resized block
             header_t *new_free = (header_t *) &block[new_block_size];
-            new_free->size     = remainder;
+            MEM_UNPOISON(new_free, ALLOC_CHUNK_HEADER_SIZE);
+            new_free->size = remainder;
             // The new chunk predecessor is the resized chunk (still the same)
             new_free->phys_prev = GET_IDX(heap, header);
             // Link the current next physical chunk to this new chunk (if existing)
@@ -517,9 +586,14 @@ void *mem_realloc(mem_ctx_t ctx, void *ptr, size_t size)
                 next->phys_prev = GET_IDX(heap, new_free);
             }
             list_push(heap, new_free);
+            MEM_POISON(((uint8_t *) new_free) + ALLOC_CHUNK_HEADER_SIZE,
+                       remainder - ALLOC_CHUNK_HEADER_SIZE);
             // Adjust the size of the allocated block
             header->size = new_block_size;
         }
+        // the caller now owns exactly the new size
+        MEM_UNPOISON(ptr, size);
+        MEM_POISON(((uint8_t *) ptr) + size, header->size - ALLOC_CHUNK_HEADER_SIZE - size);
         // Return the original block pointer as it is still valid
         return ptr;
     }
@@ -530,10 +604,12 @@ void *mem_realloc(mem_ctx_t ctx, void *ptr, size_t size)
         return NULL;
     }
 
-    // We copy only the amount of data that existed in the OLD block.
-    // Since we know old_payload_size < size, we copy old_payload_size.
+    // We copy only the amount of data that existed in the OLD block, capped to the new size.
     // This guarantees we never read past the end of the old allocated buffer.
-    memcpy(new_ptr, ptr, old_payload_size);
+    // The old padding is copied too, so it must be readable.
+    size_t copy_size = MIN(old_payload_size, size);
+    MEM_UNPOISON(ptr, copy_size);
+    memcpy(new_ptr, ptr, copy_size);
 
     // Free the old block
     mem_free(ctx, ptr);
@@ -560,6 +636,8 @@ void mem_free(mem_ctx_t ctx, void *ptr)
     if (!header->allocated) {
         return;
     }
+    // the free-list links of the header overlap the start of the payload
+    MEM_UNPOISON(block, FREE_CHUNK_HEADER_SIZE);
     // try to coalesce with adjacent physical chunks (after and before)
     // try with next physical chunk
     if ((block + header->size) < (uint8_t *) heap->end) {
@@ -572,6 +650,8 @@ void mem_free(mem_ctx_t ctx, void *ptr)
 
     // free chunk and add it on top of free chunk LIFO
     list_push(heap, header);
+    MEM_POISON(((uint8_t *) header) + ALLOC_CHUNK_HEADER_SIZE,
+               header->size - ALLOC_CHUNK_HEADER_SIZE);
 }
 
 /**

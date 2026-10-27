@@ -16,8 +16,23 @@ small `.clusterfuzzlite/` folder:
 | File | Purpose |
 |------|---------|
 | `build.sh`     | Builds the fuzz targets (a thin caller, below) |
-| `Dockerfile`   | The build image (based on the Ledger fuzz dev-tools image) |
+| `Dockerfile`   | The build image: OSS-Fuzz `base-builder`, plus the SDK copied from `ledger-app-builder-lite` |
 | `project.yaml` | ClusterFuzzLite project settings (`language: c`) |
+
+The Dockerfile takes the SDK from the public `ledger-app-builder-lite` image:
+
+@verbatim
+FROM ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder-lite:latest AS app-builder
+FROM gcr.io/oss-fuzz-base/base-builder:v1
+COPY --from=app-builder /opt/flex-secure-sdk /ledger-secure-sdk
+@endverbatim
+
+The compiler and sanitizer runtimes come from `base-builder`; only the SDK is
+taken from the Ledger image. When the repository defines the
+`APP_BUILDER_REGISTRY` variable, the reusable workflow pulls that registry's
+lite image and tags it with the public name before building, so the same
+Dockerfile builds against that registry's SDK. A Dockerfile based on another
+app-builder image keeps the public SDK.
 
 On a PR, ClusterFuzzLite builds the targets with `build.sh`, runs each one under
 a sanitizer for a time budget, and reports any crash on the PR with the input
@@ -31,7 +46,8 @@ before fuzzing, so a PR starts from what the last campaign found rather than fro
 seeds alone. Scheduled runs grow it and a pruning run then minimises it; because
 the newest upload is what later runs pick up, pruning always runs after them.
 Artifacts expire after about 90 days, so a repository left idle longer than that
-restarts from generated seeds plus the committed base corpus.
+restarts from generated seeds. The committed base corpus seeds local campaigns;
+CI computes a different key for it and normally skips it (@ref cor_ci).
 
 @section ci_build The shared build script
 
@@ -51,7 +67,8 @@ keep their fuzzing tree outside the default `fuzzing/` folder.
 
 `cfl-build.sh` builds each target, rediscovers the invariant for the CI
 sanitizer, ships the binary, and packs its seed corpus — merging the promoted
-@ref fuzzing_corpus "base corpus" when its key matches. Because each sanitizer
+@ref fuzzing_corpus "base corpus" only when its key matches, which is rarely the
+case in CI (@ref cor_ci). Because each sanitizer
 in the matrix shifts the global layout, CI builds always bootstrap the invariant
 from scratch (`BOOTSTRAP_INVARIANT=1`); the committed `.zon` models are never
 reused across CI entries.
@@ -74,9 +91,9 @@ Fuzzing only guards what it can still build and interpret. As an app changes:
 - **When the input meaning changes** (a new tail format, a reworked command
   table), bump `harness_version` in the @ref fuzzing_manifest "manifest" so the
   stale base corpus is retired instead of silently misinterpreted.
-- **Refresh the base corpus** after meaningful coverage gains or after a key
-  change retires the old one (@ref fuzzing_corpus). A good base corpus is what
-  makes a short CI run effective.
+- **The CI corpus maintains itself** through its artifacts. Refresh the base
+  corpus for local campaigns, after meaningful coverage gains or after a key
+  change retires the old one (@ref fuzzing_corpus).
 - **Keep the harness in sync** with the real dispatcher: if the app adds a
   command, add it to `fuzz_commands[]` (see @ref fuzzing_harness) so CI actually
   exercises it.
