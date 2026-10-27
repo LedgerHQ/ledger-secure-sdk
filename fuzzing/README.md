@@ -13,8 +13,8 @@ maintaining it — is the **Fuzzing Framework** page of the SDK documentation
 Run a campaign against an app that ships a `fuzzing/` folder:
 
 ```bash
-BOLOS_SDK=/path/to/ledger-secure-sdk \
-  "$BOLOS_SDK"/fuzzing/scripts/app-campaign.sh \
+export BOLOS_SDK=/path/to/ledger-secure-sdk
+"$BOLOS_SDK"/fuzzing/scripts/app-campaign.sh \
   --app-dir /path/to/app my-campaign
 ```
 
