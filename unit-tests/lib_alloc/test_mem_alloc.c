@@ -7,6 +7,8 @@
 #include "errors.h"
 
 static uint32_t malloc_buffer[4096 + 96];
+// backing buffer large enough for every heap size tried by test_init()
+static uint64_t max_heap_buffer[(0x8000 + 96) / sizeof(uint64_t)];
 static uint32_t malloc_buffer_size;
 bool            display_parse = false;
 
@@ -289,12 +291,12 @@ void test_init(void)
 
     // try with too big
     malloc_buffer_size = 0x8000 + 96;  // 96 is size of heap header
-    ctx                = mem_init(malloc_buffer, malloc_buffer_size);
+    ctx                = mem_init(max_heap_buffer, malloc_buffer_size);
     TEST_ASSERT_NULL(ctx);
 
     // try with biggest possible
     malloc_buffer_size = 0x7FF8 + 96;  // 96 is size of heap header
-    ctx                = mem_init(malloc_buffer, malloc_buffer_size);
+    ctx                = mem_init(max_heap_buffer, malloc_buffer_size);
     TEST_ASSERT_NOT_NULL(ctx);
 
     // try with too small
