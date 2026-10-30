@@ -24,6 +24,8 @@
 // Regression tests for V-140: an info or a switch too tall to fit in a page must not make the
 // automatic pagination spin forever, it must occupy its own page. The same applies to a pair too
 // tall to fit in a page of the tag/value list modal of an alias.
+// Regression tests for V-142: in the threat/risk report modal, a long report URL must never lead
+// to an out-of-bounds header string, nor to a QR Code encoding a truncated URL.
 
 // number of pairs of the TAG_VALUE_CONFIRM list
 #define NB_PAIRS            12
@@ -127,6 +129,7 @@ static const char                 *modal_title;
 static const char                 *modal_full_value;
 static nbgl_layoutTouchCallback_t  layout_callback;
 static const nbgl_contentCenter_t *warning_center;
+static const char                 *center_description;
 static uint8_t                     warning_choice_token;
 static bool                        warning_choice_drawn;
 
@@ -139,7 +142,8 @@ nbgl_layout_t *nbgl_layoutGet(const nbgl_layoutDescription_t *description)
 int nbgl_layoutAddContentCenter(nbgl_layout_t *layout, const nbgl_contentCenter_t *info)
 {
     (void) layout;
-    warning_center = info;
+    warning_center     = info;
+    center_description = info->description;
     return 0;
 }
 
@@ -153,6 +157,7 @@ int nbgl_layoutAddChoiceButtons(nbgl_layout_t *layout, const nbgl_layoutChoiceBu
 
 static const char                *modal_header_text;
 static uint8_t                    nb_bars;
+static uint8_t                    last_bar_token;
 static const nbgl_icon_details_t *layout_top_right_icon;
 
 int nbgl_layoutAddHeader(nbgl_layout_t *layout, const nbgl_layoutHeader_t *headerDesc)
@@ -167,7 +172,7 @@ int nbgl_layoutAddHeader(nbgl_layout_t *layout, const nbgl_layoutHeader_t *heade
 int nbgl_layoutAddTouchableBar(nbgl_layout_t *layout, const nbgl_layoutBar_t *barLayout)
 {
     (void) layout;
-    (void) barLayout;
+    last_bar_token = barLayout->token;
     nb_bars++;
     return 0;
 }
@@ -313,6 +318,24 @@ int nbgl_layoutUpdateKeypadContent(nbgl_layout_t *layout,
     return 0;
 }
 
+// Footer layout: only used as empty space in the security report
+int nbgl_layoutAddExtendedFooter(nbgl_layout_t *layout, const nbgl_layoutFooter_t *footerDesc)
+{
+    (void) layout;
+    (void) footerDesc;
+    return 0;
+}
+
+// QR Code layout: memorize the encoded URL
+static const char *qrcode_url;
+
+int nbgl_layoutAddQRCode(nbgl_layout_t *layout, const nbgl_layoutQRCode_t *info)
+{
+    (void) layout;
+    qrcode_url = info->url;
+    return 0;
+}
+
 // Layout functions used by the other use cases, not exercised here
 #define UNUSED_LAYOUT_FUNC(name, ...)                              \
     int nbgl_layout##name(__VA_ARGS__)                             \
@@ -321,13 +344,11 @@ int nbgl_layoutUpdateKeypadContent(nbgl_layout_t *layout,
         return -1;                                                 \
     }
 
-UNUSED_LAYOUT_FUNC(AddExtendedFooter, nbgl_layout_t *layout, const nbgl_layoutFooter_t *footerDesc)
 UNUSED_LAYOUT_FUNC(AddFooter,
                    nbgl_layout_t *layout,
                    const char    *text,
                    uint8_t        token,
                    tune_index_e   tuneId)
-UNUSED_LAYOUT_FUNC(AddQRCode, nbgl_layout_t *layout, const nbgl_layoutQRCode_t *info)
 UNUSED_LAYOUT_FUNC(AddSpinner,
                    nbgl_layout_t *layout,
                    const char    *text,
@@ -577,10 +598,13 @@ void setUp(void)
     modal_full_value      = NULL;
     layout_callback       = NULL;
     warning_center        = NULL;
+    center_description    = NULL;
+    qrcode_url            = NULL;
     warning_choice_token  = 0;
     warning_choice_drawn  = false;
     modal_header_text     = NULL;
     nb_bars               = 0;
+    last_bar_token        = 0;
     layout_top_right_icon = NULL;
     modal_pages_expected  = false;
     modal_callback        = NULL;
@@ -1706,6 +1730,106 @@ void test_tag_value_max_lines(void)
 }
 
 // ============================================================================
+// V-142: long report URL in threat report
+// ============================================================================
+
+#define REPORT_PROVIDER "Blockaid"
+
+// Starts an advanced review with a threat warning using the given report URL and provider, accepts
+// the initial warning, then opens the threat report from the first page of review
+static void openThreatReport(const char *reportUrl, const char *provider)
+{
+    static nbgl_warning_t warning;
+
+    memset(&warning, 0, sizeof(warning));
+    warning.predefinedSet   = 1 << W3C_THREAT_DETECTED_WARN;
+    warning.reportUrl       = reportUrl;
+    warning.reportProvider  = provider;
+    warning.providerMessage = "Malicious contract";
+    startAdvancedReview(&warning, false);
+    TEST_ASSERT_TRUE(warning_choice_drawn);
+    layout_callback(warning_choice_token, 1);
+    TEST_ASSERT_NOT_NULL(page_callback);
+
+    // first level of security report: a single bar for the threat
+    nb_bars = 0;
+    page_callback(page_content.topRightToken, 0);
+    TEST_ASSERT_EQUAL_UINT8(1, nb_bars);
+
+    // second level: the threat report itself
+    qrcode_url         = NULL;
+    center_description = NULL;
+    modal_header_text  = NULL;
+    layout_callback(last_bar_token, 0);
+    TEST_ASSERT_NOT_NULL(modal_header_text);
+}
+
+// Builds a report URL of the given length
+static const char *buildReportUrl(size_t len)
+{
+    static char url[128];
+
+    TEST_ASSERT_LESS_THAN_size_t(sizeof(url), len);
+    memset(url, 'a', len);
+    url[len] = '\0';
+    return url;
+}
+
+void test_threat_report_with_short_url(void)
+{
+    openThreatReport("example.com/report", REPORT_PROVIDER);
+    TEST_ASSERT_EQUAL_STRING("https://example.com/report", qrcode_url);
+    TEST_ASSERT_NULL(center_description);
+    TEST_ASSERT_EQUAL_STRING(REPORT_PROVIDER " report", modal_header_text);
+}
+
+// "https://" + 55 chars fills the whole half of tmpString: the QR Code is complete, but there is
+// no room left for the header, so a default text must be used (was out-of-bounds)
+void test_threat_report_with_saturating_url(void)
+{
+    const char *url = buildReportUrl(55);
+    char        expected[64];
+
+    snprintf(expected, sizeof(expected), "https://%s", url);
+    openThreatReport(url, REPORT_PROVIDER);
+    TEST_ASSERT_EQUAL_STRING(expected, qrcode_url);
+    TEST_ASSERT_NULL(center_description);
+    TEST_ASSERT_EQUAL_STRING("Security report", modal_header_text);
+}
+
+// A URL too long to be fully encoded must not be displayed as a truncated QR Code, but as text
+void test_threat_report_with_too_long_url(void)
+{
+    const char *url = buildReportUrl(56);
+
+    openThreatReport(url, REPORT_PROVIDER);
+    TEST_ASSERT_NULL(qrcode_url);
+    TEST_ASSERT_EQUAL_PTR(url, center_description);
+    TEST_ASSERT_EQUAL_STRING(REPORT_PROVIDER " report", modal_header_text);
+
+    openThreatReport(buildReportUrl(100), REPORT_PROVIDER);
+    TEST_ASSERT_NULL(qrcode_url);
+    TEST_ASSERT_EQUAL_STRING(REPORT_PROVIDER " report", modal_header_text);
+}
+
+// A provider too long to fit in the header must lead to a default text
+void test_threat_report_with_too_long_provider(void)
+{
+    openThreatReport("example.com/report", buildReportUrl(60));
+    TEST_ASSERT_EQUAL_STRING("https://example.com/report", qrcode_url);
+    TEST_ASSERT_EQUAL_STRING("Security report", modal_header_text);
+}
+
+// Without report URL, neither QR Code nor URL shall be displayed
+void test_threat_report_without_url(void)
+{
+    openThreatReport(NULL, REPORT_PROVIDER);
+    TEST_ASSERT_NULL(qrcode_url);
+    TEST_ASSERT_NULL(center_description);
+    TEST_ASSERT_EQUAL_STRING(REPORT_PROVIDER " report", modal_header_text);
+}
+
+// ============================================================================
 // Keyboard
 // ============================================================================
 
@@ -1947,6 +2071,11 @@ int main(void)
     RUN_TEST(test_review_confirm_pages_split_with_drawn_font);
     RUN_TEST(test_more_details_pages_show_whole_value);
     RUN_TEST(test_tag_value_max_lines);
+    RUN_TEST(test_threat_report_with_short_url);
+    RUN_TEST(test_threat_report_with_saturating_url);
+    RUN_TEST(test_threat_report_with_too_long_url);
+    RUN_TEST(test_threat_report_with_too_long_provider);
+    RUN_TEST(test_threat_report_without_url);
     RUN_TEST(test_keyboard_with_button_stops_at_max_len);
     RUN_TEST(test_keyboard_with_suggestions_stops_at_max_len);
     RUN_TEST(test_keyboard_without_buffer_is_rejected);
