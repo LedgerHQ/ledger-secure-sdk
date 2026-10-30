@@ -12,6 +12,8 @@
 // Regression tests for V-129: the Nano use cases count their pages in 8-bit fields. A page
 // total that does not fit must be refused, and never let the approval page be reached before
 // every review element has been displayed.
+// Regression tests for V-127: the keyboard must never write beyond entryBuffer[entryMaxLen],
+// even when the suggestions callback leaves letter keys enabled.
 
 #define MAX_ELEMS 255
 
@@ -143,6 +145,77 @@ void nbgl_refresh(void) {}
 
 void nbgl_screenRedraw(void) {}
 
+// Keyboard layout: memorize the key callback and the last key mask
+static int                layout_dummy;
+static int                nb_keyboards;
+static keyboardCallback_t kbd_callback;
+static uint32_t           kbd_mask;
+
+nbgl_layout_t *nbgl_layoutGet(const nbgl_layoutDescription_t *description)
+{
+    (void) description;
+    return (nbgl_layout_t *) &layout_dummy;
+}
+
+int nbgl_layoutAddCenteredInfo(nbgl_layout_t *layout, const nbgl_layoutCenteredInfo_t *info)
+{
+    (void) layout;
+    (void) info;
+    return 0;
+}
+
+int nbgl_layoutAddNavigation(nbgl_layout_t *layout, nbgl_layoutNavigation_t *info)
+{
+    (void) layout;
+    (void) info;
+    return 0;
+}
+
+int nbgl_layoutAddKeyboard(nbgl_layout_t *layout, const nbgl_layoutKbd_t *kbdInfo)
+{
+    (void) layout;
+    nb_keyboards++;
+    kbd_callback = kbdInfo->callback;
+    kbd_mask     = kbdInfo->keyMask;
+    return 1;
+}
+
+int nbgl_layoutUpdateKeyboard(nbgl_layout_t *layout, uint8_t index, uint32_t keyMask)
+{
+    (void) layout;
+    (void) index;
+    kbd_mask = keyMask;
+    return 0;
+}
+
+int nbgl_layoutAddEnteredText(nbgl_layout_t *layout, const char *text, bool lettersOnly)
+{
+    (void) layout;
+    (void) text;
+    (void) lettersOnly;
+    return 2;
+}
+
+int nbgl_layoutUpdateEnteredText(nbgl_layout_t *layout, uint8_t index, const char *text)
+{
+    (void) layout;
+    (void) index;
+    (void) text;
+    return 0;
+}
+
+int nbgl_layoutDraw(nbgl_layout_t *layout)
+{
+    (void) layout;
+    return 0;
+}
+
+int nbgl_layoutRelease(nbgl_layout_t *layout)
+{
+    (void) layout;
+    return 0;
+}
+
 // ============================================================================
 // Test data and callbacks
 // ============================================================================
@@ -250,6 +323,9 @@ void setUp(void)
     nb_choices    = 0;
     last_choice   = false;
     nb_quits      = 0;
+    nb_keyboards  = 0;
+    kbd_callback  = NULL;
+    kbd_mask      = 0;
 }
 
 void tearDown(void) {}
@@ -917,6 +993,109 @@ static void test_home_settings_overflow_goes_back_home(void)
     TEST_ASSERT_EQUAL_STRING("App settings", last_text);
 }
 
+// ============================================================================
+// Keyboard
+// ============================================================================
+
+#define ENTRY_MAX_LEN 8
+#define CANARY        0xA5
+
+// entry buffer of entryMaxLen + 1 bytes, immediately followed by a canary
+static struct {
+    char    buffer[ENTRY_MAX_LEN + 1];
+    uint8_t canary[8];
+} entry;
+
+static void on_keyboard_action(void) {}
+
+static void on_keyboard_back(void) {}
+
+// suggestions callback which never masks any key nor proposes any word
+static void permissive_suggestions(nbgl_layoutKeyboardContent_t *content, uint32_t *mask)
+{
+    content->suggestionButtons.nbUsedButtons = 0;
+    content->suggestionButtons.nbCandidates  = 0;
+    *mask                                    = 0;
+}
+
+static void start_keyboard(nbgl_layoutKeyboardContentType_t type)
+{
+    static const char    *buttons[NB_MAX_SUGGESTION_BUTTONS];
+    nbgl_keyboardParams_t params = {
+        .type        = type,
+        .title       = "Enter text",
+        .entryBuffer = entry.buffer,
+        .entryMaxLen = ENTRY_MAX_LEN,
+        .mode        = MODE_LOWER_LETTERS,
+        .lettersOnly = true,
+    };
+    if (type == KEYBOARD_WITH_BUTTON) {
+        params.confirmationParams.onButtonCallback = on_keyboard_action;
+    }
+    else {
+        params.suggestionParams.buttons               = buttons;
+        params.suggestionParams.updateButtonsCallback = permissive_suggestions;
+    }
+    memset(&entry, CANARY, sizeof(entry));
+    nbgl_useCaseKeyboard(&params, on_keyboard_back);
+    TEST_ASSERT_NOT_NULL(kbd_callback);
+}
+
+static void assert_entry_full_and_canary_intact(void)
+{
+    TEST_ASSERT_EQUAL_size_t(ENTRY_MAX_LEN, strlen(entry.buffer));
+    TEST_ASSERT_EACH_EQUAL_HEX8(CANARY, entry.canary, sizeof(entry.canary));
+    TEST_ASSERT_EQUAL_HEX32(0xFFFFFFFF, kbd_mask);
+}
+
+static void test_keyboard_with_button_stops_at_max_len(void)
+{
+    start_keyboard(KEYBOARD_WITH_BUTTON);
+    for (int i = 0; i < 2 * ENTRY_MAX_LEN; i++) {
+        kbd_callback('a');
+    }
+    assert_entry_full_and_canary_intact();
+}
+
+static void test_keyboard_with_suggestions_stops_at_max_len(void)
+{
+    start_keyboard(KEYBOARD_WITH_SUGGESTIONS);
+    for (int i = 0; i < 2 * ENTRY_MAX_LEN; i++) {
+        kbd_callback('a');
+    }
+    assert_entry_full_and_canary_intact();
+    // removing a character re-enables the letters
+    kbd_callback(BACKSPACE_KEY);
+    TEST_ASSERT_EQUAL_size_t(ENTRY_MAX_LEN - 1, strlen(entry.buffer));
+    TEST_ASSERT_EQUAL_HEX32(0, kbd_mask);
+}
+
+static void test_keyboard_without_buffer_is_rejected(void)
+{
+    nbgl_keyboardParams_t params = {
+        .type                                = KEYBOARD_WITH_BUTTON,
+        .entryBuffer                         = NULL,
+        .entryMaxLen                         = ENTRY_MAX_LEN,
+        .confirmationParams.onButtonCallback = on_keyboard_action,
+    };
+    nbgl_useCaseKeyboard(&params, on_keyboard_back);
+    TEST_ASSERT_EQUAL_INT(0, nb_keyboards);
+}
+
+static void test_keyboard_with_zero_max_len_is_rejected(void)
+{
+    nbgl_keyboardParams_t params = {
+        .type                                = KEYBOARD_WITH_BUTTON,
+        .entryBuffer                         = entry.buffer,
+        .entryMaxLen                         = 0,
+        .confirmationParams.onButtonCallback = on_keyboard_action,
+    };
+    memset(&entry, CANARY, sizeof(entry));
+    nbgl_useCaseKeyboard(&params, on_keyboard_back);
+    TEST_ASSERT_EQUAL_INT(0, nb_keyboards);
+    TEST_ASSERT_EQUAL_HEX8(CANARY, (uint8_t) entry.buffer[0]);
+}
+
 int main(void)
 {
     UNITY_BEGIN();
@@ -963,5 +1142,9 @@ int main(void)
     RUN_TEST(test_generic_settings_overflow_calls_quit);
     RUN_TEST(test_generic_settings_max_switches_is_displayed);
     RUN_TEST(test_home_settings_overflow_goes_back_home);
+    RUN_TEST(test_keyboard_with_button_stops_at_max_len);
+    RUN_TEST(test_keyboard_with_suggestions_stops_at_max_len);
+    RUN_TEST(test_keyboard_without_buffer_is_rejected);
+    RUN_TEST(test_keyboard_with_zero_max_len_is_rejected);
     return UNITY_END();
 }
