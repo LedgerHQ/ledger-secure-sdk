@@ -25,6 +25,7 @@ ledger_unit_tests_add_test(
                     HAVE_NBGL
                     NBGL_STEP
                     NBGL_USE_CASE
+                    NBGL_KEYBOARD
                     SCREEN_SIZE_NANO
                     BAGL_WIDTH=128
                     BAGL_HEIGHT=64
