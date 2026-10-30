@@ -2407,6 +2407,11 @@ static uint8_t getNbTagValuesInDetailsPage(uint8_t                           nbP
         }
         nbPairsInPage++;
     }
+    // never return 0, otherwise the modal pages would be empty: a lone pair too tall to fit in a
+    // page must still occupy this page
+    if ((nbPairsInPage == 0) && (nbPairs > 0)) {
+        nbPairsInPage = 1;
+    }
     return nbPairsInPage;
 }
 
@@ -2494,6 +2499,13 @@ static uint8_t getNbPagesForContent(const nbgl_content_t *content,
         }
         else {
             nbElementsInPage = MIN(nbMaxElementsPerContentType[content->type], nbElements);
+        }
+        // every page must consume at least one element, otherwise this loop never ends
+        if (nbElementsInPage == 0) {
+            LOG_WARN(USE_CASE_LOGGER,
+                     "getNbPagesForContent(): element %d doesn't fit in a page\n",
+                     elemIdx);
+            nbElementsInPage = 1;
         }
 
         elemIdx += nbElementsInPage;
@@ -3525,6 +3537,11 @@ static uint8_t getNbInfosInPage(uint8_t                       nbInfos,
         previousHeight = currentHeight;
         nbInfosInPage++;
     }
+    // never return 0, otherwise the pagination loop in getNbPagesForContent would spin forever:
+    // a lone info too tall to fit in a page must still occupy this page
+    if ((nbInfosInPage == 0) && (nbInfos > 0)) {
+        nbInfosInPage = 1;
+    }
     return nbInfosInPage;
 }
 
@@ -3575,6 +3592,11 @@ static uint8_t getNbSwitchesInPage(uint8_t                           nbSwitches,
     // item
     if (!withNav && (previousHeight >= (INFOS_AREA_HEIGHT - SIMPLE_FOOTER_HEIGHT))) {
         nbSwitchesInPage--;
+    }
+    // never return 0, otherwise the pagination loop in getNbPagesForContent would spin forever:
+    // a lone switch too tall to fit in a page must still occupy this page
+    if ((nbSwitchesInPage == 0) && (nbSwitches > 0)) {
+        nbSwitchesInPage = 1;
     }
     return nbSwitchesInPage;
 }

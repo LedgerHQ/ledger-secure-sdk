@@ -21,6 +21,9 @@
 // When a predefined warning is also given, it takes precedence over the custom fields.
 // Regression tests for V-127: the keyboard must never write beyond entryBuffer[entryMaxLen],
 // even when the suggestions callback leaves letter keys enabled.
+// Regression tests for V-140: an info or a switch too tall to fit in a page must not make the
+// automatic pagination spin forever, it must occupy its own page. The same applies to a pair too
+// tall to fit in a page of the tag/value list modal of an alias.
 
 // number of pairs of the TAG_VALUE_CONFIRM list
 #define NB_PAIRS            12
@@ -29,6 +32,8 @@
 #define TEXT_HEIGHT         32
 #define CANCEL_TOKEN        0x72
 #define NO_MODAL_TEXT_DRAWN NULL
+// height of TALL_TEXT, higher than any screen
+#define TALL_TEXT_HEIGHT    2000
 
 // ============================================================================
 // Glyphs
@@ -335,10 +340,12 @@ UNUSED_LAYOUT_FUNC(UpdateSpinner,
                    uint8_t        position)
 
 // ============================================================================
-// NBGL fonts/screen and OS stubs: every text fits on a single line, except LONG_VALUE, and
-// WIDER_IN_BOLD in the small bold font
+// NBGL fonts/screen and OS stubs: every text fits on a single line, except LONG_VALUE,
+// WIDER_IN_BOLD in the small bold font, and TALL_TEXT
 // ============================================================================
 
+// a text too tall to fit in a page, whatever the font
+static const char TALL_TEXT[] = "too tall to fit in a page";
 // a value too long to fit in a review page
 static const char LONG_VALUE[] = "long value";
 #define LONG_VALUE_NB_LINES (NB_MAX_LINES_IN_REVIEW + 5)
@@ -375,6 +382,9 @@ static uint16_t getTextNbLines(nbgl_font_id_e fontId, const char *text)
     if (isInMoreValue(text)) {
         uint16_t nbChars = getNbCharsPerLine(fontId);
         return (strlen(text) + nbChars - 1) / nbChars;
+    }
+    if (text == TALL_TEXT) {
+        return TALL_TEXT_HEIGHT / TEXT_HEIGHT;
     }
     if (strcmp(text, LONG_VALUE) == 0) {
         return LONG_VALUE_NB_LINES;
@@ -586,6 +596,8 @@ void setUp(void)
     nb_keypads            = 0;
     keypad_callback       = NULL;
     keypad_text           = NULL;
+    memset(&modal_nav, 0, sizeof(modal_nav));
+    memset(&modal_content, 0, sizeof(modal_content));
 
     memset(extensions, 0, sizeof(extensions));
     for (uint8_t i = 0; i < NB_PAIRS; i++) {
@@ -1828,6 +1840,68 @@ void test_keypad_too_many_max_digits_is_rejected(void)
     TEST_ASSERT_EQUAL_INT(0, nb_keypads);
 }
 
+void test_infos_list_with_too_tall_info_is_paginated(void)
+{
+    static const char *const types[]    = {"Version", "Developer"};
+    static const char *const contents[] = {TALL_TEXT, "Ledger"};
+    nbgl_content_t           infos      = {.type = INFOS_LIST};
+    nbgl_genericContents_t   generic    = {.contentsList = &infos, .nbContents = 1};
+
+    infos.content.infosList.infoTypes    = types;
+    infos.content.infosList.infoContents = contents;
+    infos.content.infosList.nbInfos      = 2;
+    nbgl_useCaseGenericConfiguration("Settings", 0, &generic, onReject);
+    TEST_ASSERT_NOT_NULL(page_callback);
+    TEST_ASSERT_EQUAL_UINT8(2, page_nav.nbPages);
+    TEST_ASSERT_EQUAL(INFOS_LIST, page_content.type);
+    TEST_ASSERT_EQUAL_UINT8(1, page_content.infosList.nbInfos);
+    TEST_ASSERT_EQUAL_PTR(TALL_TEXT, page_content.infosList.infoContents[0]);
+}
+
+void test_switches_list_with_too_tall_switch_is_paginated(void)
+{
+    static const nbgl_contentSwitch_t switches[]
+        = {{.text = TALL_TEXT, .subText = "sub", .initState = OFF_STATE, .token = 1},
+           {.text = "Switch", .subText = "sub", .initState = OFF_STATE, .token = 2}};
+    nbgl_content_t         list    = {.type = SWITCHES_LIST};
+    nbgl_genericContents_t generic = {.contentsList = &list, .nbContents = 1};
+
+    list.content.switchesList.switches   = switches;
+    list.content.switchesList.nbSwitches = 2;
+    nbgl_useCaseGenericConfiguration("Settings", 0, &generic, onReject);
+    TEST_ASSERT_NOT_NULL(page_callback);
+    TEST_ASSERT_EQUAL_UINT8(2, page_nav.nbPages);
+    TEST_ASSERT_EQUAL(SWITCHES_LIST, page_content.type);
+    TEST_ASSERT_EQUAL_UINT8(1, page_content.switchesList.nbSwitches);
+    TEST_ASSERT_EQUAL_PTR(TALL_TEXT, page_content.switchesList.switches[0].text);
+}
+
+void test_alias_tag_value_list_modal_with_too_tall_pair_is_paginated(void)
+{
+    static const nbgl_contentTagValue_t modalPairs[]
+        = {{.item = "Tall", .value = TALL_TEXT}, {.item = "Short", .value = "value"}};
+    static const nbgl_contentTagValueList_t modalList = {.pairs = modalPairs, .nbPairs = 2};
+
+    buildList(NB_PAIRS, false);
+    extensions[0].aliasType    = TAG_VALUE_LIST_ALIAS;
+    extensions[0].tagValuelist = &modalList;
+    nbgl_useCaseGenericReview(&contents, "Reject", onReject);
+    TEST_ASSERT_NOT_NULL(page_callback);
+
+    modal_pages_expected = true;
+    touchAlias(0);
+    TEST_ASSERT_NOT_NULL(modal_callback);
+    TEST_ASSERT_EQUAL_UINT8(2, modal_nav.nbPages);
+    TEST_ASSERT_EQUAL(TAG_VALUE_LIST, modal_content.type);
+    TEST_ASSERT_EQUAL_UINT8(1, modal_content.tagValueList.nbPairs);
+    TEST_ASSERT_EQUAL_PTR(&modalPairs[0], modal_content.tagValueList.pairs);
+
+    // the second page contains the remaining pair
+    modal_callback(modal_nav.navWithButtons.navToken, 1);
+    TEST_ASSERT_EQUAL_UINT8(1, modal_content.tagValueList.nbPairs);
+    TEST_ASSERT_EQUAL_PTR(&modalPairs[1], modal_content.tagValueList.pairs);
+}
+
 int main(void)
 {
     UNITY_BEGIN();
@@ -1879,5 +1953,8 @@ int main(void)
     RUN_TEST(test_keyboard_with_zero_max_len_is_rejected);
     RUN_TEST(test_keypad_visible_digits_are_nul_terminated_at_max);
     RUN_TEST(test_keypad_too_many_max_digits_is_rejected);
+    RUN_TEST(test_infos_list_with_too_tall_info_is_paginated);
+    RUN_TEST(test_switches_list_with_too_tall_switch_is_paginated);
+    RUN_TEST(test_alias_tag_value_list_modal_with_too_tall_pair_is_paginated);
     return UNITY_END();
 }
