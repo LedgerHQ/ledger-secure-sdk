@@ -254,6 +254,60 @@ int nbgl_layoutUpdateKeyboardContent(nbgl_layout_t *layout, nbgl_layoutKeyboardC
     return 0;
 }
 
+// Keypad layout: memorize the key callback and the last displayed digits
+static int                nb_keypads;
+static keyboardCallback_t keypad_callback;
+static const char        *keypad_text;
+
+int nbgl_layoutAddKeypad(nbgl_layout_t *layout, keyboardCallback_t callback, bool shuffled)
+{
+    (void) layout;
+    (void) shuffled;
+    nb_keypads++;
+    keypad_callback = callback;
+    return 0;
+}
+
+int nbgl_layoutAddKeypadContent(nbgl_layout_t *layout,
+                                const char    *title,
+                                bool           hidden,
+                                uint8_t        nbDigits,
+                                const char    *text)
+{
+    (void) layout;
+    (void) title;
+    (void) hidden;
+    (void) nbDigits;
+    keypad_text = text;
+    return 0;
+}
+
+int nbgl_layoutUpdateKeypad(nbgl_layout_t *layout,
+                            uint8_t        index,
+                            bool           enableValidate,
+                            bool           enableBackspace,
+                            bool           enableDigits)
+{
+    (void) layout;
+    (void) index;
+    (void) enableValidate;
+    (void) enableBackspace;
+    (void) enableDigits;
+    return 0;
+}
+
+int nbgl_layoutUpdateKeypadContent(nbgl_layout_t *layout,
+                                   bool           hidden,
+                                   uint8_t        nbActiveDigits,
+                                   const char    *text)
+{
+    (void) layout;
+    (void) hidden;
+    (void) nbActiveDigits;
+    keypad_text = text;
+    return 0;
+}
+
 // Layout functions used by the other use cases, not exercised here
 #define UNUSED_LAYOUT_FUNC(name, ...)                              \
     int nbgl_layout##name(__VA_ARGS__)                             \
@@ -268,30 +322,12 @@ UNUSED_LAYOUT_FUNC(AddFooter,
                    const char    *text,
                    uint8_t        token,
                    tune_index_e   tuneId)
-UNUSED_LAYOUT_FUNC(AddKeypad, nbgl_layout_t *layout, keyboardCallback_t callback, bool shuffled)
-UNUSED_LAYOUT_FUNC(AddKeypadContent,
-                   nbgl_layout_t *layout,
-                   const char    *title,
-                   bool           hidden,
-                   uint8_t        nbDigits,
-                   const char    *text)
 UNUSED_LAYOUT_FUNC(AddQRCode, nbgl_layout_t *layout, const nbgl_layoutQRCode_t *info)
 UNUSED_LAYOUT_FUNC(AddSpinner,
                    nbgl_layout_t *layout,
                    const char    *text,
                    const char    *subText,
                    uint8_t        initPosition)
-UNUSED_LAYOUT_FUNC(UpdateKeypad,
-                   nbgl_layout_t *layout,
-                   uint8_t        index,
-                   bool           enableValidate,
-                   bool           enableBackspace,
-                   bool           enableDigits)
-UNUSED_LAYOUT_FUNC(UpdateKeypadContent,
-                   nbgl_layout_t *layout,
-                   bool           hidden,
-                   uint8_t        nbActiveDigits,
-                   const char    *text)
 UNUSED_LAYOUT_FUNC(UpdateSpinner,
                    nbgl_layout_t *layout,
                    const char    *text,
@@ -547,6 +583,9 @@ void setUp(void)
     nb_keyboards          = 0;
     kbd_callback          = NULL;
     kbd_mask              = 0;
+    nb_keypads            = 0;
+    keypad_callback       = NULL;
+    keypad_text           = NULL;
 
     memset(extensions, 0, sizeof(extensions));
     for (uint8_t i = 0; i < NB_PAIRS; i++) {
@@ -1759,6 +1798,36 @@ void test_keyboard_with_zero_max_len_is_rejected(void)
     TEST_ASSERT_EQUAL_HEX8(CANARY, (uint8_t) entry.buffer[0]);
 }
 
+// ============================================================================
+// Keypad
+// ============================================================================
+
+static void on_pin_validate(const uint8_t *content, uint8_t length)
+{
+    (void) content;
+    (void) length;
+}
+
+static void on_keypad_back(void) {}
+
+void test_keypad_visible_digits_are_nul_terminated_at_max(void)
+{
+    nbgl_useCaseKeypad("PIN", 4, KEYPAD_MAX_DIGITS, false, false, on_pin_validate, on_keypad_back);
+    TEST_ASSERT_EQUAL_INT(1, nb_keypads);
+    TEST_ASSERT_NOT_NULL(keypad_callback);
+    for (int i = 0; i < 2 * KEYPAD_MAX_DIGITS; i++) {
+        keypad_callback('0' + (i % 10));
+    }
+    TEST_ASSERT_EQUAL_STRING("012345678901", keypad_text);
+}
+
+void test_keypad_too_many_max_digits_is_rejected(void)
+{
+    nbgl_useCaseKeypad(
+        "PIN", 4, KEYPAD_MAX_DIGITS + 1, false, true, on_pin_validate, on_keypad_back);
+    TEST_ASSERT_EQUAL_INT(0, nb_keypads);
+}
+
 int main(void)
 {
     UNITY_BEGIN();
@@ -1808,5 +1877,7 @@ int main(void)
     RUN_TEST(test_keyboard_with_suggestions_stops_at_max_len);
     RUN_TEST(test_keyboard_without_buffer_is_rejected);
     RUN_TEST(test_keyboard_with_zero_max_len_is_rejected);
+    RUN_TEST(test_keypad_visible_digits_are_nul_terminated_at_max);
+    RUN_TEST(test_keypad_too_many_max_digits_is_rejected);
     return UNITY_END();
 }

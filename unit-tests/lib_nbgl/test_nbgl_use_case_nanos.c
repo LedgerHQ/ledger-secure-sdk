@@ -204,6 +204,66 @@ int nbgl_layoutUpdateEnteredText(nbgl_layout_t *layout, uint8_t index, const cha
     return 0;
 }
 
+// Keypad layout: memorize the key callback and the last displayed digits
+static int                nb_keypads;
+static keyboardCallback_t keypad_callback;
+static const char        *keypad_text;
+static uint8_t            keypad_nb_active;
+
+// PIN received by the validation callback
+static int     nb_pins;
+static uint8_t pin[KEYPAD_MAX_DIGITS + 1];
+static uint8_t pin_len;
+
+int nbgl_layoutAddKeypad(nbgl_layout_t     *layout,
+                         keyboardCallback_t callback,
+                         const char        *text,
+                         bool               shuffled)
+{
+    (void) layout;
+    (void) text;
+    (void) shuffled;
+    nb_keypads++;
+    keypad_callback = callback;
+    return 1;
+}
+
+int nbgl_layoutUpdateKeypad(nbgl_layout_t *layout,
+                            uint8_t        index,
+                            bool           enableValidate,
+                            bool           enableBackspace)
+{
+    (void) layout;
+    (void) index;
+    (void) enableValidate;
+    (void) enableBackspace;
+    return 0;
+}
+
+int nbgl_layoutAddKeypadContent(nbgl_layout_t *layout,
+                                bool           hidden,
+                                uint8_t        nbDigits,
+                                const char    *text)
+{
+    (void) layout;
+    (void) hidden;
+    (void) nbDigits;
+    keypad_text = text;
+    return 2;
+}
+
+int nbgl_layoutUpdateKeypadContent(nbgl_layout_t *layout,
+                                   bool           hidden,
+                                   uint8_t        nbActiveDigits,
+                                   const char    *text)
+{
+    (void) layout;
+    (void) hidden;
+    keypad_nb_active = nbActiveDigits;
+    keypad_text      = text;
+    return 0;
+}
+
 int nbgl_layoutDraw(nbgl_layout_t *layout)
 {
     (void) layout;
@@ -315,17 +375,24 @@ void setUp(void)
         pair_max_lines[i] = NOT_DRAWN_AS_TEXT;
         pair_style[i]     = REGULAR_INFO;
     }
-    nb_draws      = 0;
-    last_callback = NULL;
-    last_text     = NULL;
-    last_subtext  = NULL;
-    last_icon     = NULL;
-    nb_choices    = 0;
-    last_choice   = false;
-    nb_quits      = 0;
-    nb_keyboards  = 0;
-    kbd_callback  = NULL;
-    kbd_mask      = 0;
+    nb_draws         = 0;
+    last_callback    = NULL;
+    last_text        = NULL;
+    last_subtext     = NULL;
+    last_icon        = NULL;
+    nb_choices       = 0;
+    last_choice      = false;
+    nb_quits         = 0;
+    nb_keyboards     = 0;
+    kbd_callback     = NULL;
+    kbd_mask         = 0;
+    nb_keypads       = 0;
+    keypad_callback  = NULL;
+    keypad_text      = NULL;
+    keypad_nb_active = 0;
+    nb_pins          = 0;
+    pin_len          = 0;
+    memset(pin, 0, sizeof(pin));
 }
 
 void tearDown(void) {}
@@ -1096,6 +1163,85 @@ static void test_keyboard_with_zero_max_len_is_rejected(void)
     TEST_ASSERT_EQUAL_HEX8(CANARY, (uint8_t) entry.buffer[0]);
 }
 
+// ============================================================================
+// Keypad
+// ============================================================================
+
+static int nb_keypad_backs;
+
+static void on_pin_validate(const uint8_t *content, uint8_t length)
+{
+    nb_pins++;
+    pin_len = length;
+    memcpy(pin, content, (length < sizeof(pin)) ? length : sizeof(pin));
+}
+
+static void on_keypad_back(void)
+{
+    nb_keypad_backs++;
+}
+
+static void fill_keypad(bool hidden)
+{
+    nb_keypad_backs = 0;
+    nbgl_useCaseKeypad("PIN", 4, KEYPAD_MAX_DIGITS, false, hidden, on_pin_validate, on_keypad_back);
+    TEST_ASSERT_EQUAL_INT(1, nb_keypads);
+    TEST_ASSERT_NOT_NULL(keypad_callback);
+    for (int i = 0; i < 2 * KEYPAD_MAX_DIGITS; i++) {
+        keypad_callback('0' + (i % 10));
+    }
+}
+
+static void test_keypad_max_digits_stops_at_max(void)
+{
+    fill_keypad(true);
+    TEST_ASSERT_EQUAL_UINT8(KEYPAD_MAX_DIGITS, keypad_nb_active);
+    keypad_callback(VALIDATE_KEY);
+    TEST_ASSERT_EQUAL_INT(1, nb_pins);
+    TEST_ASSERT_EQUAL_UINT8(KEYPAD_MAX_DIGITS, pin_len);
+    TEST_ASSERT_EQUAL_MEMORY("012345678901", pin, KEYPAD_MAX_DIGITS);
+}
+
+static void test_keypad_visible_digits_are_nul_terminated_at_max(void)
+{
+    fill_keypad(false);
+    TEST_ASSERT_NOT_NULL(keypad_text);
+    TEST_ASSERT_EQUAL_STRING("012345678901", keypad_text);
+}
+
+static void test_keypad_backspace_after_max_empties_pin(void)
+{
+    fill_keypad(false);
+    for (int i = 0; i < KEYPAD_MAX_DIGITS; i++) {
+        keypad_callback(BACKSPACE_KEY);
+    }
+    TEST_ASSERT_EQUAL_UINT8(0, keypad_nb_active);
+    TEST_ASSERT_EQUAL_STRING("", keypad_text);
+    TEST_ASSERT_EQUAL_INT(0, nb_keypad_backs);
+    // an extra backspace on an empty PIN calls the back callback
+    keypad_callback(BACKSPACE_KEY);
+    TEST_ASSERT_EQUAL_INT(1, nb_keypad_backs);
+}
+
+static void test_keypad_too_many_max_digits_is_rejected(void)
+{
+    nbgl_useCaseKeypad(
+        "PIN", 4, KEYPAD_MAX_DIGITS + 1, false, true, on_pin_validate, on_keypad_back);
+    TEST_ASSERT_EQUAL_INT(0, nb_keypads);
+}
+
+static void test_keypad_too_many_min_digits_is_rejected(void)
+{
+    nbgl_useCaseKeypad("PIN",
+                       KEYPAD_MAX_DIGITS + 1,
+                       KEYPAD_MAX_DIGITS,
+                       false,
+                       true,
+                       on_pin_validate,
+                       on_keypad_back);
+    TEST_ASSERT_EQUAL_INT(0, nb_keypads);
+}
+
 int main(void)
 {
     UNITY_BEGIN();
@@ -1146,5 +1292,10 @@ int main(void)
     RUN_TEST(test_keyboard_with_suggestions_stops_at_max_len);
     RUN_TEST(test_keyboard_without_buffer_is_rejected);
     RUN_TEST(test_keyboard_with_zero_max_len_is_rejected);
+    RUN_TEST(test_keypad_max_digits_stops_at_max);
+    RUN_TEST(test_keypad_visible_digits_are_nul_terminated_at_max);
+    RUN_TEST(test_keypad_backspace_after_max_empties_pin);
+    RUN_TEST(test_keypad_too_many_max_digits_is_rejected);
+    RUN_TEST(test_keypad_too_many_min_digits_is_rejected);
     return UNITY_END();
 }
