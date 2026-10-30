@@ -2892,29 +2892,47 @@ static void displaySecurityReport(uint32_t set)
         provider = "[unknown]";
     }
     if ((set & (1 << W3C_THREAT_DETECTED_WARN)) || (set & (1 << W3C_RISK_DETECTED_WARN))) {
-        size_t urlLen = 0;
-        char  *destStr
-            = tmpString
-              + W3C_DESCRIPTION_MAX_LEN / 2;  // use the second half of tmpString for strings
+        // use the second half of tmpString for strings (the first half may be used by the
+        // underlying warning page)
+        const size_t destSize = W3C_DESCRIPTION_MAX_LEN / 2;
+        char        *destStr  = tmpString + destSize;
+        // remaining size in destStr
+        size_t destLen = destSize;
+        int    len;
 #ifdef NBGL_QRCODE
-        // display a QR Code
-        nbgl_layoutQRCode_t qrCode = {.url      = destStr,
-                                      .text1    = reviewWithWarnCtx.warning->reportUrl,
-                                      .text2    = "Scan to view full report",
-                                      .centered = true,
-                                      .offsetY  = 0};
-        // add "https://"" as prefix of the given URL
-        snprintf(destStr,
-                 W3C_DESCRIPTION_MAX_LEN / 2,
-                 "https://%s",
-                 reviewWithWarnCtx.warning->reportUrl);
-        urlLen = strlen(destStr) + 1;
-        nbgl_layoutAddQRCode(reviewWithWarnCtx.modalLayout, &qrCode);
-        footerDesc.emptySpace.height = 24;
+        const char *reportUrl = reviewWithWarnCtx.warning->reportUrl;
+        // add "https://" as prefix of the given URL, and only display the QR Code if the whole
+        // URL fits, to never encode a truncated URL
+        len = (reportUrl != NULL) ? snprintf(destStr, destLen, "https://%s", reportUrl) : -1;
+        if ((len >= 0) && ((size_t) len < destLen)) {
+            nbgl_layoutQRCode_t qrCode = {.url      = destStr,
+                                          .text1    = reportUrl,
+                                          .text2    = "Scan to view full report",
+                                          .centered = true,
+                                          .offsetY  = 0};
+            nbgl_layoutAddQRCode(reviewWithWarnCtx.modalLayout, &qrCode);
+            footerDesc.emptySpace.height = 24;
+            // use the next part of destStr for back bar text
+            destStr += len + 1;
+            destLen -= len + 1;
+        }
+        else if (reportUrl != NULL) {
+            // URL too long to be encoded, only display it as text
+            nbgl_contentCenter_t info = {0};
+            info.smallTitle           = "View full report at:";
+            info.description          = reportUrl;
+            nbgl_layoutAddContentCenter(reviewWithWarnCtx.modalLayout, &info);
+            footerDesc.emptySpace.height = SMALL_CENTERING_HEADER;
+        }
 #endif  // NBGL_QRCODE
-        // use the next part of destStr for back bar text
-        snprintf(destStr + urlLen, W3C_DESCRIPTION_MAX_LEN / 2 - urlLen, "%s report", provider);
-        headerDesc.backAndText.text = destStr + urlLen;
+        // use a default back bar text if the given provider doesn't fit
+        len = (destLen > 0) ? snprintf(destStr, destLen, "%s report", provider) : -1;
+        if ((len >= 0) && ((size_t) len < destLen)) {
+            headerDesc.backAndText.text = destStr;
+        }
+        else {
+            headerDesc.backAndText.text = "Security report";
+        }
     }
     else if (set & (1 << BLIND_SIGNING_WARN)) {
         // display a centered if in review
