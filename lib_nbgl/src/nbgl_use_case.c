@@ -125,7 +125,7 @@ typedef struct AddressConfirmationContext_s {
 
 #ifdef NBGL_KEYPAD
 typedef struct KeypadContext_s {
-    uint8_t                 pinEntry[KEYPAD_MAX_DIGITS];
+    uint8_t                 pinEntry[KEYPAD_MAX_DIGITS + 1];  // +1 for the NUL terminator
     uint8_t                 pinLen;
     uint8_t                 pinMinDigits;
     uint8_t                 pinMaxDigits;
@@ -5030,7 +5030,7 @@ void nbgl_useCaseSpinner(const char *text)
  *
  * @param title string to set in pin code title
  * @param minDigits pin minimum number of digits
- * @param maxDigits maximum number of digits to be displayed
+ * @param maxDigits maximum number of digits to be displayed (at most @ref KEYPAD_MAX_DIGITS)
  * @param shuffled if set to true, digits are shuffled in keypad
  * @param hidden if set to true, digits are hidden in keypad
  * @param validatePinCallback function calledto validate the pin code
