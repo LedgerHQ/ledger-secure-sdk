@@ -5,6 +5,7 @@ import collections
 import colorsys
 import math
 import os
+import re
 import struct
 import binascii
 import sys
@@ -14,6 +15,9 @@ from PIL import Image
 
 
 MAX_COLORS = 16
+
+# Glyph names are written verbatim in the generated C code, so they must be strictly checked
+C_IDENTIFIER = re.compile(r"[A-Za-z_][A-Za-z0-9_]*")
 
 
 def is_power2(n):
@@ -72,6 +76,16 @@ def main():
             if args.errors:
                 exitcode = -1
             continue
+
+    # check all glyph names before generating anything, so that no partial C code is produced
+    # (not needed in hexbitmaponly mode, where the name is not used)
+    if not args.hexbitmaponly:
+        for file in args.image_file:
+            image_name = os.path.splitext(os.path.basename(file))[0]
+            if not C_IDENTIFIER.fullmatch(image_name):
+                sys.stderr.write(f"Error: invalid glyph name {image_name!r} (from {file!r}): "
+                                 "only letters, digits and '_' are allowed, not starting with a digit\n")
+                sys.exit(1)
 
     colors_array = {}
     processed_image_names = []

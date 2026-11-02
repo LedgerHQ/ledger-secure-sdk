@@ -7,6 +7,7 @@ Converts the given icons, in bmp or gif format, to Stax compatible glyphs, as C 
 import argparse
 import math
 import os
+import re
 import binascii
 import sys
 import traceback
@@ -24,6 +25,25 @@ class NbglFileCompression(IntEnum):
     NoCompression = 0
     Gzlib = 1,
     Rle = 2
+
+
+# Glyph names and generated header names are written verbatim in the generated C code,
+# so they must be strictly checked
+C_IDENTIFIER = re.compile(r"[A-Za-z_][A-Za-z0-9_]*")
+HEADER_NAME = re.compile(r"[A-Za-z0-9_][A-Za-z0-9_.-]*")
+
+
+def get_image_name(file: str) -> str:
+    """
+    Returns the name of the glyph of the given image file (its basename without extension),
+    exiting if it is not a valid C identifier
+    """
+    image_name = os.path.splitext(os.path.basename(file))[0]
+    if not C_IDENTIFIER.fullmatch(image_name):
+        sys.stderr.write(f"Error: invalid glyph name {image_name!r} (from {file!r}): "
+                         "only letters, digits and '_' are allowed, not starting with a digit\n")
+        sys.exit(1)
+    return image_name
 
 
 def is_power2(n):
@@ -311,6 +331,14 @@ def main():
 
 
     if args.glyphcfile is not None:
+        # check all names before generating anything, so that no partial file is produced
+        header_name = os.path.basename(args.glyphcheader)
+        if not HEADER_NAME.fullmatch(header_name):
+            sys.stderr.write(f"Error: invalid generated header name {header_name!r}\n")
+            sys.exit(1)
+        for file in args.image_file:
+            get_image_name(file)
+
         # create source and header
         source, header = create_source_files(args.glyphcfile, args.glyphcheader)
 
@@ -318,8 +346,8 @@ def main():
         id = args.init_id
         for file in args.image_file:
             try:
-                # Get image name
-                image_name = os.path.splitext(os.path.basename(file))[0]
+                # Get image name (already checked)
+                image_name = get_image_name(file)
 
                 # if image name has already been done, then don't do it twice
                 if image_name in processed_image_names:
@@ -365,8 +393,6 @@ def main():
             print('only one icon can be processed in hexbitmap mode')
             exit(-1)
         file = args.image_file[0]
-        # Get image name
-        image_name = os.path.splitext(os.path.basename(file))[0]
 
         # Open image in luminance format
         opened = open_image(file)
