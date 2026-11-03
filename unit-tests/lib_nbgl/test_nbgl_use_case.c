@@ -26,6 +26,9 @@
 // tall to fit in a page of the tag/value list modal of an alias.
 // Regression tests for V-142: in the threat/risk report modal, a long report URL must never lead
 // to an out-of-bounds header string, nor to a QR Code encoding a truncated URL.
+// Regression tests for V-298: when an INFOS_LIST with extensions is automatically paginated in a
+// generic content, every page must keep the extensions, and touching the alias of an info on any
+// page must display the full value of this info (and not of an info of another page).
 
 // number of pairs of the TAG_VALUE_CONFIRM list
 #define NB_PAIRS            12
@@ -2026,6 +2029,119 @@ void test_alias_tag_value_list_modal_with_too_tall_pair_is_paginated(void)
     TEST_ASSERT_EQUAL_PTR(&modalPairs[1], modal_content.tagValueList.pairs);
 }
 
+// ============================================================================
+// V-298: extensions of a paginated INFOS_LIST
+// ============================================================================
+
+static const char            *info_types[NB_PAIRS];
+static const char            *info_contents[NB_PAIRS];
+static nbgl_content_t         infos_content;
+static nbgl_genericContents_t infos_generic;
+
+// Builds an INFOS_LIST of NB_PAIRS infos, each one with a unique full value in its extension
+static void buildInfosList(bool withExtensions)
+{
+    for (uint8_t i = 0; i < NB_PAIRS; i++) {
+        info_types[i]    = items[i];
+        info_contents[i] = aliases[i];
+    }
+    memset(&infos_content, 0, sizeof(infos_content));
+    infos_content.type                             = INFOS_LIST;
+    infos_content.content.infosList.nbInfos        = NB_PAIRS;
+    infos_content.content.infosList.infoTypes      = info_types;
+    infos_content.content.infosList.infoContents   = info_contents;
+    infos_content.content.infosList.infoExtensions = extensions;
+    infos_content.content.infosList.withExtensions = withExtensions;
+}
+
+// Content getter returning a copy of infos_content, as an application filling a temporary
+// buffer would do
+static void getInfosContent(uint8_t contentIndex, nbgl_content_t *content)
+{
+    TEST_ASSERT_EQUAL_UINT8(0, contentIndex);
+    memcpy(content, &infos_content, sizeof(*content));
+}
+
+static void startInfosConfiguration(bool withCallback)
+{
+    memset(&infos_generic, 0, sizeof(infos_generic));
+    if (withCallback) {
+        infos_generic.callbackCallNeeded    = true;
+        infos_generic.contentGetterCallback = getInfosContent;
+    }
+    else {
+        infos_generic.contentsList = &infos_content;
+    }
+    infos_generic.nbContents = 1;
+    nbgl_useCaseGenericConfiguration("Settings", 0, &infos_generic, onReject);
+    TEST_ASSERT_NOT_NULL(page_callback);
+    // the list must span several pages for the test to be meaningful
+    TEST_ASSERT_GREATER_THAN_UINT8(1, page_nav.nbPages);
+}
+
+// Goes through all pages and touches the alias of every info, checking that the modal always
+// shows the full value of the touched info. On the last page, also touches beyond the list.
+static void checkAllInfoAliases(bool withCallback)
+{
+    char    msg[64];
+    uint8_t firstInfoIdx = 0;
+    uint8_t pageIdx      = 0;
+
+    buildInfosList(true);
+    startInfosConfiguration(withCallback);
+
+    while (true) {
+        snprintf(msg, sizeof(msg), "%s, page %d", withCallback ? "callback" : "array", pageIdx);
+        TEST_ASSERT_EQUAL_MESSAGE(INFOS_LIST, page_content.type, msg);
+        TEST_ASSERT_GREATER_THAN_UINT8_MESSAGE(0, page_content.infosList.nbInfos, msg);
+        TEST_ASSERT_TRUE_MESSAGE(page_content.infosList.withExtensions, msg);
+        TEST_ASSERT_EQUAL_PTR_MESSAGE(
+            &extensions[firstInfoIdx], page_content.infosList.infoExtensions, msg);
+
+        for (uint8_t i = 0; i < page_content.infosList.nbInfos; i++) {
+            modal_title      = NULL;
+            modal_full_value = NULL;
+            page_callback(page_content.infosList.token, i);
+            TEST_ASSERT_EQUAL_STRING_MESSAGE(aliases[firstInfoIdx + i], modal_title, msg);
+            TEST_ASSERT_EQUAL_STRING_MESSAGE(full_values[firstInfoIdx + i], modal_full_value, msg);
+        }
+        firstInfoIdx += page_content.infosList.nbInfos;
+
+        if (pageIdx == page_nav.nbPages - 1) {
+            break;
+        }
+        pageIdx++;
+        page_callback(page_nav.navWithButtons.navToken, pageIdx);
+    }
+    TEST_ASSERT_EQUAL_UINT8_MESSAGE(NB_PAIRS, firstInfoIdx, msg);
+
+    // an alias beyond the end of the list shall not display anything
+    modal_title      = NULL;
+    modal_full_value = NULL;
+    page_callback(page_content.infosList.token, page_content.infosList.nbInfos);
+    TEST_ASSERT_EQUAL_PTR_MESSAGE(NO_MODAL_TEXT_DRAWN, modal_title, msg);
+    TEST_ASSERT_EQUAL_PTR_MESSAGE(NO_MODAL_TEXT_DRAWN, modal_full_value, msg);
+}
+
+void test_infos_list_extensions_on_every_page(void)
+{
+    checkAllInfoAliases(false);
+}
+
+void test_infos_list_extensions_on_every_page_with_callback(void)
+{
+    checkAllInfoAliases(true);
+}
+
+void test_infos_list_without_extensions_has_no_alias(void)
+{
+    buildInfosList(false);
+    startInfosConfiguration(false);
+    TEST_ASSERT_EQUAL(INFOS_LIST, page_content.type);
+    TEST_ASSERT_FALSE(page_content.infosList.withExtensions);
+    TEST_ASSERT_NULL(page_content.infosList.infoExtensions);
+}
+
 int main(void)
 {
     UNITY_BEGIN();
@@ -2085,5 +2201,8 @@ int main(void)
     RUN_TEST(test_infos_list_with_too_tall_info_is_paginated);
     RUN_TEST(test_switches_list_with_too_tall_switch_is_paginated);
     RUN_TEST(test_alias_tag_value_list_modal_with_too_tall_pair_is_paginated);
+    RUN_TEST(test_infos_list_extensions_on_every_page);
+    RUN_TEST(test_infos_list_extensions_on_every_page_with_callback);
+    RUN_TEST(test_infos_list_without_extensions_has_no_alias);
     return UNITY_END();
 }
