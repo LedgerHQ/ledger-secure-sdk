@@ -1708,6 +1708,105 @@ static void test_keypad_too_many_min_digits_is_rejected(void)
     TEST_ASSERT_EQUAL_INT(0, nb_keypads);
 }
 
+// ============================================================================
+// Advanced reviews: risk and threat warnings are only rendered with blind signing
+// ============================================================================
+
+static void advanced_review(uint32_t predefinedSet)
+{
+    static nbgl_warning_t warning;
+    memset(&warning, 0, sizeof(warning));
+    warning.predefinedSet = predefinedSet;
+    list                  = make_tag_value_list(1);
+    nbgl_useCaseAdvancedReview(TYPE_TRANSACTION,
+                               &list,
+                               &C_icon_warning,
+                               "Review",
+                               NULL,
+                               "Sign",
+                               NULL,
+                               &warning,
+                               on_choice);
+}
+
+static void advanced_streaming_review(uint32_t predefinedSet)
+{
+    static nbgl_warning_t warning;
+    memset(&warning, 0, sizeof(warning));
+    warning.predefinedSet = predefinedSet;
+    nbgl_useCaseAdvancedReviewStreamingStart(
+        TYPE_TRANSACTION, &C_icon_warning, "Review", NULL, &warning, on_choice);
+}
+
+// Checks that the blind signing warning is displayed, without any choice made
+static void assert_blind_signing_warning_displayed(void)
+{
+    TEST_ASSERT_EQUAL_INT(1, nb_draws);
+    TEST_ASSERT_EQUAL_INT(0, nb_choices);
+    TEST_ASSERT_EQUAL_STRING("Blind signing ahead", last_text);
+}
+
+static void test_advanced_review_risk_only_is_rejected(void)
+{
+    advanced_review(1 << W3C_RISK_DETECTED_WARN);
+    assert_rejected_without_display();
+}
+
+static void test_advanced_review_threat_only_is_rejected(void)
+{
+    advanced_review(1 << W3C_THREAT_DETECTED_WARN);
+    assert_rejected_without_display();
+}
+
+static void test_advanced_review_risk_with_blind_signing_is_displayed(void)
+{
+    advanced_review((1 << W3C_RISK_DETECTED_WARN) | (1 << BLIND_SIGNING_WARN));
+    assert_blind_signing_warning_displayed();
+}
+
+static void test_advanced_review_threat_with_blind_signing_is_displayed(void)
+{
+    advanced_review((1 << W3C_THREAT_DETECTED_WARN) | (1 << BLIND_SIGNING_WARN));
+    assert_blind_signing_warning_displayed();
+}
+
+static void test_advanced_streaming_review_risk_only_is_rejected(void)
+{
+    advanced_streaming_review(1 << W3C_RISK_DETECTED_WARN);
+    assert_rejected_without_display();
+}
+
+static void test_advanced_streaming_review_threat_only_is_rejected(void)
+{
+    advanced_streaming_review(1 << W3C_THREAT_DETECTED_WARN);
+    assert_rejected_without_display();
+}
+
+static void test_advanced_streaming_review_risk_with_blind_signing_is_displayed(void)
+{
+    advanced_streaming_review((1 << W3C_RISK_DETECTED_WARN) | (1 << BLIND_SIGNING_WARN));
+    assert_blind_signing_warning_displayed();
+}
+
+static void test_advanced_streaming_review_threat_with_blind_signing_is_displayed(void)
+{
+    advanced_streaming_review((1 << W3C_THREAT_DETECTED_WARN) | (1 << BLIND_SIGNING_WARN));
+    assert_blind_signing_warning_displayed();
+}
+
+// Gated signing implies blind signing, so its risk warning is rendered
+static void test_advanced_review_risk_with_gated_signing_is_displayed(void)
+{
+    advanced_review((1 << W3C_RISK_DETECTED_WARN) | (1 << GATED_SIGNING_WARN));
+    assert_blind_signing_warning_displayed();
+}
+
+static void test_advanced_streaming_review_risk_with_gated_signing_is_displayed(void)
+{
+    advanced_streaming_review((1 << W3C_RISK_DETECTED_WARN) | (1 << GATED_SIGNING_WARN));
+    assert_blind_signing_warning_displayed();
+}
+
 int main(void)
 {
     UNITY_BEGIN();
@@ -1775,5 +1874,15 @@ int main(void)
     RUN_TEST(test_keypad_backspace_after_max_empties_pin);
     RUN_TEST(test_keypad_too_many_max_digits_is_rejected);
     RUN_TEST(test_keypad_too_many_min_digits_is_rejected);
+    RUN_TEST(test_advanced_review_risk_only_is_rejected);
+    RUN_TEST(test_advanced_review_threat_only_is_rejected);
+    RUN_TEST(test_advanced_review_risk_with_blind_signing_is_displayed);
+    RUN_TEST(test_advanced_review_threat_with_blind_signing_is_displayed);
+    RUN_TEST(test_advanced_streaming_review_risk_only_is_rejected);
+    RUN_TEST(test_advanced_streaming_review_threat_only_is_rejected);
+    RUN_TEST(test_advanced_streaming_review_risk_with_blind_signing_is_displayed);
+    RUN_TEST(test_advanced_streaming_review_threat_with_blind_signing_is_displayed);
+    RUN_TEST(test_advanced_review_risk_with_gated_signing_is_displayed);
+    RUN_TEST(test_advanced_streaming_review_risk_with_gated_signing_is_displayed);
     return UNITY_END();
 }
