@@ -1987,9 +1987,10 @@ void test_infos_list_with_too_tall_info_is_paginated(void)
 
 void test_switches_list_with_too_tall_switch_is_paginated(void)
 {
-    static const nbgl_contentSwitch_t switches[]
-        = {{.text = TALL_TEXT, .subText = "sub", .initState = OFF_STATE, .token = 1},
-           {.text = "Switch", .subText = "sub", .initState = OFF_STATE, .token = 2}};
+    static const nbgl_contentSwitch_t switches[] = {
+        {.text = TALL_TEXT, .subText = "sub", .initState = OFF_STATE, .token = 1},
+        {.text = "Switch",  .subText = "sub", .initState = OFF_STATE, .token = 2}
+    };
     nbgl_content_t         list    = {.type = SWITCHES_LIST};
     nbgl_genericContents_t generic = {.contentsList = &list, .nbContents = 1};
 
@@ -2005,8 +2006,10 @@ void test_switches_list_with_too_tall_switch_is_paginated(void)
 
 void test_alias_tag_value_list_modal_with_too_tall_pair_is_paginated(void)
 {
-    static const nbgl_contentTagValue_t modalPairs[]
-        = {{.item = "Tall", .value = TALL_TEXT}, {.item = "Short", .value = "value"}};
+    static const nbgl_contentTagValue_t modalPairs[] = {
+        {.item = "Tall",  .value = TALL_TEXT},
+        {.item = "Short", .value = "value"  }
+    };
     static const nbgl_contentTagValueList_t modalList = {.pairs = modalPairs, .nbPairs = 2};
 
     buildList(NB_PAIRS, false);
