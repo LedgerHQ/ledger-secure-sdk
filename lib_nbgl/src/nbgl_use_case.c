@@ -220,6 +220,9 @@ typedef struct {
     nbgl_layout_t backgroundLayout;
     const nbgl_contentInfoList_t     *currentInfos;
     const nbgl_contentTagValueList_t *currentTagValues;
+    // unsliced infos list of the current generic page, to retrieve the extension of a touched
+    // info (copied, because the content may come from a temporary buffer)
+    nbgl_contentInfoList_t            currentPageInfos;
     nbgl_tipBox_t                     tipBox;
     SharedContext_t sharedCtx;  // multi-purpose context shared for non-concurrent usages
 } GenericContext_t;
@@ -896,6 +899,22 @@ static void pageCallback(int token, uint8_t index)
             LOG_WARN(USE_CASE_LOGGER, "pageCallback(): no alias for index %d\n", absoluteIdx);
         }
     }
+    else if (token == INFO_ALIAS_TOKEN) {
+        // the icon next to an info of a (possibly paginated) generic infos list has been
+        // touched: currentPageInfos is the unsliced list, so use the absolute index
+        const nbgl_contentInfoList_t *infos = &genericContext.currentPageInfos;
+        uint16_t absoluteIdx                = (uint16_t) genericContext.currentElementIdx + index;
+        if ((absoluteIdx < infos->nbInfos) && (infos->withExtensions)
+            && (infos->infoExtensions != NULL)) {
+            const nbgl_contentValueExt_t *extension = PIC(&infos->infoExtensions[absoluteIdx]);
+            displayFullValuePage(PIC(((const char *const *) PIC(infos->infoTypes))[absoluteIdx]),
+                                 PIC(((const char *const *) PIC(infos->infoContents))[absoluteIdx]),
+                                 extension);
+        }
+        else {
+            LOG_WARN(USE_CASE_LOGGER, "pageCallback(): no info alias for index %d\n", absoluteIdx);
+        }
+    }
     else if (token == BLIND_WARNING_TOKEN) {
         reviewWithWarnCtx.isIntro = false;
         reviewWithWarnCtx.warning = NULL;
@@ -1327,6 +1346,18 @@ static bool genericContextPreparePageContent(const nbgl_content_t *p_content,
                 = PIC(&p_content->content.infosList.infoTypes[nextElementIdx]);
             pageContent->infosList.infoContents
                 = PIC(&p_content->content.infosList.infoContents[nextElementIdx]);
+            // keep extensions (full values), sliced like the texts, so that they remain
+            // inspectable when the list is paginated
+            if ((p_content->content.infosList.withExtensions)
+                && (p_content->content.infosList.infoExtensions != NULL)) {
+                pageContent->infosList.withExtensions = true;
+                pageContent->infosList.infoExtensions
+                    = PIC(&p_content->content.infosList.infoExtensions[nextElementIdx]);
+                pageContent->infosList.token = INFO_ALIAS_TOKEN;
+                // memorize the unsliced list, the touched info is retrieved with its absolute
+                // index
+                genericContext.currentPageInfos = p_content->content.infosList;
+            }
             break;
         case CHOICES_LIST:
             memcpy(&pageContent->choicesList,
