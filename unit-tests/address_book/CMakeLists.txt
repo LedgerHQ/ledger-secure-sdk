@@ -19,6 +19,7 @@ set(AB_SOURCES_COMMON
 set(AB_INCLUDE_DIRS
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${SDK_DIR}/app_features/address_book/include
+    ${SDK_DIR}/app_features/common/include
     ${UT_INCLUDE_DIRS_SDK}
 )
 
@@ -119,6 +120,7 @@ ledger_unit_tests_add_test(
     NAME         test_address_book_apdu
     SOURCES      ${AB_SOURCES_COMMON}
                  ${SDK_DIR}/app_features/address_book/src/address_book.c
+                 ${SDK_DIR}/app_features/common/src/apdu_chunks.c
     MOCK_HEADERS ${SDK_DIR}/lib_standard_app/io.h
                  ${SDK_DIR}/include/os_utils.h
                  ${SDK_DIR}/lib_nbgl/include/nbgl_use_case.h

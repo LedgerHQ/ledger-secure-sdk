@@ -87,6 +87,33 @@ ifeq ($(ENABLE_ADDRESS_BOOK), 1)
 endif
 
 #####################################################################
+#                         TRANSACTION CHECK                         #
+#####################################################################
+ifeq ($(ENABLE_TX_CHECK), 1)
+    # Opt-in and warning screens are only available on wallet-size screens
+    ifeq ($(TARGET_NAME),$(filter $(TARGET_NAME),TARGET_STAX TARGET_FLEX TARGET_APEX_P TARGET_APEX_M))
+        # Descriptors are TLV payloads signed with a PKI certificate
+        ENABLE_TLV_LIBRARY = 1
+        ENABLE_PKI_LIBRARY = 1
+        # The warning shows the provider report as a QR code
+        ENABLE_NBGL_QRCODE = 1
+        DEFINES += HAVE_TX_CHECK
+        SDK_SOURCE_PATH += app_features/transaction_check
+        # Generic APDU (CLA 0xB0, INS 0x11), unless the app only receives descriptors on its own APDU
+        ifneq ($(ENABLE_TX_CHECK_APDU), 0)
+            DEFINES += HAVE_TX_CHECK_APDU
+        endif
+    endif
+endif
+
+#####################################################################
+#                        APP FEATURES COMMON                        #
+#####################################################################
+ifneq (,$(filter HAVE_ADDRESS_BOOK HAVE_TX_CHECK,$(DEFINES)))
+    SDK_SOURCE_PATH += app_features/common
+endif
+
+#####################################################################
 #                            TLV LIBRARY                            #
 #####################################################################
 ifeq ($(ENABLE_TLV_LIBRARY), 1)

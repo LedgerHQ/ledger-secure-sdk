@@ -50,6 +50,11 @@ The @subpage standard_app_mainpage page contains all information necessary to us
 The @subpage tlv_mainpage page contains all information necessary to define and use
 Tag-Length-Value parsers, including pre-built cross-application use cases.
 
+@section transaction_check_presentation Transaction Check
+
+The @subpage transaction_check_mainpage page contains all information necessary to use the Transaction Check
+feature, which displays during the review the risk assessment of a transaction by a security provider.
+
 @section usb_presentation USB
 
 @subsection usb_core_presentation USB Core

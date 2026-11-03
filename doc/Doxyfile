@@ -827,6 +827,10 @@ INPUT                  = \
                          app_features/address_book/doc \
                          app_features/address_book/include \
                          app_features/address_book/src \
+                         app_features/common/include \
+                         app_features/transaction_check/doc \
+                         app_features/transaction_check/include \
+                         app_features/transaction_check/src \
                          fuzzing/doc \
                          fuzzing/include \
                          lib_alloc \
@@ -2228,7 +2232,8 @@ PREDEFINED             = NBGL_KEYBOARD \
                          BOOT_SECTION= \
                          HAVE_SWAP \
                          HAVE_ADDRESS_BOOK \
-                         HAVE_ADDRESS_BOOK_LEDGER_ACCOUNT
+                         HAVE_ADDRESS_BOOK_LEDGER_ACCOUNT \
+                         HAVE_TX_CHECK
 
 # If the MACRO_EXPANSION and EXPAND_ONLY_PREDEF tags are set to YES then this
 # tag can be used to specify a list of macro names that should be expanded. The
