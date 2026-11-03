@@ -213,7 +213,7 @@ static nbgl_layoutKeyboardContent_t content;
 
 static void add_keyboard_content(bool active)
 {
-    content = (nbgl_layoutKeyboardContent_t) {
+    content = (nbgl_layoutKeyboardContent_t){
         .type                      = KEYBOARD_WITH_BUTTON,
         .title                     = "Enter name",
         .text                      = "abc",

@@ -223,9 +223,9 @@ typedef struct {
     const nbgl_contentTagValueList_t *currentTagValues;
     // unsliced infos list of the current generic page, to retrieve the extension of a touched
     // info (copied, because the content may come from a temporary buffer)
-    nbgl_contentInfoList_t            currentPageInfos;
-    nbgl_tipBox_t                     tipBox;
-    SharedContext_t sharedCtx;  // multi-purpose context shared for non-concurrent usages
+    nbgl_contentInfoList_t currentPageInfos;
+    nbgl_tipBox_t          tipBox;
+    SharedContext_t        sharedCtx;  // multi-purpose context shared for non-concurrent usages
 } GenericContext_t;
 
 typedef struct {
