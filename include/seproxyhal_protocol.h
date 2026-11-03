@@ -233,8 +233,7 @@ enum seph_protocol_cmd_ble_radio_power_type {
 // CMD : NFC_RAPDU
 #define SEPROXYHAL_TAG_NFC_RAPDU (0x4A)
 
-// CMD : DEVICE SHUT DOWN
-#define SEPROXYHAL_TAG_DEVICE_OFF (0x4B)
+#define SEPROXYHAL_TAG_RESERVED (0x4B)
 
 // CMD : MORE TIME
 #define SEPROXYHAL_TAG_MORE_TIME (0x4C)
