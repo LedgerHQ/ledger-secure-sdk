@@ -10,8 +10,10 @@
  * Stubs
  */
 
-ux_state_t        G_ux;
-bolos_ux_params_t G_ux_params;
+ux_state_t                G_ux;
+bolos_ux_params_t         G_ux_params;
+const bagl_icon_details_t C_icon_left;
+const bagl_icon_details_t C_icon_right;
 
 void bagl_draw_with_context(const bagl_component_t *component,
                             const void             *text,
@@ -47,7 +49,33 @@ unsigned int os_ux(bolos_ux_params_t *params)
     return 0;
 }
 
-void ux_stack_redisplay(void) {}
+bolos_bool_t os_perso_isonboarded(void)
+{
+    return BOLOS_TRUE;
+}
+
+bolos_bool_t os_global_pin_is_validated(void)
+{
+    return BOLOS_TRUE;
+}
+
+void screen_update(void) {}
+
+// the text of a paging step is split in a fixed number of pages
+#define NB_PAGES 3
+unsigned int ux_layout_paging_compute(const char               *text_to_split,
+                                      unsigned int              page_to_display,
+                                      ux_layout_paging_state_t *paging_state,
+                                      bagl_font_id_e            font)
+{
+    (void) text_to_split;
+    (void) paging_state;
+    (void) font;
+    if (page_to_display == (unsigned int) -1) {
+        return NB_PAGES;
+    }
+    return 1;
+}
 
 /**
  * Test flows
@@ -81,9 +109,18 @@ static const ux_flow_step_t        step_review   = {step_init, NULL, NULL, NULL}
 static const ux_flow_step_t        step_approve  = {step_init, NULL, flow_approved, NULL};
 static const ux_flow_step_t *const flow_review[] = {&step_review, &step_approve, FLOW_END_STEP};
 
+// review flow with a real multi-page paging step, validated by a dual-button press on its last page
+static const ux_layout_paging_params_t params_paging = {"title", "text"};
+static const ux_flow_step_t            step_paging
+    = {ux_layout_paging_init, &params_paging, flow_approved, NULL};
+static const ux_flow_step_t *const flow_paging[] = {&step_paging, &step_about, FLOW_END_STEP};
+
+// dispatch to the callback installed by the displayed layout, as UX_BUTTON_PUSH_EVENT does; steps
+// without layout use the flow engine callback
 static void buttons(unsigned int mask)
 {
-    io_seproxyhal_button_push(ux_flow_button_callback, mask);
+    button_push_callback_t callback = G_ux.stack[0].button_push_callback;
+    io_seproxyhal_button_push(callback ? callback : ux_flow_button_callback, mask);
 }
 
 static void click(unsigned int mask)
@@ -187,13 +224,18 @@ static void test_stale_release_after_programmatic_step_change(void)
     TEST_ASSERT_EQUAL(0, nb_approvals);
 }
 
-// redrawing the same step keeps the ongoing gesture
-static void test_relayout_keeps_gesture(void)
+// a redraw may display another content than the one on which the gesture started: it is ignored
+static void test_relayout_discards_gesture(void)
 {
     ux_flow_init(0, flow_review, &step_approve);
     buttons(BUTTON_LEFT | BUTTON_RIGHT);
     TEST_ASSERT_TRUE(ux_flow_relayout());
     buttons(0);
+    TEST_ASSERT_EQUAL(0, nb_approvals);
+
+    // a gesture made after the redraw is accepted, a redraw without held button changes nothing
+    TEST_ASSERT_TRUE(ux_flow_relayout());
+    click(BUTTON_LEFT | BUTTON_RIGHT);
     TEST_ASSERT_EQUAL(1, nb_approvals);
 }
 
@@ -208,11 +250,44 @@ static void test_relayout_after_next_no_display(void)
     TEST_ASSERT_EQUAL_PTR(&step_approve, displayed_step);
     buttons(0);
     TEST_ASSERT_EQUAL(0, nb_approvals);
+}
 
-    // later redraws of that step keep the ongoing gesture
+// paging step reached backward: a redisplay resets it from the penultimate to the last page, a
+// dual-button gesture started on the penultimate page must not validate the last one
+static void test_redisplay_paging_backward_does_not_validate(void)
+{
+    ux_flow_init(0, flow_paging, &step_about);
+    click(BUTTON_LEFT);
+    TEST_ASSERT_EQUAL_PTR(&step_paging, ux_flow_get_current());
+    TEST_ASSERT_EQUAL(FLOW_DIRECTION_BACKWARD, ux_flow_direction());
+    TEST_ASSERT_EQUAL(NB_PAGES - 1, G_ux.layout_paging.current);
+
+    click(BUTTON_LEFT);
+    TEST_ASSERT_EQUAL(NB_PAGES - 2, G_ux.layout_paging.current);
+    // a dual-button press on the penultimate page does not validate
+    click(BUTTON_LEFT | BUTTON_RIGHT);
+    TEST_ASSERT_EQUAL(0, nb_approvals);
+
     buttons(BUTTON_LEFT | BUTTON_RIGHT);
-    TEST_ASSERT_TRUE(ux_flow_relayout());
+    ux_stack_redisplay();
+    TEST_ASSERT_EQUAL(NB_PAGES - 1, G_ux.layout_paging.current);
     buttons(0);
+    TEST_ASSERT_EQUAL(0, nb_approvals);
+
+    // a gesture made on the last page is accepted
+    click(BUTTON_LEFT | BUTTON_RIGHT);
+    TEST_ASSERT_EQUAL(1, nb_approvals);
+}
+
+// paging page changes made by the user are not affected
+static void test_paging_navigation(void)
+{
+    ux_flow_init(0, flow_paging, NULL);
+    TEST_ASSERT_EQUAL(0, G_ux.layout_paging.current);
+    click(BUTTON_RIGHT);
+    click(BUTTON_RIGHT);
+    TEST_ASSERT_EQUAL(NB_PAGES - 1, G_ux.layout_paging.current);
+    click(BUTTON_LEFT | BUTTON_RIGHT);
     TEST_ASSERT_EQUAL(1, nb_approvals);
 }
 
@@ -224,7 +299,9 @@ int main(void)
     RUN_TEST(test_stale_single_release_does_not_navigate);
     RUN_TEST(test_stale_gesture_ignored_until_all_released);
     RUN_TEST(test_stale_release_after_programmatic_step_change);
-    RUN_TEST(test_relayout_keeps_gesture);
+    RUN_TEST(test_relayout_discards_gesture);
     RUN_TEST(test_relayout_after_next_no_display);
+    RUN_TEST(test_redisplay_paging_backward_does_not_validate);
+    RUN_TEST(test_paging_navigation);
     return UNITY_END();
 }

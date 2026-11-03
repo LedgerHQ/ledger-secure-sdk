@@ -88,6 +88,10 @@ unsigned int ux_stack_pop(void)
 
 void ux_stack_redisplay(void)
 {
+    // the screen is redrawn from scratch (e.g. after an OS modal or a stack pop), it may differ
+    // from the one on which an ongoing gesture started
+    ux_discard_button_gesture();
+
 #ifdef HAVE_UX_FLOW
     // an ux step has been relayout on the screen, don't flicker by redisplaying here
     if (ux_flow_relayout()) {

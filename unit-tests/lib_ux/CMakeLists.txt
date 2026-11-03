@@ -10,6 +10,8 @@ ledger_unit_tests_init()
 ledger_unit_tests_add_test(
     NAME            test_ux_flow_buttons
     SOURCES         ${SDK_DIR}/lib_ux/src/ux_flow_engine.c
+                    ${SDK_DIR}/lib_ux/src/ux_stack.c
+                    ${SDK_DIR}/lib_ux/src/ux_layout_paging.c
                     ${SDK_DIR}/io/src/os_io_seph_ux.c
     INCLUDE_DIRS    ${CMAKE_CURRENT_SOURCE_DIR}
                     ${SDK_DIR}

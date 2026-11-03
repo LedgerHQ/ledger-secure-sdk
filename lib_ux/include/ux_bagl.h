@@ -554,6 +554,18 @@ typedef struct ux_seph_s {
 
 extern ux_seph_os_and_app_t G_ux_os;
 
+/**
+ * To be called when the displayed content is (or may be) replaced: if a button is held, its gesture
+ * started on the previous content and must not act on the new one. Button events are then ignored
+ * until all buttons are released, the final release included.
+ */
+static inline void ux_discard_button_gesture(void)
+{
+    if (G_ux_os.button_mask != 0) {
+        G_ux_os.button_wait_release = 1;
+    }
+}
+
 #ifdef HAVE_UX_LEGACY
 #define UX_MENU_END                           \
     {                                         \
