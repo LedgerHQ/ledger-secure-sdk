@@ -490,6 +490,66 @@ void test_cbor_reply_in_flight_closes_cancel_but_not_the_gate(void)
     TEST_ASSERT_TRUE(os_io_reply_pending());
 }
 
+// A default APDU is answered from G_io_tx_buffer without the app. If BLE still sends that reply
+// when os_io_tx_cmd() returns, a command from another transport would be copied over it.
+void test_gate_stays_closed_until_ble_has_read_a_default_reply(void)
+{
+    static const uint8_t get_version[] = {0xB0, 0x01, 0x00, 0x00, 0x00};
+    static const uint8_t reply[]       = {0x90, 0x00};
+
+    ble_busy = true;
+    TEST_ASSERT_EQUAL_INT(0, receive(OS_IO_PACKET_TYPE_BLE_APDU, get_version, sizeof(get_version)));
+    TEST_ASSERT_EQUAL_UINT8(OS_IO_PACKET_TYPE_BLE_APDU, sent[0].type);
+    TEST_ASSERT_TRUE(os_io_reply_pending());
+
+    TEST_ASSERT_EQUAL_INT(0,
+                          receive(OS_IO_PACKET_TYPE_USB_HID_APDU, OTHER_APDU, sizeof(OTHER_APDU)));
+    TEST_ASSERT_EQUAL_UINT8(OS_IO_PACKET_TYPE_USB_HID_APDU, sent[1].type);
+    TEST_ASSERT_EQUAL_HEX8_ARRAY_MESSAGE(reply, G_io_tx_buffer, sizeof(reply), "reply overwritten");
+
+    // The peer has acked the last chunk: the next command is taken.
+    ble_busy = false;
+    TEST_ASSERT_EQUAL_INT(sizeof(OTHER_APDU),
+                          receive(OS_IO_PACKET_TYPE_USB_HID_APDU, OTHER_APDU, sizeof(OTHER_APDU)));
+    TEST_ASSERT_TRUE(os_io_reply_pending());
+    TEST_ASSERT_EQUAL_INT(2, sent_count);
+}
+
+// The same for the refusal sent while the device is locked.
+void test_gate_stays_closed_until_usb_has_read_a_locked_refusal(void)
+{
+    pin_set       = BOLOS_TRUE;
+    pin_validated = BOLOS_FALSE;
+    usb_busy      = true;
+    TEST_ASSERT_EQUAL_INT(0, receive(OS_IO_PACKET_TYPE_USB_HID_APDU, HID_APDU, sizeof(HID_APDU)));
+    TEST_ASSERT_TRUE(os_io_reply_pending());
+
+    static const uint8_t pin_refusal[] = {SWO_SEC_PIN_15 >> 8, SWO_SEC_PIN_15 & 0xFF};
+    static const uint8_t busy_refusal[]
+        = {SWO_COMMAND_NOT_ACCEPTED >> 8, SWO_COMMAND_NOT_ACCEPTED & 0xFF};
+
+    // Still sent: the next command is refused apart, without touching G_io_tx_buffer.
+    TEST_ASSERT_EQUAL_INT(0, receive(OS_IO_PACKET_TYPE_BLE_APDU, OTHER_APDU, sizeof(OTHER_APDU)));
+    TEST_ASSERT_EQUAL_HEX8_ARRAY(busy_refusal, sent[1].data, sizeof(busy_refusal));
+    TEST_ASSERT_EQUAL_HEX8_ARRAY_MESSAGE(
+        pin_refusal, G_io_tx_buffer, sizeof(pin_refusal), "reply overwritten");
+
+    // USB has read it all: the next command gets its own answer.
+    usb_busy = false;
+    TEST_ASSERT_EQUAL_INT(0, receive(OS_IO_PACKET_TYPE_BLE_APDU, OTHER_APDU, sizeof(OTHER_APDU)));
+    TEST_ASSERT_EQUAL_HEX8_ARRAY(pin_refusal, sent[2].data, sizeof(pin_refusal));
+    TEST_ASSERT_FALSE(os_io_reply_pending());
+}
+
+// A default reply already read by the transport leaves the gate open.
+void test_default_reply_sent_keeps_the_gate_open(void)
+{
+    static const uint8_t get_version[] = {0xB0, 0x01, 0x00, 0x00, 0x00};
+
+    TEST_ASSERT_EQUAL_INT(0, receive(OS_IO_PACKET_TYPE_BLE_APDU, get_version, sizeof(get_version)));
+    TEST_ASSERT_FALSE(os_io_reply_pending());
+}
+
 // USB busy with something else does not arm a latch that no command armed.
 void test_usb_busy_without_pending_command_keeps_the_gate_open(void)
 {
@@ -630,6 +690,9 @@ int main(void)
     RUN_TEST(test_gate_stays_closed_until_usb_has_read_the_reply);
     RUN_TEST(test_gate_stays_closed_until_ble_has_read_the_reply);
     RUN_TEST(test_cbor_reply_in_flight_closes_cancel_but_not_the_gate);
+    RUN_TEST(test_gate_stays_closed_until_ble_has_read_a_default_reply);
+    RUN_TEST(test_gate_stays_closed_until_usb_has_read_a_locked_refusal);
+    RUN_TEST(test_default_reply_sent_keeps_the_gate_open);
     RUN_TEST(test_usb_busy_without_pending_command_keeps_the_gate_open);
     RUN_TEST(test_reply_reopens_the_gate);
     RUN_TEST(test_seph_event_larger_than_the_buffer_is_dropped);
