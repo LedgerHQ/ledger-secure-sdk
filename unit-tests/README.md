@@ -46,6 +46,7 @@ and optionally `coverage.xml` (Cobertura) if `lcov_cobertura` is installed.
 | `lib_tlv/`         | TLV (tag-length-value) encoding/decoding              |
 | `lib_u2f/`         | CTAPHID channel handling (U2F transport, HID U2F)     |
 | `print/`           | `PRINTF` and `snprintf` formatting                    |
+| `transaction_check/` | Transaction Check APDU, report binding and opt-in UI |
 
 ## Memory Profiling (lib_alloc)
 
