@@ -337,6 +337,30 @@ typedef struct {
         *prelude;  ///< if not null, means that the review can start by a prelude
 } nbgl_warning_t;
 
+/**
+ * @brief Get the start of the sentence confirming the signature, from the review warnings.
+ *
+ * The app completes it with the signed object, e.g. "%s transaction?".
+ *
+ * @param warning review warnings, may be NULL
+ * @return "Accept threat and sign", "Accept risk and sign" (W3C risk, blind or gated signing) or
+ *         "Sign"
+ */
+static inline const char *nbgl_useCaseGetSignPrefix(const nbgl_warning_t *warning)
+{
+    if (warning == NULL) {
+        return "Sign";
+    }
+    if (warning->predefinedSet & (1 << W3C_THREAT_DETECTED_WARN)) {
+        return "Accept threat and sign";
+    }
+    if (warning->predefinedSet
+        & ((1 << W3C_RISK_DETECTED_WARN) | (1 << BLIND_SIGNING_WARN) | (1 << GATED_SIGNING_WARN))) {
+        return "Accept risk and sign";
+    }
+    return "Sign";
+}
+
 #ifdef NBGL_KEYBOARD
 /**
  * @brief Structure containing configuration for keyboard with confirmation button
