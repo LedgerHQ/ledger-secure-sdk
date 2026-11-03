@@ -5,6 +5,7 @@
 #include "unity.h"
 
 #include "nbgl_page.h"
+#include "nbgl_use_case.h"
 #include "nbgl_layout_internal.h"
 #include "glyphs.h"
 
@@ -77,6 +78,27 @@ int nbgl_layoutAddCenteredInfo(nbgl_layout_t *layout, const nbgl_layoutCenteredI
     return 0;
 }
 
+// Records the tag/value list and the button given by TAG_VALUE_DETAILS pages
+static int                       nb_tag_value_lists;
+static nbgl_layoutTagValueList_t last_tag_value_list;
+static int                       nb_buttons;
+
+int nbgl_layoutAddTagValueList(nbgl_layout_t *layout, const nbgl_layoutTagValueList_t *list)
+{
+    (void) layout;
+    nb_tag_value_lists++;
+    last_tag_value_list = *list;
+    return 0;
+}
+
+int nbgl_layoutAddButton(nbgl_layout_t *layout, const nbgl_layoutButton_t *buttonInfo)
+{
+    (void) layout;
+    (void) buttonInfo;
+    nb_buttons++;
+    return 0;
+}
+
 int nbgl_layoutDraw(nbgl_layout_t *layout)
 {
     (void) layout;
@@ -103,7 +125,6 @@ UNUSED_LAYOUT_FUNC(AddBottomButton,
                    uint8_t                    token,
                    bool                       separationLine,
                    tune_index_e               tuneId)
-UNUSED_LAYOUT_FUNC(AddButton, nbgl_layout_t *layout, const nbgl_layoutButton_t *buttonInfo)
 UNUSED_LAYOUT_FUNC(AddContentCenter, nbgl_layout_t *layout, const nbgl_contentCenter_t *info)
 UNUSED_LAYOUT_FUNC(AddExtendedFooter, nbgl_layout_t *layout, const nbgl_layoutFooter_t *footerDesc)
 UNUSED_LAYOUT_FUNC(AddFooter,
@@ -147,7 +168,6 @@ UNUSED_LAYOUT_FUNC(AddSwipe,
                    uint8_t        token,
                    tune_index_e   tuneId)
 UNUSED_LAYOUT_FUNC(AddSwitch, nbgl_layout_t *layout, const nbgl_layoutSwitch_t *switchLayout)
-UNUSED_LAYOUT_FUNC(AddTagValueList, nbgl_layout_t *layout, const nbgl_layoutTagValueList_t *list)
 UNUSED_LAYOUT_FUNC(AddText, nbgl_layout_t *layout, const char *text, const char *subText)
 UNUSED_LAYOUT_FUNC(AddTextWithAlias,
                    nbgl_layout_t *layout,
@@ -202,6 +222,30 @@ static void draw_confirmation(uint8_t confirmationToken, uint8_t cancelToken)
     TEST_ASSERT_NOT_NULL(nbgl_pageDrawConfirmation(action_callback, &info));
 }
 
+static const nbgl_contentTagValue_t details_pair = {.item = "Address", .value = "0x1234"};
+
+static void init_details_content(nbgl_pageContent_t *content, uint8_t nbMaxLinesForValue)
+{
+    memset(content, 0, sizeof(*content));
+    content->type                                            = TAG_VALUE_DETAILS;
+    content->tagValueDetails.tagValueList.pairs              = &details_pair;
+    content->tagValueDetails.tagValueList.nbPairs            = 1;
+    content->tagValueDetails.tagValueList.nbMaxLinesForValue = nbMaxLinesForValue;
+    content->tagValueDetails.detailsButtonText               = "More";
+    content->tagValueDetails.detailsButtonToken              = 0x42;
+}
+
+// Draws a TAG_VALUE_DETAILS page and returns the max number of value lines given to the layout
+static uint8_t draw_details(nbgl_pageContent_t *content)
+{
+    nb_tag_value_lists = 0;
+    nb_buttons         = 0;
+    TEST_ASSERT_NOT_NULL(nbgl_pageDrawGenericContent(action_callback, NULL, content));
+    TEST_ASSERT_EQUAL_INT(1, nb_tag_value_lists);
+    TEST_ASSERT_EQUAL_INT(1, nb_buttons);
+    return last_tag_value_list.nbMaxLinesForValue;
+}
+
 void setUp(void)
 {
     nb_actions = 0;
@@ -249,11 +293,60 @@ void test_shared_token_keeps_index(void)
     TEST_ASSERT_EQUAL_UINT8(1, last_index);
 }
 
+// Regression tests for V-167: the lines removed for the details button of a TAG_VALUE_DETAILS
+// page must never wrap around, and the caller's content must not be modified.
+
+// 0 means "no limit": the review limit is used instead of wrapping to 253 lines
+void test_details_no_limit_uses_review_limit(void)
+{
+    nbgl_pageContent_t content;
+    init_details_content(&content, 0);
+    TEST_ASSERT_EQUAL_UINT8(NB_MAX_LINES_IN_REVIEW - 3, draw_details(&content));
+}
+
+void test_details_limit_keeps_room_for_button(void)
+{
+    nbgl_pageContent_t content;
+    init_details_content(&content, 9);
+    TEST_ASSERT_EQUAL_UINT8(6, draw_details(&content));
+    init_details_content(&content, 4);
+    TEST_ASSERT_EQUAL_UINT8(1, draw_details(&content));
+    init_details_content(&content, 255);
+    TEST_ASSERT_EQUAL_UINT8(252, draw_details(&content));
+}
+
+// limits too small to leave room for the button still display one line, and never wrap
+void test_details_small_limit_keeps_one_line(void)
+{
+    nbgl_pageContent_t content;
+    for (uint8_t limit = 1; limit <= 3; limit++) {
+        init_details_content(&content, limit);
+        TEST_ASSERT_EQUAL_UINT8(1, draw_details(&content));
+    }
+}
+
+// drawing the same content several times gives the same page and leaves the content untouched
+void test_details_content_not_modified(void)
+{
+    nbgl_pageContent_t content;
+    nbgl_pageContent_t reference;
+    init_details_content(&content, 9);
+    memcpy(&reference, &content, sizeof(content));
+    for (int i = 0; i < 5; i++) {
+        TEST_ASSERT_EQUAL_UINT8(6, draw_details(&content));
+        TEST_ASSERT_EQUAL_MEMORY(&reference, &content, sizeof(content));
+    }
+}
+
 int main(void)
 {
     UNITY_BEGIN();
     RUN_TEST(test_confirm_button_reports_confirmation_token);
     RUN_TEST(test_cancel_button_reports_cancel_token);
     RUN_TEST(test_shared_token_keeps_index);
+    RUN_TEST(test_details_no_limit_uses_review_limit);
+    RUN_TEST(test_details_limit_keeps_room_for_button);
+    RUN_TEST(test_details_small_limit_keeps_one_line);
+    RUN_TEST(test_details_content_not_modified);
     return UNITY_END();
 }
