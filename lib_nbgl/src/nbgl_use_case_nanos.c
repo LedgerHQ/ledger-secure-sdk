@@ -246,6 +246,15 @@ static void statusTickerCallback(void);
 static void displayExtensionStep(nbgl_stepPosition_t pos);
 static void displayWarningStep(void);
 
+// Risk and threat warnings are only rendered alongside the blind signing warning
+static bool isWarningSupported(const nbgl_warning_t *warning)
+{
+    return ((warning->predefinedSet
+             & ((1 << W3C_RISK_DETECTED_WARN) | (1 << W3C_THREAT_DETECTED_WARN)))
+            == 0)
+           || ((warning->predefinedSet & (1 << BLIND_SIGNING_WARN)) != 0);
+}
+
 // Helper to check that all pairs of a tag/value list retrieved with a callback have an index
 // fitting in uint8_t (from startIndex to startIndex + nbPairs - 1). The list must not be NULL.
 static bool isTagValueListValid(const nbgl_contentTagValueList_t *tagValueList)
@@ -3011,6 +3020,10 @@ void nbgl_useCaseAdvancedReview(nbgl_operationType_t              operationType,
     reviewWithWarnCtx.warning        = normalizeWarning(warning);
     reviewWithWarnCtx.choiceCallback = choiceCallback;
 
+    if (!isWarningSupported(reviewWithWarnCtx.warning)) {
+        choiceCallback(false);
+        return;
+    }
     // if the warning contains a prelude, display it first
     if (reviewWithWarnCtx.warning->prelude) {
         displayPrelude();
@@ -3373,6 +3386,10 @@ void nbgl_useCaseAdvancedReviewStreamingStart(nbgl_operationType_t       operati
     reviewWithWarnCtx.choiceCallback = choiceCallback;
     reviewWithWarnCtx.warning        = normalizeWarning(warning);
 
+    if (!isWarningSupported(reviewWithWarnCtx.warning)) {
+        choiceCallback(false);
+        return;
+    }
     // if the warning contains a prelude, display it first
     if (reviewWithWarnCtx.warning->prelude) {
         displayPrelude();
