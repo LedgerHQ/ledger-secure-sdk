@@ -25,9 +25,6 @@
 
 #ifdef HAVE_UX_FLOW
 
-// set when the flow advanced without displaying the new step (shown at next relayout)
-static bool ux_flow_step_pending;
-
 // check if flow is valid (has valid length and in correct stack slot)
 static unsigned int ux_flow_check_valid(void)
 {
@@ -149,13 +146,10 @@ static void ux_flow_engine_layout_step(unsigned int stack_slot)
     }
 }
 
-// display a new step: a button gesture started on the previous screen must not act on it
+// (re)display a step: a button gesture started on the previous screen must not act on it
 static void ux_flow_engine_init_step(unsigned int stack_slot)
 {
-    ux_flow_step_pending = false;
-    if (G_ux_os.button_mask != 0) {
-        G_ux_os.button_wait_release = 1;
-    }
+    ux_discard_button_gesture();
     ux_flow_engine_layout_step(stack_slot);
 }
 
@@ -192,9 +186,6 @@ static void ux_flow_next_internal(unsigned int display_step)
     G_ux.flow_stack[top_stack_slot].index++;
     if (display_step) {
         ux_flow_engine_init_step(top_stack_slot);
-    }
-    else {
-        ux_flow_step_pending = true;
     }
 }
 
@@ -426,14 +417,10 @@ unsigned int ux_flow_relayout(void)
     if (ux_flow_get_current() != NULL) {
         unsigned int top_stack_slot = G_ux.stack_count - 1;
 
-        if (ux_flow_step_pending) {
-            // step advanced by ux_flow_next_no_display(), displayed for the first time
-            ux_flow_engine_init_step(top_stack_slot);
-        }
-        else {
-            // same step redrawn, keep the ongoing button gesture
-            ux_flow_engine_layout_step(top_stack_slot);
-        }
+        // the step layout is reinitialized and may display another content than before (step
+        // advanced by ux_flow_next_no_display(), paging reset to its first or last page, step
+        // re-exposed after a modal): an ongoing gesture must not act on it
+        ux_flow_engine_init_step(top_stack_slot);
         return 1;
     }
     return 0;
