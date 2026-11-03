@@ -137,6 +137,8 @@ static const nbgl_contentCenter_t *warning_center;
 static const char                 *center_description;
 static uint8_t                     warning_choice_token;
 static bool                        warning_choice_drawn;
+static const char                 *warning_title;
+static const char                 *warning_accept_text;
 
 nbgl_layout_t *nbgl_layoutGet(const nbgl_layoutDescription_t *description)
 {
@@ -149,6 +151,7 @@ int nbgl_layoutAddContentCenter(nbgl_layout_t *layout, const nbgl_contentCenter_
     (void) layout;
     warning_center     = info;
     center_description = info->description;
+    warning_title      = info->title;
     return 0;
 }
 
@@ -157,6 +160,7 @@ int nbgl_layoutAddChoiceButtons(nbgl_layout_t *layout, const nbgl_layoutChoiceBu
     (void) layout;
     warning_choice_token = info->token;
     warning_choice_drawn = true;
+    warning_accept_text  = info->bottomText;
     return 0;
 }
 
@@ -1369,6 +1373,29 @@ void test_predefined_warning_without_custom_fields(void)
     for (uint8_t streaming = 0; streaming < 2; streaming++) {
         checkPredefinedWarning(1 << BLIND_SIGNING_WARN, &WARNING_ICON, false, streaming);
         checkPredefinedWarning(1 << W3C_NO_THREAT_WARN, &PRIVACY_ICON, false, streaming);
+    }
+}
+
+// With both a threat and a risk, the initial warning shall be the threat one
+void test_threat_takes_precedence_over_risk(void)
+{
+    nbgl_warning_t warning = {0};
+
+    warning.predefinedSet  = (1 << W3C_RISK_DETECTED_WARN) | (1 << W3C_THREAT_DETECTED_WARN);
+    warning.reportProvider = "Provider";
+    warning.reportUrl      = "ledger.com/report";
+    for (uint8_t streaming = 0; streaming < 2; streaming++) {
+        const char *msg = streaming ? "streaming" : "regular";
+
+        page_callback        = NULL;
+        warning_choice_drawn = false;
+        warning_title        = NULL;
+        warning_accept_text  = NULL;
+        startAdvancedReview(&warning, streaming);
+        TEST_ASSERT_TRUE_MESSAGE(warning_choice_drawn, msg);
+        TEST_ASSERT_NULL_MESSAGE(page_callback, msg);
+        TEST_ASSERT_EQUAL_STRING_MESSAGE("Critical threat", warning_title, msg);
+        TEST_ASSERT_EQUAL_STRING_MESSAGE("Accept threat and continue", warning_accept_text, msg);
     }
 }
 
@@ -2614,6 +2641,7 @@ int main(void)
     RUN_TEST(test_predefined_warning_takes_precedence_over_custom_fields);
     RUN_TEST(test_gated_signing_only_warning_is_displayed_before_review);
     RUN_TEST(test_gated_signing_only_warning_can_be_rejected);
+    RUN_TEST(test_threat_takes_precedence_over_risk);
     RUN_TEST(test_pair_max_lines_shares_page);
     RUN_TEST(test_no_pair_max_lines_uses_details_page);
     RUN_TEST(test_alias_list_modal_pages_fit);
