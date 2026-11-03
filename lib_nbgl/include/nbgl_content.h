@@ -224,8 +224,10 @@ typedef nbgl_contentTagValue_t *(*nbgl_contentTagValueCallback_t)(uint8_t pairIn
  * @brief prototype of function to be called when an action on a content object occurs
  * @param token integer passed at content object initialization
  * @param index when the object touched is a list of radio buttons, gives the index of the activated
+ * button. On touchscreen devices, this index is relative to the current page when the list is
+ * automatically split in several pages (see @ref nbgl_contentRadioChoice_t)
  * @param page index of the current page, can be used to restart the use_case directly at the right
- * page button
+ * page
  */
 typedef void (*nbgl_contentActionCallback_t)(int token, uint8_t index, int page);
 
@@ -329,6 +331,18 @@ typedef struct nbgl_contentInfoList_s {
  * @brief This structure contains a list of names to build a list of radio
  * buttons (on the right part of screen), with for each a description (names array)
  * The chosen item index is provided is the "index" argument of the callback
+ *
+ * @note On touchscreen devices, when the list doesn't fit in a single page and is automatically
+ * split by the use case (e.g. @ref nbgl_useCaseGenericConfiguration), the "index" argument of
+ * the callback is the index of the choice @b within @b the @b current @b page (restarting from 0
+ * on each page), not the index in the @ref names array. The application must reconstruct the
+ * absolute index itself, for example:
+ * @code
+ * absoluteIndex = page * nbgl_useCaseGetNbChoicesInPage(nbChoices, choicesList, 0, true) + index;
+ * @endcode
+ * where "page" is the page of the callback, relative to the first page of this list.
+ * The result must be checked against @ref nbChoices before being used.
+ * On Nano devices, "index" is always the index in the @ref names array.
  */
 typedef struct {
     union {

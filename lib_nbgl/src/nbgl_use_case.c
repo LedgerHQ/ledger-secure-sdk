@@ -3662,6 +3662,10 @@ static uint8_t getNbBarsInPage(uint8_t                       nbBars,
  * @brief computes the number of radio choices displayable in a page, with the given list of
  * choices
  *
+ * @note this number is the same for every page, so it can be used to convert the page-relative
+ * index received in the callback of a paginated @ref CHOICES_LIST into an index in the whole list
+ * (see @ref nbgl_contentRadioChoice_t)
+ *
  * @param nbChoices number of radio choices to use in \b choicesList
  * @param choicesList list of choices
  * @param startIndex first index to consider in \b choicesList
