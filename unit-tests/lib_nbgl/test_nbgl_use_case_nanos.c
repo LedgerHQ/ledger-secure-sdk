@@ -897,10 +897,11 @@ static void test_alias_list_with_callback_is_displayed(void)
 #define MAX_EXTENSION_PAGES 8
 
 // Opens the full value of the displayed alias pair (both buttons), records the sub-texts (or
-// texts if no sub-text) of the extension pages until the back page, then leaves the modal and
-// restores the review step (nbgl_screenRedraw() is a stub here). Returns the number of pages
-// before the back page.
-static int open_alias_and_collect(const char *collected[MAX_EXTENSION_PAGES])
+// texts if no sub-text) of the extension pages until the back page, and their texts in headings
+// if not NULL, then leaves the modal and restores the review step (nbgl_screenRedraw() is a stub
+// here). Returns the number of pages before the back page.
+static int open_alias_and_collect_with_headings(const char *headings[MAX_EXTENSION_PAGES],
+                                                const char *collected[MAX_EXTENSION_PAGES])
 {
     // review step, redrawn when leaving the modal
     nbgl_stepButtonCallback_t  reviewCallback = last_callback;
@@ -917,6 +918,9 @@ static int open_alias_and_collect(const char *collected[MAX_EXTENSION_PAGES])
     TEST_ASSERT_GREATER_THAN_MESSAGE(draws, nb_draws, "alias full value cannot be opened");
     while (last_icon != &C_icon_back_x) {
         TEST_ASSERT_LESS_THAN_MESSAGE(MAX_EXTENSION_PAGES, nbPages, "back page never reached");
+        if (headings != NULL) {
+            headings[nbPages] = last_text;
+        }
         collected[nbPages++] = (last_subtext != NULL) ? last_subtext : last_text;
         press(BUTTON_RIGHT_PRESSED);
     }
@@ -926,6 +930,11 @@ static int open_alias_and_collect(const char *collected[MAX_EXTENSION_PAGES])
     TEST_ASSERT_EQUAL_INT(redraws + 1, nb_redraws);
     record_step(reviewCallback, reviewText, reviewSubText, reviewIcon);
     return nbPages;
+}
+
+static int open_alias_and_collect(const char *collected[MAX_EXTENSION_PAGES])
+{
+    return open_alias_and_collect_with_headings(NULL, collected);
 }
 
 static void test_streaming_alias_full_values_are_reachable(void)
@@ -1028,6 +1037,111 @@ static void test_streaming_alias_full_values_are_reachable(void)
     press(BUTTON_RIGHT_PRESSED);
     TEST_ASSERT_EQUAL_INT(1, nb_choices);
     TEST_ASSERT_TRUE(last_choice);
+}
+
+// ============================================================================
+// ENS / Address Book aliases without title: their full value must be displayed (V-290)
+// ============================================================================
+
+// pair 0: ENS, 1: Address Book (no scope nor explanation), 2: Address Book (with scope and
+// explanation), 3: ENS with a title (legacy usage), none of them but the last one with title
+static void set_aliases_without_title(void)
+{
+    static nbgl_contentValueExt_t ens;
+    static nbgl_contentValueExt_t addressBook;
+    static nbgl_contentValueExt_t addressBookFull;
+    static nbgl_contentValueExt_t ensWithTitle;
+
+    memset(&ens, 0, sizeof(ens));
+    ens.aliasType = ENS_ALIAS;
+    ens.fullValue = "0xENS";
+
+    memset(&addressBook, 0, sizeof(addressBook));
+    addressBook.aliasType = ADDRESS_BOOK_ALIAS;
+    addressBook.fullValue = "0xCONTACT";
+
+    memset(&addressBookFull, 0, sizeof(addressBookFull));
+    addressBookFull.aliasType    = ADDRESS_BOOK_ALIAS;
+    addressBookFull.fullValue    = "0xCONTACT2";
+    addressBookFull.aliasSubName = "scope";
+    addressBookFull.explanation  = "explanation";
+
+    memset(&ensWithTitle, 0, sizeof(ensWithTitle));
+    ensWithTitle.aliasType = ENS_ALIAS;
+    ensWithTitle.fullValue = "0xENS2";
+    ensWithTitle.title     = "ens title";
+
+    pairs[0].value      = "vitalik.eth";
+    pairs[0].aliasValue = 1;
+    pairs[0].extension  = &ens;
+    pairs[1].value      = "My contact";
+    pairs[1].aliasValue = 1;
+    pairs[1].extension  = &addressBook;
+    pairs[2].value      = "My contact 2";
+    pairs[2].aliasValue = 1;
+    pairs[2].extension  = &addressBookFull;
+    pairs[3].value      = "other.eth";
+    pairs[3].aliasValue = 1;
+    pairs[3].extension  = &ensWithTitle;
+}
+
+// Checks the details of the aliases set by set_aliases_without_title(), starting on pair 0
+static void check_aliases_without_title(void)
+{
+    const char *headings[MAX_EXTENSION_PAGES];
+    const char *collected[MAX_EXTENSION_PAGES];
+
+    // ENS: the displayed alias is used as heading of the full value
+    TEST_ASSERT_EQUAL_INT(0, displayed_pair());
+    TEST_ASSERT_EQUAL_INT(1, open_alias_and_collect_with_headings(headings, collected));
+    TEST_ASSERT_EQUAL_STRING("vitalik.eth", headings[0]);
+    TEST_ASSERT_EQUAL_STRING("0xENS", collected[0]);
+    press(BUTTON_RIGHT_PRESSED);
+
+    // Address Book with only the full value
+    TEST_ASSERT_EQUAL_INT(1, displayed_pair());
+    TEST_ASSERT_EQUAL_INT(1, open_alias_and_collect_with_headings(headings, collected));
+    TEST_ASSERT_EQUAL_STRING("My contact", headings[0]);
+    TEST_ASSERT_EQUAL_STRING("0xCONTACT", collected[0]);
+    press(BUTTON_RIGHT_PRESSED);
+
+    // Address Book with scope and explanation
+    TEST_ASSERT_EQUAL_INT(2, displayed_pair());
+    TEST_ASSERT_EQUAL_INT(3, open_alias_and_collect_with_headings(headings, collected));
+    TEST_ASSERT_EQUAL_STRING("My contact 2", headings[0]);
+    TEST_ASSERT_EQUAL_STRING("scope", collected[0]);
+    TEST_ASSERT_EQUAL_STRING("My contact 2", headings[1]);
+    TEST_ASSERT_EQUAL_STRING("0xCONTACT2", collected[1]);
+    TEST_ASSERT_EQUAL_STRING("explanation", collected[2]);
+    press(BUTTON_RIGHT_PRESSED);
+
+    // a provided title is still used as heading
+    TEST_ASSERT_EQUAL_INT(3, displayed_pair());
+    TEST_ASSERT_EQUAL_INT(1, open_alias_and_collect_with_headings(headings, collected));
+    TEST_ASSERT_EQUAL_STRING("ens title", headings[0]);
+    TEST_ASSERT_EQUAL_STRING("0xENS2", collected[0]);
+}
+
+static void test_aliases_without_title_full_values_are_displayed(void)
+{
+    set_aliases_without_title();
+    review(4, NULL);
+    // skip the title page
+    press(BUTTON_RIGHT_PRESSED);
+    check_aliases_without_title();
+    // then the approval page can be reached
+    press(BUTTON_RIGHT_PRESSED);
+    TEST_ASSERT_TRUE(approve_displayed());
+    TEST_ASSERT_EQUAL_INT(0, nb_choices);
+}
+
+static void test_streaming_aliases_without_title_full_values_are_displayed(void)
+{
+    set_aliases_without_title();
+    list = make_tag_value_list(4);
+    nbgl_useCaseReviewStreamingContinue(&list, on_choice);
+    check_aliases_without_title();
+    TEST_ASSERT_EQUAL_INT(0, nb_choices);
 }
 
 // ============================================================================
@@ -1426,6 +1540,8 @@ int main(void)
     RUN_TEST(test_alias_list_pair_max_lines_is_forwarded);
     RUN_TEST(test_alias_list_with_callback_is_displayed);
     RUN_TEST(test_streaming_alias_full_values_are_reachable);
+    RUN_TEST(test_aliases_without_title_full_values_are_displayed);
+    RUN_TEST(test_streaming_aliases_without_title_full_values_are_displayed);
     RUN_TEST(test_choice_overflow_is_rejected);
     RUN_TEST(test_choice_first_overflowing_count_is_rejected);
     RUN_TEST(test_choice_max_bars_reaches_confirm_and_cancel);
