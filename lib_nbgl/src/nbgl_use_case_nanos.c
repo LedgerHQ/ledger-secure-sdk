@@ -44,6 +44,7 @@ typedef struct ReviewContext_s {
     uint8_t nbExtensionPages;
     const nbgl_contentValueExt_t *extension;
     nbgl_step_t                   extensionStepCtx;
+    const char *aliasValue;  // displayed value of the alias pair, used as heading of its details
 
 } ReviewContext_t;
 
@@ -1106,8 +1107,15 @@ static void displayExtensionStep(nbgl_stepPosition_t pos)
 
     if (context.review.extensionStepCtx != NULL) {
         nbgl_stepRelease(context.review.extensionStepCtx);
+        context.review.extensionStepCtx = NULL;
     }
     if (context.review.currentExtensionPage < (context.review.nbExtensionPages - 1)) {
+        // title is only documented for QR Code aliases, so for ENS and Address Book aliases,
+        // fall back to the displayed alias value (as on touchscreen devices) if not provided
+        const char *aliasHeading = (context.review.extension->title != NULL)
+                                       ? context.review.extension->title
+                                       : context.review.aliasValue;
+
         if (context.review.currentExtensionPage == 0) {
             pos |= FIRST_STEP;
         }
@@ -1117,7 +1125,7 @@ static void displayExtensionStep(nbgl_stepPosition_t pos)
 
         switch (context.review.extension->aliasType) {
             case ENS_ALIAS:
-                text    = context.review.extension->title;
+                text    = aliasHeading;
                 subText = context.review.extension->fullValue;
                 break;
             case ADDRESS_BOOK_ALIAS: {
@@ -1125,12 +1133,12 @@ static void displayExtensionStep(nbgl_stepPosition_t pos)
                 bool    has_tn    = (context.review.extension->explanation != NULL);
                 uint8_t page      = context.review.currentExtensionPage;
                 if (page == 0) {
-                    text    = context.review.extension->title;
+                    text    = aliasHeading;
                     subText = has_scope ? context.review.extension->aliasSubName
                                         : context.review.extension->fullValue;
                 }
                 else if (has_scope && page == 1) {
-                    text    = context.review.extension->title;
+                    text    = aliasHeading;
                     subText = context.review.extension->fullValue;
                 }
                 else if (has_tn) {
@@ -1207,6 +1215,7 @@ static void displayAliasFullValue(void)
     }
     context.review.currentExtensionPage = 0;
     context.review.extensionStepCtx     = NULL;
+    context.review.aliasValue           = (subText != NULL) ? PIC(subText) : "";
     // create a modal flow to display this extension
     switch (context.review.extension->aliasType) {
         case ENS_ALIAS:
