@@ -143,7 +143,13 @@ int nbgl_stepRelease(nbgl_step_t step)
 
 void nbgl_refresh(void) {}
 
-void nbgl_screenRedraw(void) {}
+// number of screen redraws (done when leaving a modal step)
+static int nb_redraws;
+
+void nbgl_screenRedraw(void)
+{
+    nb_redraws++;
+}
 
 // Keyboard layout: memorize the key callback and the last key mask
 static int                layout_dummy;
@@ -383,6 +389,7 @@ void setUp(void)
     nb_choices       = 0;
     last_choice      = false;
     nb_quits         = 0;
+    nb_redraws       = 0;
     nb_keyboards     = 0;
     kbd_callback     = NULL;
     kbd_mask         = 0;
@@ -884,6 +891,146 @@ static void test_alias_list_with_callback_is_displayed(void)
 }
 
 // ============================================================================
+// Aliases in streaming review: their full value must be reachable (V-281)
+// ============================================================================
+
+#define MAX_EXTENSION_PAGES 8
+
+// Opens the full value of the displayed alias pair (both buttons), records the sub-texts (or
+// texts if no sub-text) of the extension pages until the back page, then leaves the modal and
+// restores the review step (nbgl_screenRedraw() is a stub here). Returns the number of pages
+// before the back page.
+static int open_alias_and_collect(const char *collected[MAX_EXTENSION_PAGES])
+{
+    // review step, redrawn when leaving the modal
+    nbgl_stepButtonCallback_t  reviewCallback = last_callback;
+    const char                *reviewText     = last_text;
+    const char                *reviewSubText  = last_subtext;
+    const nbgl_icon_details_t *reviewIcon     = last_icon;
+    int                        pairIdx        = displayed_pair();
+    int                        nbPages        = 0;
+    int                        draws          = nb_draws;
+
+    TEST_ASSERT_GREATER_OR_EQUAL_INT(0, pairIdx);
+    TEST_ASSERT_EQUAL_INT(BUTTON_INFO, pair_style[pairIdx]);
+    press(BUTTON_BOTH_PRESSED);
+    TEST_ASSERT_GREATER_THAN_MESSAGE(draws, nb_draws, "alias full value cannot be opened");
+    while (last_icon != &C_icon_back_x) {
+        TEST_ASSERT_LESS_THAN_MESSAGE(MAX_EXTENSION_PAGES, nbPages, "back page never reached");
+        collected[nbPages++] = (last_subtext != NULL) ? last_subtext : last_text;
+        press(BUTTON_RIGHT_PRESSED);
+    }
+    // leave the modal
+    int redraws = nb_redraws;
+    press(BUTTON_BOTH_PRESSED);
+    TEST_ASSERT_EQUAL_INT(redraws + 1, nb_redraws);
+    record_step(reviewCallback, reviewText, reviewSubText, reviewIcon);
+    return nbPages;
+}
+
+static void test_streaming_alias_full_values_are_reachable(void)
+{
+    static nbgl_contentValueExt_t     ens;
+    static nbgl_contentValueExt_t     addressBook;
+    static nbgl_contentValueExt_t     infoListExt;
+    static nbgl_contentValueExt_t     tagValueListExt;
+    static nbgl_contentInfoList_t     infoList;
+    static nbgl_contentTagValueList_t aliasList;
+    static const char *const          infoTypes[]    = {"type0", "type1"};
+    static const char *const          infoContents[] = {"content0", "content1"};
+    const char                       *collected[MAX_EXTENSION_PAGES];
+
+    // pair 0: regular, 1: ENS, 2: address book (with scope and explanation), 3: info list,
+    // 4: tag/value list (pairs 10 and 11)
+    memset(&ens, 0, sizeof(ens));
+    ens.aliasType = ENS_ALIAS;
+    ens.title     = "ENS";
+    ens.fullValue = "0xENS";
+
+    memset(&addressBook, 0, sizeof(addressBook));
+    addressBook.aliasType    = ADDRESS_BOOK_ALIAS;
+    addressBook.title        = "Contact";
+    addressBook.fullValue    = "0xCONTACT";
+    addressBook.aliasSubName = "scope";
+    addressBook.explanation  = "explanation";
+
+    memset(&infoList, 0, sizeof(infoList));
+    infoList.nbInfos      = 2;
+    infoList.infoTypes    = infoTypes;
+    infoList.infoContents = infoContents;
+    memset(&infoListExt, 0, sizeof(infoListExt));
+    infoListExt.aliasType = INFO_LIST_ALIAS;
+    infoListExt.infolist  = &infoList;
+
+    aliasList       = make_tag_value_list(2);
+    aliasList.pairs = &pairs[10];
+    pairs[10].value = "list value 10";
+    pairs[11].value = "list value 11";
+    memset(&tagValueListExt, 0, sizeof(tagValueListExt));
+    tagValueListExt.aliasType    = TAG_VALUE_LIST_ALIAS;
+    tagValueListExt.tagValuelist = &aliasList;
+
+    pairs[1].aliasValue = 1;
+    pairs[1].extension  = &ens;
+    pairs[2].aliasValue = 1;
+    pairs[2].extension  = &addressBook;
+    pairs[3].aliasValue = 1;
+    pairs[3].extension  = &infoListExt;
+    pairs[4].aliasValue = 1;
+    pairs[4].extension  = &tagValueListExt;
+
+    list = make_tag_value_list(5);
+    nbgl_useCaseReviewStreamingContinue(&list, on_choice);
+
+    // regular pair: both buttons do nothing
+    TEST_ASSERT_EQUAL_INT(0, displayed_pair());
+    int draws = nb_draws;
+    press(BUTTON_BOTH_PRESSED);
+    TEST_ASSERT_EQUAL_INT(draws, nb_draws);
+    press(BUTTON_RIGHT_PRESSED);
+
+    TEST_ASSERT_EQUAL_INT(1, displayed_pair());
+    TEST_ASSERT_EQUAL_INT(1, open_alias_and_collect(collected));
+    TEST_ASSERT_EQUAL_STRING("0xENS", collected[0]);
+    // the review is resumed on the same pair, and can be opened again
+    TEST_ASSERT_EQUAL_INT(1, open_alias_and_collect(collected));
+    TEST_ASSERT_EQUAL_STRING("0xENS", collected[0]);
+    press(BUTTON_RIGHT_PRESSED);
+
+    TEST_ASSERT_EQUAL_INT(2, displayed_pair());
+    TEST_ASSERT_EQUAL_INT(3, open_alias_and_collect(collected));
+    TEST_ASSERT_EQUAL_STRING("scope", collected[0]);
+    TEST_ASSERT_EQUAL_STRING("0xCONTACT", collected[1]);
+    TEST_ASSERT_EQUAL_STRING("explanation", collected[2]);
+    press(BUTTON_RIGHT_PRESSED);
+
+    TEST_ASSERT_EQUAL_INT(3, displayed_pair());
+    TEST_ASSERT_EQUAL_INT(2, open_alias_and_collect(collected));
+    TEST_ASSERT_EQUAL_STRING("content0", collected[0]);
+    TEST_ASSERT_EQUAL_STRING("content1", collected[1]);
+    press(BUTTON_RIGHT_PRESSED);
+
+    TEST_ASSERT_EQUAL_INT(4, displayed_pair());
+    TEST_ASSERT_EQUAL_INT(2, open_alias_and_collect(collected));
+    TEST_ASSERT_EQUAL_STRING("list value 10", collected[0]);
+    TEST_ASSERT_EQUAL_STRING("list value 11", collected[1]);
+
+    // going back from the last alias displays the previous one, still openable
+    press(BUTTON_LEFT_PRESSED);
+    TEST_ASSERT_EQUAL_INT(3, displayed_pair());
+    TEST_ASSERT_EQUAL_INT(2, open_alias_and_collect(collected));
+    TEST_ASSERT_EQUAL_STRING("content0", collected[0]);
+    press(BUTTON_RIGHT_PRESSED);
+    TEST_ASSERT_EQUAL_INT(4, displayed_pair());
+
+    // no choice made while reviewing aliases, then right on the last pair requests more data
+    TEST_ASSERT_EQUAL_INT(0, nb_choices);
+    press(BUTTON_RIGHT_PRESSED);
+    TEST_ASSERT_EQUAL_INT(1, nb_choices);
+    TEST_ASSERT_TRUE(last_choice);
+}
+
+// ============================================================================
 // nbgl_useCaseChoiceWithDetails: intro pages + bar pages + confirm/cancel
 // ============================================================================
 
@@ -1278,6 +1425,7 @@ int main(void)
     RUN_TEST(test_generic_review_pair_max_lines_is_forwarded);
     RUN_TEST(test_alias_list_pair_max_lines_is_forwarded);
     RUN_TEST(test_alias_list_with_callback_is_displayed);
+    RUN_TEST(test_streaming_alias_full_values_are_reachable);
     RUN_TEST(test_choice_overflow_is_rejected);
     RUN_TEST(test_choice_first_overflowing_count_is_rejected);
     RUN_TEST(test_choice_max_bars_reaches_confirm_and_cancel);

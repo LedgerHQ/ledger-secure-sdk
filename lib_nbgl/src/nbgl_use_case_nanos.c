@@ -1487,7 +1487,11 @@ static void displayStreamingReviewPage(nbgl_stepPosition_t pos)
                         &isCenteredInfo,
                         &nbMaxLines);
             if (extension != NULL) {
-                forcedType = FORCE_BUTTON;
+                // allow the user to review the full value behind the alias, as in non-streaming
+                // review
+                context.stepCallback                = displayAliasFullValue;
+                context.review.currentTagValueIndex = context.currentPage;
+                forcedType                          = FORCE_BUTTON;
             }
             else {
                 if (isCenteredInfo) {
