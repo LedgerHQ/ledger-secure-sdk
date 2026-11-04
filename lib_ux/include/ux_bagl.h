@@ -386,21 +386,22 @@ extern bolos_ux_params_t G_ux_params;
 /**
  * Redisplay request (no immediate display status sent)
  */
-#define UX_REDISPLAY_REQUEST() \
-    io_seph_ux_init_button();  \
+#define UX_REDISPLAY_REQUEST()   \
+    ux_discard_button_gesture(); \
     G_ux.stack[0].element_index = 0;
 
 /**
- * Force redisplay of the screen from the given index in the screen's element array
+ * Force redisplay of the screen from the given index in the screen's element array. The displayed
+ * content may differ from the one on which an ongoing button gesture started: that gesture is
+ * discarded until all buttons are released, so that its release can't act on the redisplayed screen
  */
-#define UX_REDISPLAY_IDX(index)                                                             \
-    io_seph_ux_init_button(); /*ensure to avoid release of a button from a nother screen to \
-                                    mess up with the redisplayed screen */                  \
-    G_ux.stack[0].element_index = index;                                                    \
-    /* REDRAW is redisplay already, use os_ux return value to check */                      \
-    G_ux_params.len = os_sched_last_status(TASK_BOLOS_UX);                                  \
-    if (G_ux_params.len != BOLOS_UX_IGNORE && G_ux_params.len != BOLOS_UX_CONTINUE) {       \
-        UX_DISPLAY_NEXT_ELEMENT();                                                          \
+#define UX_REDISPLAY_IDX(index)                                                       \
+    ux_discard_button_gesture();                                                      \
+    G_ux.stack[0].element_index = index;                                              \
+    /* REDRAW is redisplay already, use os_ux return value to check */                \
+    G_ux_params.len = os_sched_last_status(TASK_BOLOS_UX);                            \
+    if (G_ux_params.len != BOLOS_UX_IGNORE && G_ux_params.len != BOLOS_UX_CONTINUE) { \
+        UX_DISPLAY_NEXT_ELEMENT();                                                    \
     }
 
 /**
@@ -422,6 +423,7 @@ extern bolos_ux_params_t G_ux_params;
  * current operation, like transferring an USB reply)
  */
 #define UX_DISPLAY_REQUEST(elements_array, preprocessor)                            \
+    ux_discard_button_gesture();                                                    \
     G_ux.stack[0].element_arrays[0].element_array = elements_array;                 \
     G_ux.stack[0].element_arrays[0].element_array_count                             \
         = sizeof(elements_array) / sizeof(elements_array[0]);                       \
