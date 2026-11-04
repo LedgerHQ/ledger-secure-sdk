@@ -104,7 +104,7 @@ not need to track the lane itself.
 
 @section har_mutator Mutators
 
-### Why a custom mutator is needed
+## Why a custom mutator is needed
 
 LibFuzzer's built-in mutator treats the entire input as a flat byte array.
 That is fine for simple targets, but this framework splits every input into a
@@ -113,7 +113,7 @@ That is fine for simple targets, but this framework splits every input into a
 uniformly would frequently corrupt the prefix structure Absolution depends on,
 silently wasting coverage budget on inputs that never restore a valid app state.
 
-### The standard prefix-aware mutator
+## The standard prefix-aware mutator
 
 `fuzz_mutator.h` provides `fuzz_custom_mutator()`, which respects that boundary
 and applies three separate strategies:
@@ -132,7 +132,7 @@ code of its own. The only layout fact it needs is the prefix *size*, which
 of 0 the mutator falls back to plain flat-byte mutation, so the check belongs in
 the build pipeline, where the number is actually produced.
 
-### Extending it
+## Extending it
 
 - **A whole input grammar**: define `FUZZ_APP_CUSTOM_MUTATOR` and provide
   `LLVMFuzzerCustomMutator()` yourself, built on `fuzz_mutate_input_with()` so
@@ -148,7 +148,7 @@ size_t LLVMFuzzerCustomMutator(uint8_t *data, size_t size,
 }
 @endcode
 
-### The optional TLV mutator
+## The optional TLV mutator
 
 For apps whose APDU payloads are TLV-encoded, an additional grammar-aware
 mutator keeps mutated inputs syntactically valid TLV.  Without it the fuzzer
