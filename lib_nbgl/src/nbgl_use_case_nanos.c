@@ -3511,7 +3511,7 @@ void nbgl_useCaseChoice(const nbgl_icon_details_t *icon,
 {
     nbgl_useCaseChoiceWithDetails(
         icon, message, subMessage, confirmText, cancelText, NULL, callback);
-};
+}
 
 // Common implementation of the choice flows. title is NULL for the basic ones, in which case
 // message and subMessage share the same page.
@@ -3575,7 +3575,7 @@ void nbgl_useCaseChoiceWithDetails(const nbgl_icon_details_t *icon,
                                    nbgl_choiceCallback_t      callback)
 {
     startChoice(icon, NULL, message, subMessage, confirmText, cancelText, details, callback);
-};
+}
 
 // On Nano, the three texts of the advanced variant are spread over one page each, the title
 // being kept as the first line of all of them. headerIcon is ignored (no top-right button).
