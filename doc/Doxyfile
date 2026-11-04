@@ -2225,7 +2225,9 @@ PREDEFINED             = NBGL_KEYBOARD \
                          WEAK= \
                          NORETURN= \
                          BOOT_SECTION= \
-                         HAVE_SWAP
+                         HAVE_SWAP \
+                         HAVE_ADDRESS_BOOK \
+                         HAVE_ADDRESS_BOOK_LEDGER_ACCOUNT
 
 # If the MACRO_EXPANSION and EXPAND_ONLY_PREDEF tags are set to YES then this
 # tag can be used to specify a list of macro names that should be expanded. The
