@@ -584,6 +584,19 @@ static bool isTagValueListValid(const nbgl_contentTagValueList_t *tagValueList)
     return true;
 }
 
+// Helper to check that the whole address to verify can be displayed in the ADDR_VERIF_NB_PAIRS
+// pages of the address confirmation, otherwise a suffix of the address would never be displayed
+// before the "Confirm" action. A null number of pages is also rejected, in case of overflow.
+static bool isAddressReviewable(const char *address)
+{
+    if (address == NULL) {
+        return false;
+    }
+    uint8_t nbChunks = nbgl_getTextNbPagesInWidth(
+        LARGE_MEDIUM_FONT, address, NB_MAX_LINES_IN_REVIEW, AVAILABLE_WIDTH);
+    return (nbChunks > 0) && (nbChunks <= ADDR_VERIF_NB_PAIRS);
+}
+
 // Helper to retrieve the content inside a nbgl_genericContents_t using
 // either the contentsList or using the contentGetterCallback
 static const nbgl_content_t *getContentAtIdx(const nbgl_genericContents_t *genericContents,
@@ -2584,10 +2597,12 @@ static void prepareAddressConfirmationPages(const char                       *ad
     // bounds the rendered slice to NB_MAX_LINES_IN_REVIEW lines, so successive
     // chunks visually pick up where the previous left off. forcePageStart on
     // all but the first chunk ensures each chunk starts a fresh page.
+    // The address is never truncated: callers reject it beforehand (see isAddressReviewable())
+    // if it needs more than ADDR_VERIF_NB_PAIRS chunks.
     nbAddressChunks = nbgl_getTextNbPagesInWidth(
         LARGE_MEDIUM_FONT, address, NB_MAX_LINES_IN_REVIEW, AVAILABLE_WIDTH);
-    bool addressTruncated = (nbAddressChunks > ADDR_VERIF_NB_PAIRS);
-    if (addressTruncated) {
+    // Defensive bound (should never trigger thanks to isAddressReviewable())
+    if (nbAddressChunks > ADDR_VERIF_NB_PAIRS) {
         nbAddressChunks = ADDR_VERIF_NB_PAIRS;
     }
     {
@@ -2658,7 +2673,7 @@ static void prepareAddressConfirmationPages(const char                       *ad
     // at NB_MAX_LINES_IN_REVIEW lines so each chunk-pair occupies exactly one page
     tagValueConfirm->tagValueList.nbMaxLinesForValue
         = (nbAddressChunks > 1) ? NB_MAX_LINES_IN_REVIEW : 0;
-    tagValueConfirm->tagValueList.hideEndOfLastLine = addressTruncated;
+    tagValueConfirm->tagValueList.hideEndOfLastLine = false;
     tagValueConfirm->tagValueList.wrapping          = false;
 
     // Number of extras left to place on a second page
@@ -4913,7 +4928,7 @@ void nbgl_useCaseAddressConfirmationExt(const char                       *addres
                                         nbgl_choiceCallback_t             callback,
                                         const nbgl_contentTagValueList_t *tagValueList)
 {
-    if (!isTagValueListValid(tagValueList)) {
+    if (!isAddressReviewable(address) || !isTagValueListValid(tagValueList)) {
         if (callback != NULL) {
             callback(false);
         }
@@ -4969,7 +4984,7 @@ void nbgl_useCaseAddressReview(const char                       *address,
                                const char                       *reviewSubTitle,
                                nbgl_choiceCallback_t             choiceCallback)
 {
-    if (!isTagValueListValid(additionalTagValueList)) {
+    if (!isAddressReviewable(address) || !isTagValueListValid(additionalTagValueList)) {
         if (choiceCallback != NULL) {
             choiceCallback(false);
         }

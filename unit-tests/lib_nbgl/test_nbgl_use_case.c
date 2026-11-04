@@ -29,6 +29,8 @@
 // Regression tests for V-298: when an INFOS_LIST with extensions is automatically paginated in a
 // generic content, every page must keep the extensions, and touching the alias of an info on any
 // page must display the full value of this info (and not of an info of another page).
+// Regression tests for V-284: an address needing more pages than the address confirmation can
+// hold must be rejected (fail closed) instead of being confirmable while truncated.
 
 // number of pairs of the TAG_VALUE_CONFIRM list
 #define NB_PAIRS            12
@@ -464,6 +466,9 @@ bool nbgl_getTextMaxLenInNbLines(nbgl_font_id_e fontId,
     return true;
 }
 
+// number of pages returned by nbgl_getTextNbPagesInWidth(), reset to 1 for every test
+static uint8_t nb_text_pages;
+
 uint8_t nbgl_getTextNbPagesInWidth(nbgl_font_id_e fontId,
                                    const char    *text,
                                    uint8_t        nbLinesPerPage,
@@ -473,7 +478,7 @@ uint8_t nbgl_getTextNbPagesInWidth(nbgl_font_id_e fontId,
     (void) text;
     (void) nbLinesPerPage;
     (void) maxWidth;
-    return 1;
+    return nb_text_pages;
 }
 
 void nbgl_textReduceOnNbLines(nbgl_font_id_e fontId,
@@ -623,6 +628,7 @@ void setUp(void)
     nb_keypads            = 0;
     keypad_callback       = NULL;
     keypad_text           = NULL;
+    nb_text_pages         = 1;
     memset(&modal_nav, 0, sizeof(modal_nav));
     memset(&modal_content, 0, sizeof(modal_content));
 
@@ -1002,6 +1008,78 @@ void test_address_review_is_rejected_without_callback(void)
                               "Verify address",
                               NULL,
                               onChoice);
+    TEST_ASSERT_EQUAL_INT(1, nb_choices);
+    TEST_ASSERT_FALSE(last_choice);
+    TEST_ASSERT_NULL(page_callback);
+}
+
+// ============================================================================
+// V-284: an address too long to be fully displayed must be rejected
+// ============================================================================
+
+#define ADDR_MAX_NB_PAGES 3
+
+void test_address_review_at_max_length_is_fully_displayed(void)
+{
+    nb_text_pages = ADDR_MAX_NB_PAGES;
+    nbgl_useCaseAddressReview("0xADDRESS", NULL, &C_Warning_64px, "Verify address", NULL, onChoice);
+    TEST_ASSERT_EQUAL_INT(0, nb_choices);
+    TEST_ASSERT_NOT_NULL(page_callback);
+    TEST_ASSERT_EQUAL(EXTENDED_CENTER, page_content.type);
+    // first page + one page per address chunk
+    TEST_ASSERT_EQUAL_UINT8(1 + ADDR_MAX_NB_PAGES, page_nav.nbPages);
+
+    // every chunk page is displayed, without hiding the end of the address, and the confirmation
+    // is only available on the last chunk page
+    for (uint8_t page = 1; page <= ADDR_MAX_NB_PAGES; page++) {
+        const nbgl_contentTagValueList_t *list;
+
+        page_callback(page_nav.navWithButtons.navToken, page);
+        if (page < ADDR_MAX_NB_PAGES) {
+            TEST_ASSERT_EQUAL(TAG_VALUE_LIST, page_content.type);
+            list = &page_content.tagValueList;
+        }
+        else {
+            TEST_ASSERT_EQUAL(TAG_VALUE_CONFIRM, page_content.type);
+            TEST_ASSERT_EQUAL_STRING("Confirm", page_content.tagValueConfirm.confirmationText);
+            list = &page_content.tagValueConfirm.tagValueList;
+        }
+        TEST_ASSERT_EQUAL_UINT8(1, list->nbPairs);
+        TEST_ASSERT_EQUAL_STRING("Address", list->pairs[0].item);
+        TEST_ASSERT_FALSE(list->hideEndOfLastLine);
+    }
+    TEST_ASSERT_EQUAL_INT(0, nb_choices);
+}
+
+// Checks that an address needing the given number of pages is rejected by both address APIs,
+// without displaying anything
+static void checkAddressIsRejected(uint8_t nbPages)
+{
+    nb_text_pages = nbPages;
+    nbgl_useCaseAddressReview("0xADDRESS", NULL, &C_Warning_64px, "Verify address", NULL, onChoice);
+    TEST_ASSERT_EQUAL_INT(1, nb_choices);
+    TEST_ASSERT_FALSE(last_choice);
+    TEST_ASSERT_NULL(page_callback);
+
+    nbgl_useCaseAddressConfirmationExt("0xADDRESS", onChoice, NULL);
+    TEST_ASSERT_EQUAL_INT(2, nb_choices);
+    TEST_ASSERT_FALSE(last_choice);
+    TEST_ASSERT_NULL(page_callback);
+}
+
+void test_address_review_over_max_length_is_rejected(void)
+{
+    checkAddressIsRejected(ADDR_MAX_NB_PAGES + 1);
+}
+
+void test_address_review_with_overflowed_nb_pages_is_rejected(void)
+{
+    checkAddressIsRejected(0);
+}
+
+void test_address_review_without_address_is_rejected(void)
+{
+    nbgl_useCaseAddressReview(NULL, NULL, &C_Warning_64px, "Verify address", NULL, onChoice);
     TEST_ASSERT_EQUAL_INT(1, nb_choices);
     TEST_ASSERT_FALSE(last_choice);
     TEST_ASSERT_NULL(page_callback);
@@ -2169,6 +2247,10 @@ int main(void)
     RUN_TEST(test_address_review_with_empty_list_is_displayed);
     RUN_TEST(test_address_review_without_list_is_displayed);
     RUN_TEST(test_address_review_is_rejected_without_callback);
+    RUN_TEST(test_address_review_at_max_length_is_fully_displayed);
+    RUN_TEST(test_address_review_over_max_length_is_rejected);
+    RUN_TEST(test_address_review_with_overflowed_nb_pages_is_rejected);
+    RUN_TEST(test_address_review_without_address_is_rejected);
     RUN_TEST(test_info_only_warning_is_displayed_before_review);
     RUN_TEST(test_info_only_warning_can_be_rejected);
     RUN_TEST(test_info_only_warning_is_displayed_before_streaming_review);
