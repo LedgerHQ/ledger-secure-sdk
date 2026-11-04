@@ -38,8 +38,7 @@
     (pagesData[pageIdx / PAGES_PER_UINT8] = pageData \
                                             << ((pageIdx % PAGES_PER_UINT8) * PAGE_DATA_BITS))
 
-#define MAX_PAGE_NB       256
-#define MAX_MODAL_PAGE_NB 32
+#define MAX_PAGE_NB 256
 
 /* Alias to clarify usage of genericContext hasStartingContent and hasFinishingContent feature */
 #define STARTING_CONTENT  localContentsList[0]
@@ -110,7 +109,6 @@ typedef enum {
 typedef struct DetailsContext_s {
     uint8_t     nbPages;
     uint8_t     currentPage;
-    uint8_t     currentPairIdx;
     bool        wrapping;
     const char *tag;
     const char *value;
@@ -304,7 +302,6 @@ static GenericContext_t genericContext;
 static nbgl_content_t
     localContentsList[3];  // 3 needed for nbgl_useCaseReview (starting page / tags / final page)
 static uint8_t genericContextPagesInfo[MAX_PAGE_NB / PAGES_PER_UINT8];
-static uint8_t modalContextPagesInfo[MAX_MODAL_PAGE_NB / PAGES_PER_UINT8];
 
 // contexts for bundle navigation
 static nbgl_BundleNavContext_t bundleNavContext;
@@ -398,6 +395,9 @@ static void displayAddressQRCode(void);
 #endif  // NBGL_QRCODE
 
 static uint8_t getNbLinesInDetailsPage(const nbgl_contentTagValue_t *pair);
+static uint8_t getNbTagValuesInDetailsPage(uint8_t                           nbPairs,
+                                           const nbgl_contentTagValueList_t *tagValueList,
+                                           uint8_t                           startIndex);
 
 static void modalLayoutTouchCallback(int token, uint8_t index);
 static void displaySkipWarning(void);
@@ -476,27 +476,6 @@ static void genericContextGetPageInfo(uint8_t pageIdx, uint8_t *nbElements, bool
     }
 }
 
-// Helper to set modalContext page info
-static void modalContextSetPageInfo(uint8_t pageIdx, uint8_t nbElements)
-{
-    uint8_t pageData = SET_PAGE_NB_ELEMENTS(nbElements);
-
-    modalContextPagesInfo[pageIdx / PAGES_PER_UINT8]
-        &= ~(0x0F << ((pageIdx % PAGES_PER_UINT8) * PAGE_DATA_BITS));
-    modalContextPagesInfo[pageIdx / PAGES_PER_UINT8]
-        |= pageData << ((pageIdx % PAGES_PER_UINT8) * PAGE_DATA_BITS);
-}
-
-// Helper to get modalContext page info
-static void modalContextGetPageInfo(uint8_t pageIdx, uint8_t *nbElements)
-{
-    uint8_t pageData = modalContextPagesInfo[pageIdx / PAGES_PER_UINT8]
-                       >> ((pageIdx % PAGES_PER_UINT8) * PAGE_DATA_BITS);
-    if (nbElements != NULL) {
-        *nbElements = GET_PAGE_NB_ELEMENTS(pageData);
-    }
-}
-
 // Simple helper to get the number of elements inside a nbgl_content_t
 static uint8_t getContentNbElement(const nbgl_content_t *content)
 {
@@ -561,6 +540,32 @@ static nbgl_contentTagValue_t *getModalTagValuePair(uint8_t pairIndex)
 
     tagValueList.callback = genericContext.currentTagValues->callback;
     return (nbgl_contentTagValue_t *) getTagValuePair(&tagValueList, pairIndex);
+}
+
+// Computes the index of the first pair (relative to the list) of the given page of the alias
+// tag/value list modal, and the number of pairs in this page, by replaying the pagination from the
+// first page. No page table is used, so that the number of pages is not bounded (at most one page
+// per pair, see getNbTagValuesInDetailsPage()), and so that the number of pairs per page is not
+// limited by the encoding of a page table
+static uint8_t getTagValueListModalPage(const nbgl_contentTagValueList_t *tagValues,
+                                        uint8_t                           pageIdx,
+                                        uint8_t                          *nbPairsInPage)
+{
+    uint8_t startIdx = 0;
+    uint8_t page     = 0;
+
+    *nbPairsInPage = 0;
+    while (startIdx < tagValues->nbPairs) {
+        uint8_t nbPairs
+            = getNbTagValuesInDetailsPage(tagValues->nbPairs - startIdx, tagValues, startIdx);
+        if (page == pageIdx) {
+            *nbPairsInPage = nbPairs;
+            break;
+        }
+        startIdx += nbPairs;
+        page++;
+    }
+    return startIdx;
 }
 
 // Helper to check that all pairs of a tag/value list retrieved with a callback are provided by it,
@@ -1773,39 +1778,29 @@ static void displayTagValueListModalPage(uint8_t pageIdx, bool forceFullRefresh)
                                          .tagValueList.smallCaseForValue = true,
                                          .tagValueList.wrapping          = detailsContext.wrapping};
     uint8_t                   nbElementsInPage;
+    uint8_t                   firstPairIdx;
 
-    // if first page or forward
-    if (detailsContext.currentPage <= pageIdx) {
-        modalContextGetPageInfo(pageIdx, &nbElementsInPage);
-    }
-    else {
-        // backward direction
-        modalContextGetPageInfo(pageIdx + 1, &nbElementsInPage);
-        detailsContext.currentPairIdx -= nbElementsInPage;
-        modalContextGetPageInfo(pageIdx, &nbElementsInPage);
-        detailsContext.currentPairIdx -= nbElementsInPage;
-    }
+    firstPairIdx
+        = getTagValueListModalPage(genericContext.currentTagValues, pageIdx, &nbElementsInPage);
     detailsContext.currentPage = pageIdx;
 
     content.tagValueList.nbPairs = nbElementsInPage;
     if (genericContext.currentTagValues->pairs != NULL) {
-        content.tagValueList.pairs
-            = &genericContext.currentTagValues->pairs[detailsContext.currentPairIdx];
+        content.tagValueList.pairs = &genericContext.currentTagValues->pairs[firstPairIdx];
     }
     else {
         // index of the pairs of the page is relative to the startIndex of the list
         content.tagValueList.callback = getModalTagValuePair;
         content.tagValueList.startIndex
-            = genericContext.currentTagValues->startIndex + detailsContext.currentPairIdx;
+            = genericContext.currentTagValues->startIndex + firstPairIdx;
     }
     if (nbElementsInPage == 1) {
         // a pair alone in its page may be too long to fit (see getNbTagValuesInDetailsPage()):
         // its value is then truncated to the lines fitting in the page, ending with "..."
         content.tagValueList.nbMaxLinesForValue = getNbLinesInDetailsPage(
-            getTagValuePair(genericContext.currentTagValues, detailsContext.currentPairIdx));
+            getTagValuePair(genericContext.currentTagValues, firstPairIdx));
         content.tagValueList.hideEndOfLastLine = true;
     }
-    detailsContext.currentPairIdx += nbElementsInPage;
     if (info.nbPages == 1) {
         // if only one page, no navigation bar, and use a footer instead
         info.navWithButtons.quitText = "Close";
@@ -3505,17 +3500,13 @@ static void displayTagValueListModal(const nbgl_contentTagValueList_t *tagValues
     memset(&detailsContext, 0, sizeof(detailsContext));
     nbElements = tagValues->nbPairs;
 
+    // count the pages, without any limit: as every page contains at least one pair (see
+    // getNbTagValuesInDetailsPage()), there are at most nbPairs (<= 255) pages, so all pairs are
+    // always reachable
     while (nbElements > 0) {
-        if (detailsContext.nbPages >= MAX_MODAL_PAGE_NB) {
-            LOG_WARN(USE_CASE_LOGGER,
-                     "displayTagValueListModal(): too many pages, truncating at %d\n",
-                     MAX_MODAL_PAGE_NB);
-            break;
-        }
         nbElementsInPage = getNbTagValuesInDetailsPage(nbElements, tagValues, elemIdx);
 
         elemIdx += nbElementsInPage;
-        modalContextSetPageInfo(detailsContext.nbPages, nbElementsInPage);
         nbElements -= nbElementsInPage;
         detailsContext.nbPages++;
     }
