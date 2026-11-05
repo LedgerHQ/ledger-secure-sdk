@@ -18,6 +18,7 @@
 #include <string.h>
 #include "app_storage.h"
 #include "app_storage_internal.h"
+#include "macros.h"
 #include "lcx_crc.h"
 #include "os_nvm.h"
 #include "os_pic.h"
@@ -26,6 +27,14 @@
 
 CONST app_storage_t app_storage_real __attribute__((section(".storage_section")));
 #define app_storage (*(volatile app_storage_t *) PIC(&app_storage_real))
+
+/**
+ * @brief called by app_storage_init() with the status of the storage it found
+ */
+WEAK void app_storage_callback(int32_t status)
+{
+    (void) status;
+}
 
 /**
  * @brief checks if the app storage struct is initialized and valid
@@ -38,13 +47,23 @@ STATIC int32_t app_storage_is_initalized(void)
     }
     else {
         status = APP_STORAGE_ERR_INVALID_HEADER;
+        // A fresh install is all zeros, an initialized storage never is past its tag
+        // (struct_version is never 0 once set). The data is not scanned: damage that zeroes
+        // the tag, the CRC and the whole header but leaves data behind reads as a first start.
+        if ((app_storage.crc != 0) || (app_storage.header.size != 0)
+            || (app_storage.header.struct_version != 0) || (app_storage.header.properties != 0)
+            || (app_storage.header.data_version != 0)) {
+            status = APP_STORAGE_ERR_CORRUPTED;
+        }
         goto error;
     }
 
-    uint32_t crc = cx_crc32((void *) &app_storage.header,
-                            sizeof(app_storage.header) + app_storage.header.size);
-    if (crc != app_storage.crc) {
-        // Invalid CRC, force reset
+    // The size is checked first, for the CRC not to be computed past the end of the storage
+    if ((app_storage.header.size > APP_STORAGE_SIZE)
+        || (cx_crc32((void *) &app_storage.header,
+                     sizeof(app_storage.header) + app_storage.header.size)
+            != app_storage.crc)) {
+        // Invalid size or CRC, force reset
         status = APP_STORAGE_ERR_CORRUPTED;
     }
     else {
@@ -91,26 +110,21 @@ static inline void system_header_reset(void)
  *
  * @returns int32_t
  *
- * @retval APP_STORAGE_SUCCESS Application storage is successfully initialized.
- * @retval APP_STORAGE_ERR_CORRUPTED Error, application storage is corrupted.
+ * @retval APP_STORAGE_SUCCESS The storage was found valid.
+ * @retval APP_STORAGE_ERR_INVALID_HEADER Invalid tag, CRC and rest of the header zero: most likely
+ *         a first start. The storage is reinitialized.
+ * @retval APP_STORAGE_ERR_CORRUPTED Invalid tag, size or CRC: the storage existed and is damaged.
+ *         The storage is reinitialized, any data it held is lost.
  */
 int32_t app_storage_init(void)
 {
     int32_t status = app_storage_is_initalized();
-    switch (status) {
-        case APP_STORAGE_ERR_INVALID_HEADER:
-            // Invalid tag or uninitialized storage, reset the HEADER
-            system_header_reset();
-            status = APP_STORAGE_SUCCESS;
-            break;
-        case APP_STORAGE_ERR_CORRUPTED:
-            system_header_reset();
-            break;
-        case APP_STORAGE_SUCCESS:
-        default:
-            // Return status as-is
-            break;
+    if (status != APP_STORAGE_SUCCESS) {
+        // No storage or a damaged one, reset the header
+        system_header_reset();
     }
+    // Called after the reset, so that the application can already write to the storage
+    app_storage_callback(status);
 
     return status;
 }
