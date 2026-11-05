@@ -6,7 +6,14 @@ DOC_SITE_DIR := $(BUILD_DIR)/doc/site
 # default target is stax
 TARGET ?= stax
 
-NBGL_DEFINES_stax := \
+# Every nano% target (nanox, nanos2, ...) is Nano, everything else is wallet (touch).
+ifneq ($(filter nano%,$(TARGET)),)
+DOC_FAMILY := nano
+else
+DOC_FAMILY := wallet
+endif
+
+NBGL_DEFINES_wallet := \
                      HAVE_SE_TOUCH \
                      NBGL_PAGE \
                      NBGL_QRCODE \
@@ -17,22 +24,19 @@ NBGL_DEFINES_nano := \
                      NBGL_FLOW \
                      SCREEN_SIZE_NANO
 
-NBGL_DEFINES := $(NBGL_DEFINES_$(TARGET))
+# Wallet docs drop Nano/BAGL-only headers that clash with the touch symbols
+UX_BAGL_EXCLUDE_wallet   := lib_ux/include/ux_bagl.h
+NBGL_NANO_EXCLUDE_wallet := lib_nbgl/src/nbgl_layout_internal_nanos.h
 
-# For nano-family targets (nano, nanox, nanosplus, etc.), default to nano defines.
-ifeq ($(strip $(NBGL_DEFINES)),)
-ifneq ($(filter nano%,$(TARGET)),)
-NBGL_DEFINES := $(NBGL_DEFINES_nano)
-endif
-endif
-
-# Exclude BAGL UX header from wallet (touch) doc builds to avoid symbol conflicts with ux_nbgl.h
-UX_BAGL_EXCLUDE_stax := lib_ux/include/ux_bagl.h
-UX_BAGL_EXCLUDE      := $(UX_BAGL_EXCLUDE_$(TARGET))
+NBGL_DEFINES      := $(NBGL_DEFINES_$(DOC_FAMILY))
+UX_BAGL_EXCLUDE   := $(UX_BAGL_EXCLUDE_$(DOC_FAMILY))
+NBGL_NANO_EXCLUDE := $(NBGL_NANO_EXCLUDE_$(DOC_FAMILY))
 export NBGL_DEFINES
 export UX_BAGL_EXCLUDE
+export NBGL_NANO_EXCLUDE
 
-doc: | $(BUILD_DIR)
+doc: | $(BUILD_DIR)/doc
+	@rm -rf $(BUILD_DIR)/doc/html
 	@doxygen doc/Doxyfile
 	@echo "HTML doc for '$(TARGET)' can be found in '$(BUILD_DIR)/doc/html/index.html'"
 
@@ -53,5 +57,5 @@ doc-all:
 	@cp doc/landing.html $(DOC_SITE_DIR)/index.html
 	@echo 'Combined documentation can be found in '$(DOC_SITE_DIR)/index.html
 
-$(BUILD_DIR):
+$(BUILD_DIR) $(BUILD_DIR)/doc:
 	@mkdir -p $@

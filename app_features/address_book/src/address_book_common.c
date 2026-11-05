@@ -137,7 +137,7 @@ bool address_book_handle_printable_string(const tlv_data_t *data,
 /**
  * @brief Display a confirmation review for an Address Book operation.
  *
- * Uses @ref g_ab_ui.list as the tag/value list (already populated by the caller).
+ * Uses @ref ab_ui_t::list as the tag/value list (already populated by the caller).
  * Sets wrapping = true and delegates to @ref nbgl_useCaseReviewLight().
  *
  * @param[in] icon            Icon shown on the title page (typically
@@ -166,7 +166,7 @@ void address_book_display_review(const nbgl_icon_details_t *icon,
 /**
  * @brief Common handling of a rejected Address Book review.
  *
- * Sends @ref SWO_INCORRECT_DATA and displays the standard
+ * Sends @c SWO_INCORRECT_DATA and displays the standard
  * @ref STATUS_TYPE_OPERATION_REJECTED status, then invokes @p finalize.
  *
  * @param[in] finalize Callback invoked once the status screen is dismissed
@@ -181,7 +181,7 @@ void address_book_handle_review_rejected(nbgl_callback_t finalize)
  * @brief Common handling of a confirmed Address Book review's outcome.
  *
  * On success, displays a success status with @p successMsg.
- * On failure, sends @ref SWO_INCORRECT_DATA and displays an error status
+ * On failure, sends @c SWO_INCORRECT_DATA and displays an error status
  * with @p errorMsg. In both cases @p finalize is invoked once the status
  * screen is dismissed.
  *
