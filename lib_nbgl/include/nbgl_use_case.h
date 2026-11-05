@@ -370,9 +370,11 @@ typedef struct {
     nbgl_layoutKeyboardContentType_t type;         ///< type of content
     const char                      *title;        ///< centered title explaining the screen
     char                            *entryBuffer;  ///< already entered text
-    uint8_t                          entryMaxLen;  ///< maximum length of text that can be entered
-    keyboardMode_t                   mode;         ///< keyboard mode to start with
-    bool lettersOnly;  ///< if true, only display letter keys and Backspace
+    uint8_t                          entryMaxLen;  ///< maximum length of text that can be entered,
+                                                   ///< excluding the NUL terminator (entryBuffer
+                                                   ///< must be at least entryMaxLen + 1 bytes long)
+    keyboardMode_t mode;                           ///< keyboard mode to start with
+    bool           lettersOnly;  ///< if true, only display letter keys and Backspace
 #ifdef HAVE_SE_TOUCH
     bool           numbered;    ///< if set to true, the text is preceded on the left by 'number.'
     uint8_t        number;      ///< if numbered is true, number used to build 'number.' text

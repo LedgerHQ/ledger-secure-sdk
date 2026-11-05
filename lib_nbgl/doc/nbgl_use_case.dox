@@ -965,7 +965,7 @@ parameters:
   - \b type: either @ref KEYBOARD_WITH_BUTTON or @ref KEYBOARD_WITH_SUGGESTIONS
   - \b title: the page title
   - \b entryBuffer: buffer to store the entered text
-  - \b entryMaxLen: maximum length of text
+  - \b entryMaxLen: maximum length of text, \b excluding the NUL terminator: \b entryBuffer must be at least \b entryMaxLen + 1 bytes long
   - \b mode: initial keyboard mode (@ref MODE_LETTERS, @ref MODE_DIGITS, @ref MODE_SPECIAL)
   - \b lettersOnly: if true, only letter keys and Backspace are shown
   - \b numbered: (Touch only) if true, text is preceded by a number
@@ -1007,7 +1007,7 @@ void display_create_pwd(void) {
         .type = KEYBOARD_WITH_BUTTON,
         .title = "New password nickname",
         .entryBuffer = password_name,
-        .entryMaxLen = sizeof(password_name),
+        .entryMaxLen = MAX_METANAME,  // password_name also holds the NUL terminator
         .lettersOnly = false,
         .mode = MODE_LETTERS,
         .casing = LOWER_CASE,
@@ -1084,7 +1084,7 @@ void display_keyboard_page(void) {
         .type = KEYBOARD_WITH_SUGGESTIONS,
         .title = "Enter word #1",
         .entryBuffer = textToEnter,
-        .entryMaxLen = sizeof(textToEnter),
+        .entryMaxLen = MAX_WORD_LENGTH,  // textToEnter also holds the NUL terminator
         .numbered = true,
         .number = 1,
         .mode = MODE_LETTERS,

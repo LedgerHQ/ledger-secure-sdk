@@ -19,6 +19,16 @@
 // Regression tests for V-295: an advanced review with custom review details must display a
 // top-right button with the given icon on first and last pages, opening these review details.
 // When a predefined warning is also given, it takes precedence over the custom fields.
+// Regression tests for V-127: the keyboard must never write beyond entryBuffer[entryMaxLen],
+// even when the suggestions callback leaves letter keys enabled.
+// Regression tests for V-140: an info or a switch too tall to fit in a page must not make the
+// automatic pagination spin forever, it must occupy its own page. The same applies to a pair too
+// tall to fit in a page of the tag/value list modal of an alias.
+// Regression tests for V-142: in the threat/risk report modal, a long report URL must never lead
+// to an out-of-bounds header string, nor to a QR Code encoding a truncated URL.
+// Regression tests for V-298: when an INFOS_LIST with extensions is automatically paginated in a
+// generic content, every page must keep the extensions, and touching the alias of an info on any
+// page must display the full value of this info (and not of an info of another page).
 
 // number of pairs of the TAG_VALUE_CONFIRM list
 #define NB_PAIRS            12
@@ -27,6 +37,8 @@
 #define TEXT_HEIGHT         32
 #define CANCEL_TOKEN        0x72
 #define NO_MODAL_TEXT_DRAWN NULL
+// height of TALL_TEXT, higher than any screen
+#define TALL_TEXT_HEIGHT    2000
 
 // ============================================================================
 // Glyphs
@@ -120,6 +132,7 @@ static const char                 *modal_title;
 static const char                 *modal_full_value;
 static nbgl_layoutTouchCallback_t  layout_callback;
 static const nbgl_contentCenter_t *warning_center;
+static const char                 *center_description;
 static uint8_t                     warning_choice_token;
 static bool                        warning_choice_drawn;
 
@@ -132,7 +145,8 @@ nbgl_layout_t *nbgl_layoutGet(const nbgl_layoutDescription_t *description)
 int nbgl_layoutAddContentCenter(nbgl_layout_t *layout, const nbgl_contentCenter_t *info)
 {
     (void) layout;
-    warning_center = info;
+    warning_center     = info;
+    center_description = info->description;
     return 0;
 }
 
@@ -146,6 +160,7 @@ int nbgl_layoutAddChoiceButtons(nbgl_layout_t *layout, const nbgl_layoutChoiceBu
 
 static const char                *modal_header_text;
 static uint8_t                    nb_bars;
+static uint8_t                    last_bar_token;
 static const nbgl_icon_details_t *layout_top_right_icon;
 
 int nbgl_layoutAddHeader(nbgl_layout_t *layout, const nbgl_layoutHeader_t *headerDesc)
@@ -160,7 +175,7 @@ int nbgl_layoutAddHeader(nbgl_layout_t *layout, const nbgl_layoutHeader_t *heade
 int nbgl_layoutAddTouchableBar(nbgl_layout_t *layout, const nbgl_layoutBar_t *barLayout)
 {
     (void) layout;
-    (void) barLayout;
+    last_bar_token = barLayout->token;
     nb_bars++;
     return 0;
 }
@@ -210,6 +225,120 @@ int nbgl_layoutRelease(nbgl_layout_t *layout)
     return 0;
 }
 
+// Keyboard layout: memorize the key callback and the last key mask
+static int                nb_keyboards;
+static keyboardCallback_t kbd_callback;
+static uint32_t           kbd_mask;
+
+int nbgl_layoutAddKeyboard(nbgl_layout_t *layout, const nbgl_layoutKbd_t *kbdInfo)
+{
+    (void) layout;
+    nb_keyboards++;
+    kbd_callback = kbdInfo->callback;
+    kbd_mask     = kbdInfo->keyMask;
+    return 1;
+}
+
+int nbgl_layoutAddKeyboardContent(nbgl_layout_t *layout, nbgl_layoutKeyboardContent_t *content)
+{
+    (void) layout;
+    (void) content;
+    return 2;
+}
+
+int nbgl_layoutUpdateKeyboard(nbgl_layout_t *layout,
+                              uint8_t        index,
+                              uint32_t       keyMask,
+                              bool           updateCasing,
+                              keyboardCase_t casing)
+{
+    (void) layout;
+    (void) index;
+    (void) updateCasing;
+    (void) casing;
+    kbd_mask = keyMask;
+    return 0;
+}
+
+int nbgl_layoutUpdateKeyboardContent(nbgl_layout_t *layout, nbgl_layoutKeyboardContent_t *content)
+{
+    (void) layout;
+    (void) content;
+    return 0;
+}
+
+// Keypad layout: memorize the key callback and the last displayed digits
+static int                nb_keypads;
+static keyboardCallback_t keypad_callback;
+static const char        *keypad_text;
+
+int nbgl_layoutAddKeypad(nbgl_layout_t *layout, keyboardCallback_t callback, bool shuffled)
+{
+    (void) layout;
+    (void) shuffled;
+    nb_keypads++;
+    keypad_callback = callback;
+    return 0;
+}
+
+int nbgl_layoutAddKeypadContent(nbgl_layout_t *layout,
+                                const char    *title,
+                                bool           hidden,
+                                uint8_t        nbDigits,
+                                const char    *text)
+{
+    (void) layout;
+    (void) title;
+    (void) hidden;
+    (void) nbDigits;
+    keypad_text = text;
+    return 0;
+}
+
+int nbgl_layoutUpdateKeypad(nbgl_layout_t *layout,
+                            uint8_t        index,
+                            bool           enableValidate,
+                            bool           enableBackspace,
+                            bool           enableDigits)
+{
+    (void) layout;
+    (void) index;
+    (void) enableValidate;
+    (void) enableBackspace;
+    (void) enableDigits;
+    return 0;
+}
+
+int nbgl_layoutUpdateKeypadContent(nbgl_layout_t *layout,
+                                   bool           hidden,
+                                   uint8_t        nbActiveDigits,
+                                   const char    *text)
+{
+    (void) layout;
+    (void) hidden;
+    (void) nbActiveDigits;
+    keypad_text = text;
+    return 0;
+}
+
+// Footer layout: only used as empty space in the security report
+int nbgl_layoutAddExtendedFooter(nbgl_layout_t *layout, const nbgl_layoutFooter_t *footerDesc)
+{
+    (void) layout;
+    (void) footerDesc;
+    return 0;
+}
+
+// QR Code layout: memorize the encoded URL
+static const char *qrcode_url;
+
+int nbgl_layoutAddQRCode(nbgl_layout_t *layout, const nbgl_layoutQRCode_t *info)
+{
+    (void) layout;
+    qrcode_url = info->url;
+    return 0;
+}
+
 // Layout functions used by the other use cases, not exercised here
 #define UNUSED_LAYOUT_FUNC(name, ...)                              \
     int nbgl_layout##name(__VA_ARGS__)                             \
@@ -218,47 +347,16 @@ int nbgl_layoutRelease(nbgl_layout_t *layout)
         return -1;                                                 \
     }
 
-UNUSED_LAYOUT_FUNC(AddExtendedFooter, nbgl_layout_t *layout, const nbgl_layoutFooter_t *footerDesc)
 UNUSED_LAYOUT_FUNC(AddFooter,
                    nbgl_layout_t *layout,
                    const char    *text,
                    uint8_t        token,
                    tune_index_e   tuneId)
-UNUSED_LAYOUT_FUNC(AddKeyboard, nbgl_layout_t *layout, const nbgl_layoutKbd_t *kbdInfo)
-UNUSED_LAYOUT_FUNC(AddKeyboardContent, nbgl_layout_t *layout, nbgl_layoutKeyboardContent_t *content)
-UNUSED_LAYOUT_FUNC(AddKeypad, nbgl_layout_t *layout, keyboardCallback_t callback, bool shuffled)
-UNUSED_LAYOUT_FUNC(AddKeypadContent,
-                   nbgl_layout_t *layout,
-                   const char    *title,
-                   bool           hidden,
-                   uint8_t        nbDigits,
-                   const char    *text)
-UNUSED_LAYOUT_FUNC(AddQRCode, nbgl_layout_t *layout, const nbgl_layoutQRCode_t *info)
 UNUSED_LAYOUT_FUNC(AddSpinner,
                    nbgl_layout_t *layout,
                    const char    *text,
                    const char    *subText,
                    uint8_t        initPosition)
-UNUSED_LAYOUT_FUNC(UpdateKeyboard,
-                   nbgl_layout_t *layout,
-                   uint8_t        index,
-                   uint32_t       keyMask,
-                   bool           updateCasing,
-                   keyboardCase_t casing)
-UNUSED_LAYOUT_FUNC(UpdateKeyboardContent,
-                   nbgl_layout_t                *layout,
-                   nbgl_layoutKeyboardContent_t *content)
-UNUSED_LAYOUT_FUNC(UpdateKeypad,
-                   nbgl_layout_t *layout,
-                   uint8_t        index,
-                   bool           enableValidate,
-                   bool           enableBackspace,
-                   bool           enableDigits)
-UNUSED_LAYOUT_FUNC(UpdateKeypadContent,
-                   nbgl_layout_t *layout,
-                   bool           hidden,
-                   uint8_t        nbActiveDigits,
-                   const char    *text)
 UNUSED_LAYOUT_FUNC(UpdateSpinner,
                    nbgl_layout_t *layout,
                    const char    *text,
@@ -266,10 +364,12 @@ UNUSED_LAYOUT_FUNC(UpdateSpinner,
                    uint8_t        position)
 
 // ============================================================================
-// NBGL fonts/screen and OS stubs: every text fits on a single line, except LONG_VALUE, and
-// WIDER_IN_BOLD in the small bold font
+// NBGL fonts/screen and OS stubs: every text fits on a single line, except LONG_VALUE,
+// WIDER_IN_BOLD in the small bold font, and TALL_TEXT
 // ============================================================================
 
+// a text too tall to fit in a page, whatever the font
+static const char TALL_TEXT[] = "too tall to fit in a page";
 // a value too long to fit in a review page
 static const char LONG_VALUE[] = "long value";
 #define LONG_VALUE_NB_LINES (NB_MAX_LINES_IN_REVIEW + 5)
@@ -306,6 +406,9 @@ static uint16_t getTextNbLines(nbgl_font_id_e fontId, const char *text)
     if (isInMoreValue(text)) {
         uint16_t nbChars = getNbCharsPerLine(fontId);
         return (strlen(text) + nbChars - 1) / nbChars;
+    }
+    if (text == TALL_TEXT) {
+        return TALL_TEXT_HEIGHT / TEXT_HEIGHT;
     }
     if (strcmp(text, LONG_VALUE) == 0) {
         return LONG_VALUE_NB_LINES;
@@ -498,10 +601,13 @@ void setUp(void)
     modal_full_value      = NULL;
     layout_callback       = NULL;
     warning_center        = NULL;
+    center_description    = NULL;
+    qrcode_url            = NULL;
     warning_choice_token  = 0;
     warning_choice_drawn  = false;
     modal_header_text     = NULL;
     nb_bars               = 0;
+    last_bar_token        = 0;
     layout_top_right_icon = NULL;
     modal_pages_expected  = false;
     modal_callback        = NULL;
@@ -511,6 +617,14 @@ void setUp(void)
     callbackBase          = 0;
     missingPair           = -1;
     nbCallsBeforeMissing  = 0;
+    nb_keyboards          = 0;
+    kbd_callback          = NULL;
+    kbd_mask              = 0;
+    nb_keypads            = 0;
+    keypad_callback       = NULL;
+    keypad_text           = NULL;
+    memset(&modal_nav, 0, sizeof(modal_nav));
+    memset(&modal_content, 0, sizeof(modal_content));
 
     memset(extensions, 0, sizeof(extensions));
     for (uint8_t i = 0; i < NB_PAIRS; i++) {
@@ -1618,6 +1732,419 @@ void test_tag_value_max_lines(void)
     TEST_ASSERT_EQUAL_UINT8(2, layoutGetTagValueMaxLines(2, &pair, NULL));
 }
 
+// ============================================================================
+// V-142: long report URL in threat report
+// ============================================================================
+
+#define REPORT_PROVIDER "Blockaid"
+
+// Starts an advanced review with a threat warning using the given report URL and provider, accepts
+// the initial warning, then opens the threat report from the first page of review
+static void openThreatReport(const char *reportUrl, const char *provider)
+{
+    static nbgl_warning_t warning;
+
+    memset(&warning, 0, sizeof(warning));
+    warning.predefinedSet   = 1 << W3C_THREAT_DETECTED_WARN;
+    warning.reportUrl       = reportUrl;
+    warning.reportProvider  = provider;
+    warning.providerMessage = "Malicious contract";
+    startAdvancedReview(&warning, false);
+    TEST_ASSERT_TRUE(warning_choice_drawn);
+    layout_callback(warning_choice_token, 1);
+    TEST_ASSERT_NOT_NULL(page_callback);
+
+    // first level of security report: a single bar for the threat
+    nb_bars = 0;
+    page_callback(page_content.topRightToken, 0);
+    TEST_ASSERT_EQUAL_UINT8(1, nb_bars);
+
+    // second level: the threat report itself
+    qrcode_url         = NULL;
+    center_description = NULL;
+    modal_header_text  = NULL;
+    layout_callback(last_bar_token, 0);
+    TEST_ASSERT_NOT_NULL(modal_header_text);
+}
+
+// Builds a report URL of the given length
+static const char *buildReportUrl(size_t len)
+{
+    static char url[128];
+
+    TEST_ASSERT_LESS_THAN_size_t(sizeof(url), len);
+    memset(url, 'a', len);
+    url[len] = '\0';
+    return url;
+}
+
+void test_threat_report_with_short_url(void)
+{
+    openThreatReport("example.com/report", REPORT_PROVIDER);
+    TEST_ASSERT_EQUAL_STRING("https://example.com/report", qrcode_url);
+    TEST_ASSERT_NULL(center_description);
+    TEST_ASSERT_EQUAL_STRING(REPORT_PROVIDER " report", modal_header_text);
+}
+
+// "https://" + 55 chars fills the whole half of tmpString: the QR Code is complete, but there is
+// no room left for the header, so a default text must be used (was out-of-bounds)
+void test_threat_report_with_saturating_url(void)
+{
+    const char *url = buildReportUrl(55);
+    char        expected[64];
+
+    snprintf(expected, sizeof(expected), "https://%s", url);
+    openThreatReport(url, REPORT_PROVIDER);
+    TEST_ASSERT_EQUAL_STRING(expected, qrcode_url);
+    TEST_ASSERT_NULL(center_description);
+    TEST_ASSERT_EQUAL_STRING("Security report", modal_header_text);
+}
+
+// A URL too long to be fully encoded must not be displayed as a truncated QR Code, but as text
+void test_threat_report_with_too_long_url(void)
+{
+    const char *url = buildReportUrl(56);
+
+    openThreatReport(url, REPORT_PROVIDER);
+    TEST_ASSERT_NULL(qrcode_url);
+    TEST_ASSERT_EQUAL_PTR(url, center_description);
+    TEST_ASSERT_EQUAL_STRING(REPORT_PROVIDER " report", modal_header_text);
+
+    openThreatReport(buildReportUrl(100), REPORT_PROVIDER);
+    TEST_ASSERT_NULL(qrcode_url);
+    TEST_ASSERT_EQUAL_STRING(REPORT_PROVIDER " report", modal_header_text);
+}
+
+// A provider too long to fit in the header must lead to a default text
+void test_threat_report_with_too_long_provider(void)
+{
+    openThreatReport("example.com/report", buildReportUrl(60));
+    TEST_ASSERT_EQUAL_STRING("https://example.com/report", qrcode_url);
+    TEST_ASSERT_EQUAL_STRING("Security report", modal_header_text);
+}
+
+// Without report URL, neither QR Code nor URL shall be displayed
+void test_threat_report_without_url(void)
+{
+    openThreatReport(NULL, REPORT_PROVIDER);
+    TEST_ASSERT_NULL(qrcode_url);
+    TEST_ASSERT_NULL(center_description);
+    TEST_ASSERT_EQUAL_STRING(REPORT_PROVIDER " report", modal_header_text);
+}
+
+// ============================================================================
+// Keyboard
+// ============================================================================
+
+#define ENTRY_MAX_LEN 8
+#define CANARY        0xA5
+
+// entry buffer of entryMaxLen + 1 bytes, immediately followed by a canary
+static struct {
+    char    buffer[ENTRY_MAX_LEN + 1];
+    uint8_t canary[8];
+} entry;
+
+static void on_keyboard_action(void) {}
+
+static void on_keyboard_back(void) {}
+
+// suggestions callback which never masks any key nor proposes any word
+static void permissive_suggestions(nbgl_layoutKeyboardContent_t *content, uint32_t *mask)
+{
+    content->suggestionButtons.nbUsedButtons = 0;
+    content->suggestionButtons.nbCandidates  = 0;
+    *mask                                    = 0;
+}
+
+static void start_keyboard(nbgl_layoutKeyboardContentType_t type)
+{
+    static const char    *buttons[NB_MAX_SUGGESTION_BUTTONS];
+    nbgl_keyboardParams_t params = {
+        .type        = type,
+        .title       = "Enter text",
+        .entryBuffer = entry.buffer,
+        .entryMaxLen = ENTRY_MAX_LEN,
+        .mode        = MODE_LETTERS,
+        .lettersOnly = true,
+        .casing      = LOWER_CASE,
+    };
+    if (type == KEYBOARD_WITH_BUTTON) {
+        params.confirmationParams.buttonText       = "Confirm";
+        params.confirmationParams.onButtonCallback = on_keyboard_action;
+    }
+    else {
+        params.suggestionParams.buttons               = buttons;
+        params.suggestionParams.updateButtonsCallback = permissive_suggestions;
+    }
+    memset(&entry, CANARY, sizeof(entry));
+    nbgl_useCaseKeyboard(&params, on_keyboard_back);
+    TEST_ASSERT_NOT_NULL(kbd_callback);
+}
+
+static void assert_entry_full_and_canary_intact(void)
+{
+    TEST_ASSERT_EQUAL_size_t(ENTRY_MAX_LEN, strlen(entry.buffer));
+    TEST_ASSERT_EACH_EQUAL_HEX8(CANARY, entry.canary, sizeof(entry.canary));
+    TEST_ASSERT_EQUAL_HEX32(0xFFFFFFFF, kbd_mask);
+}
+
+void test_keyboard_with_button_stops_at_max_len(void)
+{
+    start_keyboard(KEYBOARD_WITH_BUTTON);
+    for (int i = 0; i < 2 * ENTRY_MAX_LEN; i++) {
+        kbd_callback('a');
+    }
+    assert_entry_full_and_canary_intact();
+}
+
+void test_keyboard_with_suggestions_stops_at_max_len(void)
+{
+    start_keyboard(KEYBOARD_WITH_SUGGESTIONS);
+    for (int i = 0; i < 2 * ENTRY_MAX_LEN; i++) {
+        kbd_callback('a');
+    }
+    assert_entry_full_and_canary_intact();
+    // removing a character re-enables the letters
+    kbd_callback(BACKSPACE_KEY);
+    TEST_ASSERT_EQUAL_size_t(ENTRY_MAX_LEN - 1, strlen(entry.buffer));
+    TEST_ASSERT_EQUAL_HEX32(0, kbd_mask);
+}
+
+void test_keyboard_without_buffer_is_rejected(void)
+{
+    nbgl_keyboardParams_t params = {
+        .type                                = KEYBOARD_WITH_BUTTON,
+        .entryBuffer                         = NULL,
+        .entryMaxLen                         = ENTRY_MAX_LEN,
+        .confirmationParams.onButtonCallback = on_keyboard_action,
+    };
+    nbgl_useCaseKeyboard(&params, on_keyboard_back);
+    TEST_ASSERT_EQUAL_INT(0, nb_keyboards);
+}
+
+void test_keyboard_with_zero_max_len_is_rejected(void)
+{
+    nbgl_keyboardParams_t params = {
+        .type                                = KEYBOARD_WITH_BUTTON,
+        .entryBuffer                         = entry.buffer,
+        .entryMaxLen                         = 0,
+        .confirmationParams.onButtonCallback = on_keyboard_action,
+    };
+    memset(&entry, CANARY, sizeof(entry));
+    nbgl_useCaseKeyboard(&params, on_keyboard_back);
+    TEST_ASSERT_EQUAL_INT(0, nb_keyboards);
+    TEST_ASSERT_EQUAL_HEX8(CANARY, (uint8_t) entry.buffer[0]);
+}
+
+// ============================================================================
+// Keypad
+// ============================================================================
+
+static void on_pin_validate(const uint8_t *content, uint8_t length)
+{
+    (void) content;
+    (void) length;
+}
+
+static void on_keypad_back(void) {}
+
+void test_keypad_visible_digits_are_nul_terminated_at_max(void)
+{
+    nbgl_useCaseKeypad("PIN", 4, KEYPAD_MAX_DIGITS, false, false, on_pin_validate, on_keypad_back);
+    TEST_ASSERT_EQUAL_INT(1, nb_keypads);
+    TEST_ASSERT_NOT_NULL(keypad_callback);
+    for (int i = 0; i < 2 * KEYPAD_MAX_DIGITS; i++) {
+        keypad_callback('0' + (i % 10));
+    }
+    TEST_ASSERT_EQUAL_STRING("012345678901", keypad_text);
+}
+
+void test_keypad_too_many_max_digits_is_rejected(void)
+{
+    nbgl_useCaseKeypad(
+        "PIN", 4, KEYPAD_MAX_DIGITS + 1, false, true, on_pin_validate, on_keypad_back);
+    TEST_ASSERT_EQUAL_INT(0, nb_keypads);
+}
+
+void test_infos_list_with_too_tall_info_is_paginated(void)
+{
+    static const char *const types[]    = {"Version", "Developer"};
+    static const char *const contents[] = {TALL_TEXT, "Ledger"};
+    nbgl_content_t           infos      = {.type = INFOS_LIST};
+    nbgl_genericContents_t   generic    = {.contentsList = &infos, .nbContents = 1};
+
+    infos.content.infosList.infoTypes    = types;
+    infos.content.infosList.infoContents = contents;
+    infos.content.infosList.nbInfos      = 2;
+    nbgl_useCaseGenericConfiguration("Settings", 0, &generic, onReject);
+    TEST_ASSERT_NOT_NULL(page_callback);
+    TEST_ASSERT_EQUAL_UINT8(2, page_nav.nbPages);
+    TEST_ASSERT_EQUAL(INFOS_LIST, page_content.type);
+    TEST_ASSERT_EQUAL_UINT8(1, page_content.infosList.nbInfos);
+    TEST_ASSERT_EQUAL_PTR(TALL_TEXT, page_content.infosList.infoContents[0]);
+}
+
+void test_switches_list_with_too_tall_switch_is_paginated(void)
+{
+    static const nbgl_contentSwitch_t switches[] = {
+        {.text = TALL_TEXT, .subText = "sub", .initState = OFF_STATE, .token = 1},
+        {.text = "Switch",  .subText = "sub", .initState = OFF_STATE, .token = 2}
+    };
+    nbgl_content_t         list    = {.type = SWITCHES_LIST};
+    nbgl_genericContents_t generic = {.contentsList = &list, .nbContents = 1};
+
+    list.content.switchesList.switches   = switches;
+    list.content.switchesList.nbSwitches = 2;
+    nbgl_useCaseGenericConfiguration("Settings", 0, &generic, onReject);
+    TEST_ASSERT_NOT_NULL(page_callback);
+    TEST_ASSERT_EQUAL_UINT8(2, page_nav.nbPages);
+    TEST_ASSERT_EQUAL(SWITCHES_LIST, page_content.type);
+    TEST_ASSERT_EQUAL_UINT8(1, page_content.switchesList.nbSwitches);
+    TEST_ASSERT_EQUAL_PTR(TALL_TEXT, page_content.switchesList.switches[0].text);
+}
+
+void test_alias_tag_value_list_modal_with_too_tall_pair_is_paginated(void)
+{
+    static const nbgl_contentTagValue_t modalPairs[] = {
+        {.item = "Tall",  .value = TALL_TEXT},
+        {.item = "Short", .value = "value"  }
+    };
+    static const nbgl_contentTagValueList_t modalList = {.pairs = modalPairs, .nbPairs = 2};
+
+    buildList(NB_PAIRS, false);
+    extensions[0].aliasType    = TAG_VALUE_LIST_ALIAS;
+    extensions[0].tagValuelist = &modalList;
+    nbgl_useCaseGenericReview(&contents, "Reject", onReject);
+    TEST_ASSERT_NOT_NULL(page_callback);
+
+    modal_pages_expected = true;
+    touchAlias(0);
+    TEST_ASSERT_NOT_NULL(modal_callback);
+    TEST_ASSERT_EQUAL_UINT8(2, modal_nav.nbPages);
+    TEST_ASSERT_EQUAL(TAG_VALUE_LIST, modal_content.type);
+    TEST_ASSERT_EQUAL_UINT8(1, modal_content.tagValueList.nbPairs);
+    TEST_ASSERT_EQUAL_PTR(&modalPairs[0], modal_content.tagValueList.pairs);
+
+    // the second page contains the remaining pair
+    modal_callback(modal_nav.navWithButtons.navToken, 1);
+    TEST_ASSERT_EQUAL_UINT8(1, modal_content.tagValueList.nbPairs);
+    TEST_ASSERT_EQUAL_PTR(&modalPairs[1], modal_content.tagValueList.pairs);
+}
+
+// ============================================================================
+// V-298: extensions of a paginated INFOS_LIST
+// ============================================================================
+
+static const char            *info_types[NB_PAIRS];
+static const char            *info_contents[NB_PAIRS];
+static nbgl_content_t         infos_content;
+static nbgl_genericContents_t infos_generic;
+
+// Builds an INFOS_LIST of NB_PAIRS infos, each one with a unique full value in its extension
+static void buildInfosList(bool withExtensions)
+{
+    for (uint8_t i = 0; i < NB_PAIRS; i++) {
+        info_types[i]    = items[i];
+        info_contents[i] = aliases[i];
+    }
+    memset(&infos_content, 0, sizeof(infos_content));
+    infos_content.type                             = INFOS_LIST;
+    infos_content.content.infosList.nbInfos        = NB_PAIRS;
+    infos_content.content.infosList.infoTypes      = info_types;
+    infos_content.content.infosList.infoContents   = info_contents;
+    infos_content.content.infosList.infoExtensions = extensions;
+    infos_content.content.infosList.withExtensions = withExtensions;
+}
+
+// Content getter returning a copy of infos_content, as an application filling a temporary
+// buffer would do
+static void getInfosContent(uint8_t contentIndex, nbgl_content_t *content)
+{
+    TEST_ASSERT_EQUAL_UINT8(0, contentIndex);
+    memcpy(content, &infos_content, sizeof(*content));
+}
+
+static void startInfosConfiguration(bool withCallback)
+{
+    memset(&infos_generic, 0, sizeof(infos_generic));
+    if (withCallback) {
+        infos_generic.callbackCallNeeded    = true;
+        infos_generic.contentGetterCallback = getInfosContent;
+    }
+    else {
+        infos_generic.contentsList = &infos_content;
+    }
+    infos_generic.nbContents = 1;
+    nbgl_useCaseGenericConfiguration("Settings", 0, &infos_generic, onReject);
+    TEST_ASSERT_NOT_NULL(page_callback);
+    // the list must span several pages for the test to be meaningful
+    TEST_ASSERT_GREATER_THAN_UINT8(1, page_nav.nbPages);
+}
+
+// Goes through all pages and touches the alias of every info, checking that the modal always
+// shows the full value of the touched info. On the last page, also touches beyond the list.
+static void checkAllInfoAliases(bool withCallback)
+{
+    char    msg[64];
+    uint8_t firstInfoIdx = 0;
+    uint8_t pageIdx      = 0;
+
+    buildInfosList(true);
+    startInfosConfiguration(withCallback);
+
+    while (true) {
+        snprintf(msg, sizeof(msg), "%s, page %d", withCallback ? "callback" : "array", pageIdx);
+        TEST_ASSERT_EQUAL_MESSAGE(INFOS_LIST, page_content.type, msg);
+        TEST_ASSERT_GREATER_THAN_UINT8_MESSAGE(0, page_content.infosList.nbInfos, msg);
+        TEST_ASSERT_TRUE_MESSAGE(page_content.infosList.withExtensions, msg);
+        TEST_ASSERT_EQUAL_PTR_MESSAGE(
+            &extensions[firstInfoIdx], page_content.infosList.infoExtensions, msg);
+
+        for (uint8_t i = 0; i < page_content.infosList.nbInfos; i++) {
+            modal_title      = NULL;
+            modal_full_value = NULL;
+            page_callback(page_content.infosList.token, i);
+            TEST_ASSERT_EQUAL_STRING_MESSAGE(aliases[firstInfoIdx + i], modal_title, msg);
+            TEST_ASSERT_EQUAL_STRING_MESSAGE(full_values[firstInfoIdx + i], modal_full_value, msg);
+        }
+        firstInfoIdx += page_content.infosList.nbInfos;
+
+        if (pageIdx == page_nav.nbPages - 1) {
+            break;
+        }
+        pageIdx++;
+        page_callback(page_nav.navWithButtons.navToken, pageIdx);
+    }
+    TEST_ASSERT_EQUAL_UINT8_MESSAGE(NB_PAIRS, firstInfoIdx, msg);
+
+    // an alias beyond the end of the list shall not display anything
+    modal_title      = NULL;
+    modal_full_value = NULL;
+    page_callback(page_content.infosList.token, page_content.infosList.nbInfos);
+    TEST_ASSERT_EQUAL_PTR_MESSAGE(NO_MODAL_TEXT_DRAWN, modal_title, msg);
+    TEST_ASSERT_EQUAL_PTR_MESSAGE(NO_MODAL_TEXT_DRAWN, modal_full_value, msg);
+}
+
+void test_infos_list_extensions_on_every_page(void)
+{
+    checkAllInfoAliases(false);
+}
+
+void test_infos_list_extensions_on_every_page_with_callback(void)
+{
+    checkAllInfoAliases(true);
+}
+
+void test_infos_list_without_extensions_has_no_alias(void)
+{
+    buildInfosList(false);
+    startInfosConfiguration(false);
+    TEST_ASSERT_EQUAL(INFOS_LIST, page_content.type);
+    TEST_ASSERT_FALSE(page_content.infosList.withExtensions);
+    TEST_ASSERT_NULL(page_content.infosList.infoExtensions);
+}
+
 int main(void)
 {
     UNITY_BEGIN();
@@ -1663,5 +2190,22 @@ int main(void)
     RUN_TEST(test_review_confirm_pages_split_with_drawn_font);
     RUN_TEST(test_more_details_pages_show_whole_value);
     RUN_TEST(test_tag_value_max_lines);
+    RUN_TEST(test_threat_report_with_short_url);
+    RUN_TEST(test_threat_report_with_saturating_url);
+    RUN_TEST(test_threat_report_with_too_long_url);
+    RUN_TEST(test_threat_report_with_too_long_provider);
+    RUN_TEST(test_threat_report_without_url);
+    RUN_TEST(test_keyboard_with_button_stops_at_max_len);
+    RUN_TEST(test_keyboard_with_suggestions_stops_at_max_len);
+    RUN_TEST(test_keyboard_without_buffer_is_rejected);
+    RUN_TEST(test_keyboard_with_zero_max_len_is_rejected);
+    RUN_TEST(test_keypad_visible_digits_are_nul_terminated_at_max);
+    RUN_TEST(test_keypad_too_many_max_digits_is_rejected);
+    RUN_TEST(test_infos_list_with_too_tall_info_is_paginated);
+    RUN_TEST(test_switches_list_with_too_tall_switch_is_paginated);
+    RUN_TEST(test_alias_tag_value_list_modal_with_too_tall_pair_is_paginated);
+    RUN_TEST(test_infos_list_extensions_on_every_page);
+    RUN_TEST(test_infos_list_extensions_on_every_page_with_callback);
+    RUN_TEST(test_infos_list_without_extensions_has_no_alias);
     return UNITY_END();
 }

@@ -10,6 +10,7 @@
 #include <string.h>
 #include "nbgl_debug.h"
 #include "nbgl_page.h"
+#include "nbgl_use_case.h"
 #include "nbgl_layout_internal.h"
 #include "glyphs.h"
 #include "os_pic.h"
@@ -17,6 +18,8 @@
 /*********************
  *      DEFINES
  *********************/
+// number of value lines taken by the details button of a TAG_VALUE_DETAILS page
+#define NB_LINES_FOR_DETAILS_BUTTON 3
 
 /**********************
  *      TYPEDEFS
@@ -139,8 +142,22 @@ static void addContent(nbgl_pageContent_t *content,
             }
             // display a button under tag/value
             nbgl_layoutButton_t buttonInfo = {0};
-            content->tagValueDetails.tagValueList.nbMaxLinesForValue -= 3;
-            nbgl_layoutAddTagValueList(layout, &content->tagValueDetails.tagValueList);
+            // work on a local copy, so that the caller's content is left untouched and drawing
+            // the same content several times always gives the same page
+            nbgl_contentTagValueList_t tagValueList = content->tagValueDetails.tagValueList;
+            // 0 normally means "no limit", but the value must leave room for the details
+            // button, so use the review limit instead
+            if (tagValueList.nbMaxLinesForValue == 0) {
+                tagValueList.nbMaxLinesForValue = NB_MAX_LINES_IN_REVIEW;
+            }
+            // remove the lines used by the details button, always keeping at least one line
+            if (tagValueList.nbMaxLinesForValue > NB_LINES_FOR_DETAILS_BUTTON) {
+                tagValueList.nbMaxLinesForValue -= NB_LINES_FOR_DETAILS_BUTTON;
+            }
+            else {
+                tagValueList.nbMaxLinesForValue = 1;
+            }
+            nbgl_layoutAddTagValueList(layout, &tagValueList);
             buttonInfo.fittingContent = true;
             buttonInfo.icon           = content->tagValueDetails.detailsButtonIcon;
             buttonInfo.style          = WHITE_BACKGROUND;

@@ -107,6 +107,18 @@ static bool reply_transport_busy(void)
 }
 #endif  // !USE_OS_IO_STACK
 
+// A reply built and sent here, in G_io_tx_buffer, without the app: like the app's own replies,
+// no command may be copied there until the transports have read all of it.
+static void hold_while_reply_in_flight(void)
+{
+#ifndef USE_OS_IO_STACK
+    if (reply_transport_busy()) {
+        io_reply_pending   = true;
+        io_reply_in_flight = true;
+    }
+#endif  // !USE_OS_IO_STACK
+}
+
 // Answers a command that arrives while another one awaits its reply. The answer is built
 // apart: G_io_tx_buffer is G_io_apdu_buffer, which may still hold the pending command.
 static int reject_while_reply_pending(uint8_t packet_type)
@@ -478,6 +490,7 @@ int io_legacy_apdu_rx(uint8_t handle_ux_events)
                     G_io_tx_buffer[1] = err;
                     status            = os_io_tx_cmd(io_os_legacy_apdu_type, G_io_tx_buffer, 2, 0);
                     io_os_legacy_apdu_type = APDU_TYPE_NONE;
+                    hold_while_reply_in_flight();
                     if (status > 0) {
                         status = 0;
                     }
@@ -504,6 +517,7 @@ int io_legacy_apdu_rx(uint8_t handle_ux_events)
                     status                              = os_io_tx_cmd(
                         io_os_legacy_apdu_type, G_io_tx_buffer, buffer_out_length, 0);
                     io_os_legacy_apdu_type = APDU_TYPE_NONE;
+                    hold_while_reply_in_flight();
                     if (post_action == OS_IO_APDU_POST_ACTION_EXIT) {
 #ifndef USE_OS_IO_STACK
                         os_io_stop();

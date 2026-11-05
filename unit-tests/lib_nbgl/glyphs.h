@@ -24,3 +24,4 @@ extern const nbgl_icon_details_t C_QRCode_40px;
 extern const nbgl_icon_details_t C_Search_40px;
 extern const nbgl_icon_details_t C_Warning_40px;
 extern const nbgl_icon_details_t C_Warning_64px;
+extern const nbgl_icon_details_t C_left_half_64px;
