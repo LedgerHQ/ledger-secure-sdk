@@ -85,10 +85,10 @@ typedef struct {
 /* Private functions ---------------------------------------------------------*/
 
 /**
- * @brief Handler for tag \ref STRUCTURE_TYPE
+ * @brief Handler for tag @ref address_book_tlv_tags "STRUCTURE_TYPE"
  *
  * @param[in] data the tlv data
- * @param[in] context the received payload
+ * @param[in] context_ptr the received payload
  * @return whether the handling was successful
  */
 static bool handle_struct_type(const tlv_data_t *data, void *context_ptr)
@@ -104,10 +104,10 @@ static bool handle_struct_type(const tlv_data_t *data, void *context_ptr)
 }
 
 /**
- * @brief Handler for tag \ref STRUCTURE_VERSION
+ * @brief Handler for tag @ref address_book_tlv_tags "STRUCTURE_VERSION"
  *
  * @param[in] data the tlv data
- * @param[in] context the received payload
+ * @param[in] context_ptr the received payload
  * @return whether the handling was successful
  */
 static bool handle_struct_version(const tlv_data_t *data, void *context_ptr)
@@ -123,10 +123,10 @@ static bool handle_struct_version(const tlv_data_t *data, void *context_ptr)
 }
 
 /**
- * @brief Handler for tag \ref CONTACT_NAME
+ * @brief Handler for tag @ref address_book_tlv_tags "CONTACT_NAME"
  *
  * @param[in] data the tlv data
- * @param[in] context the received payload
+ * @param[in] context_ptr the received payload
  * @return whether the handling was successful
  */
 static bool handle_contact_name(const tlv_data_t *data, void *context_ptr)
@@ -143,10 +143,10 @@ static bool handle_contact_name(const tlv_data_t *data, void *context_ptr)
 }
 
 /**
- * @brief Handler for tag \ref SCOPE
+ * @brief Handler for tag @ref address_book_tlv_tags "SCOPE"
  *
  * @param[in] data the tlv data
- * @param[in] context the received payload
+ * @param[in] context_ptr the received payload
  * @return whether the handling was successful
  */
 static bool handle_scope(const tlv_data_t *data, void *context_ptr)
@@ -162,10 +162,10 @@ static bool handle_scope(const tlv_data_t *data, void *context_ptr)
 }
 
 /**
- * @brief Handler for tag \ref IDENTIFIER
+ * @brief Handler for tag @ref address_book_tlv_tags "ACCOUNT_IDENTIFIER"
  *
  * @param[in] data the tlv data
- * @param[in] context the received payload
+ * @param[in] context_ptr the received payload
  * @return whether the handling was successful
  */
 static bool handle_identifier(const tlv_data_t *data, void *context_ptr)
@@ -183,12 +183,12 @@ static bool handle_identifier(const tlv_data_t *data, void *context_ptr)
 }
 
 /**
- * @brief Handler for tag \ref PREVIOUS_IDENTIFIER
+ * @brief Handler for tag @ref address_book_tlv_tags "PREVIOUS_IDENTIFIER"
  *
  * Used to verify the HMAC proof of the previous registration.
  *
  * @param[in] data the tlv data
- * @param[in] context the received payload
+ * @param[in] context_ptr the received payload
  * @return whether the handling was successful
  */
 static bool handle_previous_identifier(const tlv_data_t *data, void *context_ptr)
@@ -206,10 +206,10 @@ static bool handle_previous_identifier(const tlv_data_t *data, void *context_ptr
 }
 
 /**
- * @brief Handler for tag \ref GROUP_HANDLE
+ * @brief Handler for tag @ref address_book_tlv_tags "GROUP_HANDLE"
  *
  * @param[in] data the tlv data
- * @param[in] context the received payload
+ * @param[in] context_ptr the received payload
  * @return whether the handling was successful
  */
 static bool handle_group_handle(const tlv_data_t *data, void *context_ptr)
@@ -227,10 +227,10 @@ static bool handle_group_handle(const tlv_data_t *data, void *context_ptr)
 }
 
 /**
- * @brief Handler for tag \ref CHAIN_ID
+ * @brief Handler for tag @ref address_book_tlv_tags "CHAIN_ID"
  *
  * @param[in] data the tlv data
- * @param[in] context the received payload
+ * @param[in] context_ptr the received payload
  * @return whether the handling was successful
  */
 static bool handle_chain_id(const tlv_data_t *data, void *context_ptr)
@@ -241,10 +241,10 @@ static bool handle_chain_id(const tlv_data_t *data, void *context_ptr)
 }
 
 /**
- * @brief Handler for tag \ref BLOCKCHAIN_FAMILY
+ * @brief Handler for tag @ref address_book_tlv_tags "BLOCKCHAIN_FAMILY"
  *
  * @param[in] data the tlv data
- * @param[in] context the received payload
+ * @param[in] context_ptr the received payload
  * @return whether the handling was successful
  */
 static bool handle_blockchain_family(const tlv_data_t *data, void *context_ptr)
@@ -255,10 +255,10 @@ static bool handle_blockchain_family(const tlv_data_t *data, void *context_ptr)
 }
 
 /**
- * @brief Handler for tag \ref HMAC_PROOF
+ * @brief Handler for tag @ref address_book_tlv_tags "HMAC_PROOF"
  *
  * @param[in] data the tlv data
- * @param[in] context the received payload
+ * @param[in] context_ptr the received payload
  * @return whether the handling was successful
  */
 static bool handle_hmac_proof(const tlv_data_t *data, void *context_ptr)
@@ -276,10 +276,10 @@ static bool handle_hmac_proof(const tlv_data_t *data, void *context_ptr)
 }
 
 /**
- * @brief Handler for tag \ref HMAC_REST
+ * @brief Handler for tag @ref address_book_tlv_tags "HMAC_REST"
  *
  * @param[in] data the tlv data
- * @param[in] context the received payload
+ * @param[in] context_ptr the received payload
  * @return whether the handling was successful
  */
 static bool handle_hmac_rest(const tlv_data_t *data, void *context_ptr)
