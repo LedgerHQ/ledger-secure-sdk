@@ -2070,6 +2070,77 @@ void test_keyboard_with_suggestions_stops_at_max_len(void)
     TEST_ASSERT_EQUAL_HEX32(0, kbd_mask);
 }
 
+// V-141: only tokens of used suggestion buttons must be forwarded to the application
+#define FIRST_SUGGESTION_TOKEN 0x40
+static uint8_t nb_used_suggestions;
+static int     nb_suggestion_selections;
+static int     last_suggestion_token;
+
+static void on_suggestion_selected(int token, uint8_t index)
+{
+    (void) index;
+    nb_suggestion_selections++;
+    last_suggestion_token = token;
+}
+
+static void fixed_suggestions(nbgl_layoutKeyboardContent_t *content, uint32_t *mask)
+{
+    content->suggestionButtons.nbUsedButtons = nb_used_suggestions;
+    content->suggestionButtons.nbCandidates  = nb_used_suggestions;
+    *mask                                    = 0;
+}
+
+static void start_suggestions_keyboard(void)
+{
+    static const char    *buttons[NB_MAX_SUGGESTION_BUTTONS];
+    nbgl_keyboardParams_t params = {
+        .type                                   = KEYBOARD_WITH_SUGGESTIONS,
+        .title                                  = "Enter word",
+        .entryBuffer                            = entry.buffer,
+        .entryMaxLen                            = ENTRY_MAX_LEN,
+        .mode                                   = MODE_LETTERS,
+        .lettersOnly                            = true,
+        .casing                                 = LOWER_CASE,
+        .suggestionParams.buttons               = buttons,
+        .suggestionParams.firstButtonToken      = FIRST_SUGGESTION_TOKEN,
+        .suggestionParams.onButtonCallback      = on_suggestion_selected,
+        .suggestionParams.updateButtonsCallback = fixed_suggestions,
+    };
+    nb_suggestion_selections = 0;
+    last_suggestion_token    = -1;
+    memset(&entry, CANARY, sizeof(entry));
+    nbgl_useCaseKeyboard(&params, on_keyboard_back);
+    TEST_ASSERT_NOT_NULL(layout_callback);
+}
+
+void test_keyboard_unused_suggestion_tokens_are_ignored(void)
+{
+    nb_used_suggestions = 0;
+    start_suggestions_keyboard();
+    // no suggestion at all at start
+    for (int i = 0; i < NB_MAX_SUGGESTION_BUTTONS; i++) {
+        layout_callback(FIRST_SUGGESTION_TOKEN + i, 0);
+    }
+    TEST_ASSERT_EQUAL_INT(0, nb_suggestion_selections);
+
+    // after typing, 1 suggestion is proposed
+    nb_used_suggestions = 1;
+    kbd_callback('a');
+    layout_callback(FIRST_SUGGESTION_TOKEN, 0);
+    TEST_ASSERT_EQUAL_INT(1, nb_suggestion_selections);
+    TEST_ASSERT_EQUAL_INT(FIRST_SUGGESTION_TOKEN, last_suggestion_token);
+    for (int i = 1; i < NB_MAX_SUGGESTION_BUTTONS; i++) {
+        layout_callback(FIRST_SUGGESTION_TOKEN + i, 0);
+    }
+    TEST_ASSERT_EQUAL_INT(1, nb_suggestion_selections);
+
+    // after a backspace, no suggestion anymore
+    nb_used_suggestions = 0;
+    kbd_callback(BACKSPACE_KEY);
+    layout_callback(FIRST_SUGGESTION_TOKEN, 0);
+    TEST_ASSERT_EQUAL_INT(1, nb_suggestion_selections);
+}
+
 void test_keyboard_without_buffer_is_rejected(void)
 {
     nbgl_keyboardParams_t params = {
@@ -2363,6 +2434,7 @@ int main(void)
     RUN_TEST(test_threat_report_without_url);
     RUN_TEST(test_keyboard_with_button_stops_at_max_len);
     RUN_TEST(test_keyboard_with_suggestions_stops_at_max_len);
+    RUN_TEST(test_keyboard_unused_suggestion_tokens_are_ignored);
     RUN_TEST(test_keyboard_without_buffer_is_rejected);
     RUN_TEST(test_keyboard_with_zero_max_len_is_rejected);
     RUN_TEST(test_keypad_visible_digits_are_nul_terminated_at_max);

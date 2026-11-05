@@ -2233,8 +2233,11 @@ static void keyboardGeneric_cb(int token, uint8_t index)
             }
             break;
         default:
+            // only forward tokens matching a currently used suggestion button
             if ((keyboardContext.keyboardContent.type == KEYBOARD_WITH_SUGGESTIONS)
-                && (token >= keyboardContext.keyboardContent.suggestionButtons.firstButtonToken)) {
+                && (token >= keyboardContext.keyboardContent.suggestionButtons.firstButtonToken)
+                && (token < (keyboardContext.keyboardContent.suggestionButtons.firstButtonToken
+                             + keyboardContext.keyboardContent.suggestionButtons.nbUsedButtons))) {
                 onControls(token, index);
             }
             break;
