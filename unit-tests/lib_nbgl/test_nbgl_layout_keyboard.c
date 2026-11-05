@@ -11,9 +11,12 @@
 
 // Regression tests for V-138: a keyboard confirmation button made inactive (grayed-out) must not
 // be touchable anymore, nor trigger the callback, and must trigger it again once reactivated.
+// Regression tests for V-141: suggestion buttons not used (not displayed) must not be touchable,
+// nor trigger the callback, at creation as well as after updates or swipes.
 
-#define BUTTON_TOKEN 0x42
-#define CROSS_TOKEN  0x43
+#define BUTTON_TOKEN        0x42
+#define CROSS_TOKEN         0x43
+#define FIRST_SUGGESTION_TK 0x50
 
 // ============================================================================
 // Glyphs
@@ -338,6 +341,230 @@ void test_button_created_inactive_then_activated_triggers_callback(void)
     TEST_ASSERT_EQUAL_INT(BUTTON_TOKEN, last_token);
 }
 
+// ============================================================================
+// Suggestion buttons (V-141)
+// ============================================================================
+
+static const char *const all_suggestions[NB_MAX_SUGGESTION_BUTTONS]
+    = {"abandon", "ability", "able", "about", "above", "absent", "absorb", "abstract"};
+static const char *suggestions[NB_MAX_SUGGESTION_BUTTONS];
+
+static nbgl_container_t *get_suggestions_container(void)
+{
+    nbgl_container_t *container = (nbgl_container_t *) main_container.children[1];
+    TEST_ASSERT_NOT_NULL(container);
+    TEST_ASSERT_EQUAL(CONTAINER, container->obj.type);
+    return container;
+}
+
+// returns the i-th suggestion button of the suggestions container (in children order)
+static nbgl_button_t *get_suggestion_button(uint8_t index)
+{
+    nbgl_container_t *container = get_suggestions_container();
+    uint8_t           found     = 0;
+    for (uint8_t i = 0; i < container->nbChildren; i++) {
+        nbgl_obj_t *child = container->children[i];
+        if ((child != NULL) && (child->type == BUTTON)) {
+            if (found == index) {
+                return (nbgl_button_t *) child;
+            }
+            found++;
+        }
+    }
+    TEST_FAIL_MESSAGE("suggestion button not found");
+    return NULL;
+}
+
+static layoutObj_t *get_callback_obj(nbgl_obj_t *obj)
+{
+    for (uint8_t i = 0; i < layout_ctx.nbUsedCallbackObjs; i++) {
+        if (layout_ctx.callbackObjPool[i].obj == obj) {
+            return &layout_ctx.callbackObjPool[i];
+        }
+    }
+    TEST_FAIL_MESSAGE("object has no callback object");
+    return NULL;
+}
+
+// touch on a suggestion button, as done by the OS then touchCallback() in nbgl_layout.c
+static void touch_suggestion(uint8_t index)
+{
+    nbgl_button_t *button = get_suggestion_button(index);
+    if (button->obj.touchMask & (1 << TOUCHED)) {
+        layoutObj_t *layoutObj = get_callback_obj((nbgl_obj_t *) button);
+        if (layoutObj->token != NBGL_INVALID_TOKEN) {
+            layout_ctx.callback(layoutObj->token, layoutObj->index);
+        }
+    }
+}
+
+static void set_suggestions(uint8_t nbUsed)
+{
+    for (uint8_t i = 0; i < NB_MAX_SUGGESTION_BUTTONS; i++) {
+        suggestions[i] = (i < nbUsed) ? all_suggestions[i] : NULL;
+    }
+    content.suggestionButtons.nbUsedButtons = nbUsed;
+}
+
+static int add_suggestions_keyboard(uint8_t nbUsed)
+{
+    content = (nbgl_layoutKeyboardContent_t){
+        .type                               = KEYBOARD_WITH_SUGGESTIONS,
+        .title                              = "Enter word",
+        .text                               = "",
+        .textToken                          = CROSS_TOKEN,
+        .suggestionButtons.buttons          = suggestions,
+        .suggestionButtons.firstButtonToken = FIRST_SUGGESTION_TK,
+        .tuneId                             = NBGL_NO_TUNE,
+    };
+    set_suggestions(nbUsed);
+    return nbgl_layoutAddKeyboardContent((nbgl_layout_t *) &layout_ctx, &content);
+}
+
+static int update_suggestions_keyboard(uint8_t nbUsed)
+{
+    set_suggestions(nbUsed);
+    return nbgl_layoutUpdateKeyboardContent((nbgl_layout_t *) &layout_ctx, &content);
+}
+
+static void swipe(nbgl_touchType_t eventType)
+{
+    // text entry and suggestions containers, as set by the full layout
+    main_container.nbChildren = 2;
+    keyboardSwipeCallback(&layout_ctx, (nbgl_obj_t *) &main_container, eventType);
+}
+
+// displayed suggestions are the ones from [firstIndex, firstIndex + nbDisplayed[
+static void assert_suggestions(uint8_t firstIndex, uint8_t nbDisplayed)
+{
+    for (uint8_t i = 0; i < NB_MAX_VISIBLE_SUGGESTION_BUTTONS; i++) {
+        nbgl_button_t *button    = get_suggestion_button(i);
+        layoutObj_t   *layoutObj = get_callback_obj((nbgl_obj_t *) button);
+        if (i < nbDisplayed) {
+            TEST_ASSERT_EQUAL_PTR(all_suggestions[firstIndex + i], button->text);
+            TEST_ASSERT_EQUAL_UINT16(1 << TOUCHED, button->obj.touchMask);
+            TEST_ASSERT_EQUAL_UINT8(FIRST_SUGGESTION_TK + firstIndex + i, layoutObj->token);
+        }
+        else {
+            TEST_ASSERT_NULL(button->text);
+            TEST_ASSERT_EQUAL_UINT16(0, button->obj.touchMask);
+            TEST_ASSERT_EQUAL_UINT8(NBGL_INVALID_TOKEN, layoutObj->token);
+        }
+    }
+}
+
+// touch all suggestion slots, and check that only the displayed ones trigger the callback
+static void assert_only_displayed_suggestions_trigger(uint8_t firstIndex, uint8_t nbDisplayed)
+{
+    for (uint8_t i = 0; i < NB_MAX_VISIBLE_SUGGESTION_BUTTONS; i++) {
+        nb_actions = 0;
+        last_token = -1;
+        touch_suggestion(i);
+        if (i < nbDisplayed) {
+            TEST_ASSERT_EQUAL_INT(1, nb_actions);
+            TEST_ASSERT_EQUAL_INT(FIRST_SUGGESTION_TK + firstIndex + i, last_token);
+        }
+        else {
+            TEST_ASSERT_EQUAL_INT(0, nb_actions);
+        }
+    }
+}
+
+void test_suggestions_created_empty_are_disabled(void)
+{
+    TEST_ASSERT_GREATER_OR_EQUAL(0, add_suggestions_keyboard(0));
+    assert_suggestions(0, 0);
+    assert_only_displayed_suggestions_trigger(0, 0);
+}
+
+void test_suggestions_created_partially_used(void)
+{
+    for (uint8_t nbUsed = 1; nbUsed < NB_MAX_VISIBLE_SUGGESTION_BUTTONS; nbUsed++) {
+        setUp();
+        TEST_ASSERT_GREATER_OR_EQUAL(0, add_suggestions_keyboard(nbUsed));
+        assert_suggestions(0, nbUsed);
+        assert_only_displayed_suggestions_trigger(0, nbUsed);
+    }
+}
+
+void test_suggestions_created_full(void)
+{
+    TEST_ASSERT_GREATER_OR_EQUAL(0, add_suggestions_keyboard(NB_MAX_VISIBLE_SUGGESTION_BUTTONS));
+    assert_suggestions(0, NB_MAX_VISIBLE_SUGGESTION_BUTTONS);
+    assert_only_displayed_suggestions_trigger(0, NB_MAX_VISIBLE_SUGGESTION_BUTTONS);
+}
+
+void test_suggestions_updated(void)
+{
+    TEST_ASSERT_GREATER_OR_EQUAL(0, add_suggestions_keyboard(0));
+
+    // 0 -> full
+    TEST_ASSERT_GREATER_OR_EQUAL(0, update_suggestions_keyboard(NB_MAX_VISIBLE_SUGGESTION_BUTTONS));
+    assert_suggestions(0, NB_MAX_VISIBLE_SUGGESTION_BUTTONS);
+    assert_only_displayed_suggestions_trigger(0, NB_MAX_VISIBLE_SUGGESTION_BUTTONS);
+
+    // full -> 0
+    TEST_ASSERT_GREATER_OR_EQUAL(0, update_suggestions_keyboard(0));
+    assert_suggestions(0, 0);
+    assert_only_displayed_suggestions_trigger(0, 0);
+
+    // 0 -> 1
+    TEST_ASSERT_GREATER_OR_EQUAL(0, update_suggestions_keyboard(1));
+    assert_suggestions(0, 1);
+    assert_only_displayed_suggestions_trigger(0, 1);
+}
+
+// with an odd number of suggestions, the last page is partially used
+void test_suggestions_swiped(void)
+{
+    const uint8_t nbUsed = NB_MAX_VISIBLE_SUGGESTION_BUTTONS + 1;
+    TEST_ASSERT_GREATER_OR_EQUAL(0, add_suggestions_keyboard(nbUsed));
+    assert_suggestions(0, NB_MAX_VISIBLE_SUGGESTION_BUTTONS);
+
+    swipe(SWIPED_LEFT);
+    assert_suggestions(NB_MAX_VISIBLE_SUGGESTION_BUTTONS, 1);
+    assert_only_displayed_suggestions_trigger(NB_MAX_VISIBLE_SUGGESTION_BUTTONS, 1);
+
+    swipe(SWIPED_RIGHT);
+    assert_suggestions(0, NB_MAX_VISIBLE_SUGGESTION_BUTTONS);
+    assert_only_displayed_suggestions_trigger(0, NB_MAX_VISIBLE_SUGGESTION_BUTTONS);
+}
+
+// suggestions of a previous keyboard must never be displayed in a new one
+void test_suggestions_not_kept_from_previous_keyboard(void)
+{
+    TEST_ASSERT_GREATER_OR_EQUAL(0, add_suggestions_keyboard(NB_MAX_SUGGESTION_BUTTONS));
+    setUp();
+    TEST_ASSERT_GREATER_OR_EQUAL(0, add_suggestions_keyboard(0));
+    assert_suggestions(0, 0);
+    swipe(SWIPED_LEFT);
+    assert_suggestions(0, 0);
+}
+
+void test_too_many_suggestions_are_rejected(void)
+{
+    content = (nbgl_layoutKeyboardContent_t){
+        .type                               = KEYBOARD_WITH_SUGGESTIONS,
+        .title                              = "Enter word",
+        .text                               = "",
+        .textToken                          = CROSS_TOKEN,
+        .suggestionButtons.buttons          = suggestions,
+        .suggestionButtons.firstButtonToken = FIRST_SUGGESTION_TK,
+        .suggestionButtons.nbUsedButtons    = NB_MAX_SUGGESTION_BUTTONS + 1,
+        .tuneId                             = NBGL_NO_TUNE,
+    };
+    TEST_ASSERT_LESS_THAN(0,
+                          nbgl_layoutAddKeyboardContent((nbgl_layout_t *) &layout_ctx, &content));
+
+    setUp();
+    TEST_ASSERT_GREATER_OR_EQUAL(0, add_suggestions_keyboard(1));
+    content.suggestionButtons.nbUsedButtons = NB_MAX_SUGGESTION_BUTTONS + 1;
+    TEST_ASSERT_LESS_THAN(
+        0, nbgl_layoutUpdateKeyboardContent((nbgl_layout_t *) &layout_ctx, &content));
+    // previous state is kept
+    assert_suggestions(0, 1);
+}
+
 int main(void)
 {
     UNITY_BEGIN();
@@ -347,5 +574,12 @@ int main(void)
     RUN_TEST(test_late_release_after_deactivation_is_ignored);
     RUN_TEST(test_button_reactivated_triggers_callback);
     RUN_TEST(test_button_created_inactive_then_activated_triggers_callback);
+    RUN_TEST(test_suggestions_created_empty_are_disabled);
+    RUN_TEST(test_suggestions_created_partially_used);
+    RUN_TEST(test_suggestions_created_full);
+    RUN_TEST(test_suggestions_updated);
+    RUN_TEST(test_suggestions_swiped);
+    RUN_TEST(test_suggestions_not_kept_from_previous_keyboard);
+    RUN_TEST(test_too_many_suggestions_are_rejected);
     return UNITY_END();
 }
