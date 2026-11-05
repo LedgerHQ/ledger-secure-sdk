@@ -92,7 +92,7 @@ typedef struct ActionContext_s {
 
 #ifdef NBGL_KEYPAD
 typedef struct KeypadContext_s {
-    uint8_t                 pinEntry[8];
+    uint8_t                 pinEntry[KEYPAD_MAX_DIGITS + 1];  // +1 for the NUL terminator
     uint8_t                 pinLen;
     uint8_t                 pinMinDigits;
     uint8_t                 pinMaxDigits;
@@ -2273,7 +2273,9 @@ static void keyboardCallback(char touchedKey)
         context.keyboard.actionCallback();
         return;
     }
-    else {
+    else if (textLen < context.keyboard.entryMaxLen) {
+        // the key mask is only a UI hint, so the buffer bound is enforced here: entryBuffer holds
+        // at most entryMaxLen characters plus the NUL terminator
         context.keyboard.entryBuffer[textLen]   = touchedKey;
         context.keyboard.entryBuffer[++textLen] = '\0';
     }
@@ -2301,8 +2303,8 @@ static void keyboardCallback(char touchedKey)
             return;  // Don't update keyboard, we're in suggestion mode
         }
     }
-    else if (textLen >= context.keyboard.entryMaxLen) {
-        // entry length can't be greater, so we mask every characters
+    if (textLen >= context.keyboard.entryMaxLen) {
+        // entry length can't be greater, so whatever the suggestions, we mask every characters
         mask = -1;
     }
     nbgl_layoutUpdateKeyboard(context.keyboard.layoutCtx, context.keyboard.keyboardIndex, mask);
@@ -3548,7 +3550,7 @@ void nbgl_useCaseAction(const nbgl_icon_details_t *icon,
  *
  * @param title string to set in pin code title
  * @param minDigits pin minimum number of digits
- * @param maxDigits maximum number of digits to be displayed
+ * @param maxDigits maximum number of digits to be displayed (at most @ref KEYPAD_MAX_DIGITS)
  * @param shuffled if set to true, digits are shuffled in keypad
  * @param hidden if set to true, digits are hidden in keypad
  * @param validatePinCallback function calledto validate the pin code
@@ -3565,8 +3567,17 @@ void nbgl_useCaseKeypad(const char             *title,
     nbgl_layoutDescription_t layoutDescription = {0};
     int                      status            = -1;
 
-    // reset the keypad context
-    memset(&context, 0, sizeof(KeypadContext_t));
+    if ((minDigits > KEYPAD_MAX_DIGITS) || (maxDigits > KEYPAD_MAX_DIGITS)) {
+        LOG_WARN(USE_CASE_LOGGER,
+                 "nbgl_useCaseKeypad(): digits out of range (%d/%d > %d)\n",
+                 minDigits,
+                 maxDigits,
+                 KEYPAD_MAX_DIGITS);
+        return;
+    }
+
+    // reset the context
+    memset(&context, 0, sizeof(UseCaseContext_t));
     context.type                = KEYPAD_USE_CASE;
     context.currentPage         = 0;
     context.nbPages             = 1;
@@ -3619,7 +3630,8 @@ void nbgl_useCaseKeypad(const char             *title,
  *          - type: KEYBOARD_WITH_BUTTON or KEYBOARD_WITH_SUGGESTIONS
  *          - title: string to display as page title
  *          - entryBuffer: buffer to store the entered text
- *          - entryMaxLen: maximum length of text that can be entered
+ *          - entryMaxLen: maximum length of text that can be entered (entryBuffer must be at
+ *            least entryMaxLen + 1 bytes long, for the NUL terminator)
  *          - mode: initial keyboard mode (MODE_LOWER, MODE_UPPER, MODE_DIGITS, MODE_SPECIAL)
  *          - lettersOnly: if true, only letter keys and Backspace are shown
  *          - confirmationParams: (if type is KEYBOARD_WITH_BUTTON) button configuration
@@ -3639,6 +3651,12 @@ void nbgl_useCaseKeyboard(const nbgl_keyboardParams_t *params, nbgl_callback_t b
                                                    .lettersOnly = params->lettersOnly};
     int status = -1;
     // clang-format on
+
+    // the buffer must at least hold one character and its NUL terminator
+    if ((params->entryBuffer == NULL) || (params->entryMaxLen == 0)) {
+        LOG_WARN(USE_CASE_LOGGER, "nbgl_useCaseKeyboard(): invalid entry buffer\n");
+        return;
+    }
 
     // reset the keypad context
     memset(&context, 0, sizeof(UseCaseContext_t));

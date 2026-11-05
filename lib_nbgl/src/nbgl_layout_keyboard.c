@@ -534,7 +534,9 @@ static nbgl_button_t *addConfirmationButton(nbgl_layoutInternal_t *layoutInt,
     layoutObj_t   *obj;
 
     button = (nbgl_button_t *) nbgl_objPoolGet(BUTTON, layoutInt->layer);
-    obj    = layoutAddCallbackObj(layoutInt, (nbgl_obj_t *) button, token, tuneId);
+    // an inactive button must not trigger the callback
+    obj = layoutAddCallbackObj(
+        layoutInt, (nbgl_obj_t *) button, active ? token : NBGL_INVALID_TOKEN, tuneId);
     if (obj == NULL) {
         return NULL;
     }
@@ -922,14 +924,21 @@ int nbgl_layoutUpdateKeyboardContent(nbgl_layout_t *layout, nbgl_layoutKeyboardC
                 ret = 1;
             }
 #endif
+            // restore the token before making the button touchable again
+            layoutUpdateCallbackObjToken(
+                layoutInt, (nbgl_obj_t *) button, content->confirmationButton.token);
             button->innerColor    = BLACK;
             button->borderColor   = BLACK;
             button->obj.touchMask = (1 << TOUCHED);
             button->obj.touchId   = BOTTOM_BUTTON_ID;
         }
         else {
-            button->borderColor = INACTIVE_COLOR;
-            button->innerColor  = INACTIVE_COLOR;
+            // an inactive button must not be touchable, nor trigger the callback
+            button->borderColor   = INACTIVE_COLOR;
+            button->innerColor    = INACTIVE_COLOR;
+            button->obj.touchMask = 0;
+            button->obj.touchId   = 0;
+            layoutUpdateCallbackObjToken(layoutInt, (nbgl_obj_t *) button, NBGL_INVALID_TOKEN);
         }
         nbgl_objDraw((nbgl_obj_t *) button);
     }

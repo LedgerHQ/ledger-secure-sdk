@@ -125,7 +125,7 @@ typedef struct AddressConfirmationContext_s {
 
 #ifdef NBGL_KEYPAD
 typedef struct KeypadContext_s {
-    uint8_t                 pinEntry[KEYPAD_MAX_DIGITS];
+    uint8_t                 pinEntry[KEYPAD_MAX_DIGITS + 1];  // +1 for the NUL terminator
     uint8_t                 pinLen;
     uint8_t                 pinMinDigits;
     uint8_t                 pinMaxDigits;
@@ -220,8 +220,11 @@ typedef struct {
     nbgl_layout_t backgroundLayout;
     const nbgl_contentInfoList_t     *currentInfos;
     const nbgl_contentTagValueList_t *currentTagValues;
-    nbgl_tipBox_t                     tipBox;
-    SharedContext_t sharedCtx;  // multi-purpose context shared for non-concurrent usages
+    // unsliced infos list of the current generic page, to retrieve the extension of a touched
+    // info (copied, because the content may come from a temporary buffer)
+    nbgl_contentInfoList_t currentPageInfos;
+    nbgl_tipBox_t          tipBox;
+    SharedContext_t        sharedCtx;  // multi-purpose context shared for non-concurrent usages
 } GenericContext_t;
 
 typedef struct {
@@ -896,6 +899,22 @@ static void pageCallback(int token, uint8_t index)
             LOG_WARN(USE_CASE_LOGGER, "pageCallback(): no alias for index %d\n", absoluteIdx);
         }
     }
+    else if (token == INFO_ALIAS_TOKEN) {
+        // the icon next to an info of a (possibly paginated) generic infos list has been
+        // touched: currentPageInfos is the unsliced list, so use the absolute index
+        const nbgl_contentInfoList_t *infos = &genericContext.currentPageInfos;
+        uint16_t absoluteIdx                = (uint16_t) genericContext.currentElementIdx + index;
+        if ((absoluteIdx < infos->nbInfos) && (infos->withExtensions)
+            && (infos->infoExtensions != NULL)) {
+            const nbgl_contentValueExt_t *extension = PIC(&infos->infoExtensions[absoluteIdx]);
+            displayFullValuePage(PIC(((const char *const *) PIC(infos->infoTypes))[absoluteIdx]),
+                                 PIC(((const char *const *) PIC(infos->infoContents))[absoluteIdx]),
+                                 extension);
+        }
+        else {
+            LOG_WARN(USE_CASE_LOGGER, "pageCallback(): no info alias for index %d\n", absoluteIdx);
+        }
+    }
     else if (token == BLIND_WARNING_TOKEN) {
         reviewWithWarnCtx.isIntro = false;
         reviewWithWarnCtx.warning = NULL;
@@ -1327,6 +1346,18 @@ static bool genericContextPreparePageContent(const nbgl_content_t *p_content,
                 = PIC(&p_content->content.infosList.infoTypes[nextElementIdx]);
             pageContent->infosList.infoContents
                 = PIC(&p_content->content.infosList.infoContents[nextElementIdx]);
+            // keep extensions (full values), sliced like the texts, so that they remain
+            // inspectable when the list is paginated
+            if ((p_content->content.infosList.withExtensions)
+                && (p_content->content.infosList.infoExtensions != NULL)) {
+                pageContent->infosList.withExtensions = true;
+                pageContent->infosList.infoExtensions
+                    = PIC(&p_content->content.infosList.infoExtensions[nextElementIdx]);
+                pageContent->infosList.token = INFO_ALIAS_TOKEN;
+                // memorize the unsliced list, the touched info is retrieved with its absolute
+                // index
+                genericContext.currentPageInfos = p_content->content.infosList;
+            }
             break;
         case CHOICES_LIST:
             memcpy(&pageContent->choicesList,
@@ -2149,8 +2180,8 @@ static void keyboardCallback(char touchedKey)
         // if suggestions are displayed, we update them at each key press
         keyboardContext.getSuggestionButtons(&keyboardContext.keyboardContent, &mask);
     }
-    else if (textLen >= keyboardContext.entryMaxLen) {
-        // entry length can't be greater, so we mask every characters
+    if (textLen >= keyboardContext.entryMaxLen) {
+        // entry length can't be greater, so whatever the suggestions, we mask every characters
         mask = -1;
     }
     nbgl_layoutUpdateKeyboardContent(keyboardContext.layoutCtx, &keyboardContext.keyboardContent);
@@ -2394,6 +2425,11 @@ static uint8_t getNbTagValuesInDetailsPage(uint8_t                           nbP
         }
         nbPairsInPage++;
     }
+    // never return 0, otherwise the modal pages would be empty: a lone pair too tall to fit in a
+    // page must still occupy this page
+    if ((nbPairsInPage == 0) && (nbPairs > 0)) {
+        nbPairsInPage = 1;
+    }
     return nbPairsInPage;
 }
 
@@ -2481,6 +2517,13 @@ static uint8_t getNbPagesForContent(const nbgl_content_t *content,
         }
         else {
             nbElementsInPage = MIN(nbMaxElementsPerContentType[content->type], nbElements);
+        }
+        // every page must consume at least one element, otherwise this loop never ends
+        if (nbElementsInPage == 0) {
+            LOG_WARN(USE_CASE_LOGGER,
+                     "getNbPagesForContent(): element %d doesn't fit in a page\n",
+                     elemIdx);
+            nbElementsInPage = 1;
         }
 
         elemIdx += nbElementsInPage;
@@ -2847,29 +2890,47 @@ static void displaySecurityReport(uint32_t set)
         provider = "[unknown]";
     }
     if ((set & (1 << W3C_THREAT_DETECTED_WARN)) || (set & (1 << W3C_RISK_DETECTED_WARN))) {
-        size_t urlLen = 0;
-        char  *destStr
-            = tmpString
-              + W3C_DESCRIPTION_MAX_LEN / 2;  // use the second half of tmpString for strings
+        // use the second half of tmpString for strings (the first half may be used by the
+        // underlying warning page)
+        const size_t destSize = W3C_DESCRIPTION_MAX_LEN / 2;
+        char        *destStr  = tmpString + destSize;
+        // remaining size in destStr
+        size_t destLen = destSize;
+        int    len;
 #ifdef NBGL_QRCODE
-        // display a QR Code
-        nbgl_layoutQRCode_t qrCode = {.url      = destStr,
-                                      .text1    = reviewWithWarnCtx.warning->reportUrl,
-                                      .text2    = "Scan to view full report",
-                                      .centered = true,
-                                      .offsetY  = 0};
-        // add "https://"" as prefix of the given URL
-        snprintf(destStr,
-                 W3C_DESCRIPTION_MAX_LEN / 2,
-                 "https://%s",
-                 reviewWithWarnCtx.warning->reportUrl);
-        urlLen = strlen(destStr) + 1;
-        nbgl_layoutAddQRCode(reviewWithWarnCtx.modalLayout, &qrCode);
-        footerDesc.emptySpace.height = 24;
+        const char *reportUrl = reviewWithWarnCtx.warning->reportUrl;
+        // add "https://" as prefix of the given URL, and only display the QR Code if the whole
+        // URL fits, to never encode a truncated URL
+        len = (reportUrl != NULL) ? snprintf(destStr, destLen, "https://%s", reportUrl) : -1;
+        if ((len >= 0) && ((size_t) len < destLen)) {
+            nbgl_layoutQRCode_t qrCode = {.url      = destStr,
+                                          .text1    = reportUrl,
+                                          .text2    = "Scan to view full report",
+                                          .centered = true,
+                                          .offsetY  = 0};
+            nbgl_layoutAddQRCode(reviewWithWarnCtx.modalLayout, &qrCode);
+            footerDesc.emptySpace.height = 24;
+            // use the next part of destStr for back bar text
+            destStr += len + 1;
+            destLen -= len + 1;
+        }
+        else if (reportUrl != NULL) {
+            // URL too long to be encoded, only display it as text
+            nbgl_contentCenter_t info = {0};
+            info.smallTitle           = "View full report at:";
+            info.description          = reportUrl;
+            nbgl_layoutAddContentCenter(reviewWithWarnCtx.modalLayout, &info);
+            footerDesc.emptySpace.height = SMALL_CENTERING_HEADER;
+        }
 #endif  // NBGL_QRCODE
-        // use the next part of destStr for back bar text
-        snprintf(destStr + urlLen, W3C_DESCRIPTION_MAX_LEN / 2 - urlLen, "%s report", provider);
-        headerDesc.backAndText.text = destStr + urlLen;
+        // use a default back bar text if the given provider doesn't fit
+        len = (destLen > 0) ? snprintf(destStr, destLen, "%s report", provider) : -1;
+        if ((len >= 0) && ((size_t) len < destLen)) {
+            headerDesc.backAndText.text = destStr;
+        }
+        else {
+            headerDesc.backAndText.text = "Security report";
+        }
     }
     else if (set & (1 << BLIND_SIGNING_WARN)) {
         // display a centered if in review
@@ -3515,6 +3576,11 @@ uint8_t nbgl_useCaseGetNbInfosInPage(uint8_t                       nbInfos,
         previousHeight = currentHeight;
         nbInfosInPage++;
     }
+    // never return 0, otherwise the pagination loop in getNbPagesForContent would spin forever:
+    // a lone info too tall to fit in a page must still occupy this page
+    if ((nbInfosInPage == 0) && (nbInfos > 0)) {
+        nbInfosInPage = 1;
+    }
     return nbInfosInPage;
 }
 
@@ -3566,6 +3632,11 @@ uint8_t nbgl_useCaseGetNbSwitchesInPage(uint8_t                           nbSwit
     if (!withNav && (previousHeight >= (INFOS_AREA_HEIGHT - SIMPLE_FOOTER_HEIGHT))) {
         nbSwitchesInPage--;
     }
+    // never return 0, otherwise the pagination loop in getNbPagesForContent would spin forever:
+    // a lone switch too tall to fit in a page must still occupy this page
+    if ((nbSwitchesInPage == 0) && (nbSwitches > 0)) {
+        nbSwitchesInPage = 1;
+    }
     return nbSwitchesInPage;
 }
 
@@ -3611,6 +3682,10 @@ uint8_t nbgl_useCaseGetNbBarsInPage(uint8_t                       nbBars,
 /**
  * @brief computes the number of radio choices displayable in a page, with the given list of
  * choices
+ *
+ * @note this number is the same for every page, so it can be used to convert the page-relative
+ * index received in the callback of a paginated @ref CHOICES_LIST into an index in the whole list
+ * (see @ref nbgl_contentRadioChoice_t)
  *
  * @param nbChoices number of radio choices to use in \b choicesList
  * @param choicesList list of choices
@@ -5030,7 +5105,7 @@ void nbgl_useCaseSpinner(const char *text)
  *
  * @param title string to set in pin code title
  * @param minDigits pin minimum number of digits
- * @param maxDigits maximum number of digits to be displayed
+ * @param maxDigits maximum number of digits to be displayed (at most @ref KEYPAD_MAX_DIGITS)
  * @param shuffled if set to true, digits are shuffled in keypad
  * @param hidden if set to true, digits are hidden in keypad
  * @param validatePinCallback function calledto validate the pin code
@@ -5119,7 +5194,8 @@ void nbgl_useCaseKeypad(const char             *title,
  *          - type: KEYBOARD_WITH_BUTTON or KEYBOARD_WITH_SUGGESTIONS
  *          - title: string to display as page title
  *          - entryBuffer: buffer to store the entered text
- *          - entryMaxLen: maximum length of text that can be entered
+ *          - entryMaxLen: maximum length of text that can be entered (entryBuffer must be at
+ *            least entryMaxLen + 1 bytes long, for the NUL terminator)
  *          - mode: initial keyboard mode (MODE_LOWER, MODE_UPPER, MODE_DIGITS, MODE_SPECIAL)
  *          - lettersOnly: if true, only letter keys and Backspace are shown
  *          - numbered: (Touch only) if true, text is preceded by 'number.'
@@ -5143,6 +5219,12 @@ void nbgl_useCaseKeyboard(const nbgl_keyboardParams_t *params, nbgl_callback_t b
                                                   .casing = params->casing};
     int status = -1;
     // clang-format on
+
+    // the buffer must at least hold one character and its NUL terminator
+    if ((params->entryBuffer == NULL) || (params->entryMaxLen == 0)) {
+        LOG_WARN(USE_CASE_LOGGER, "nbgl_useCaseKeyboard(): invalid entry buffer\n");
+        return;
+    }
 
     reset_callbacks_and_context();
     // reset the keyboard context
