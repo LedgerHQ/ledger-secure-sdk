@@ -40,8 +40,9 @@ typedef struct ReviewContext_s {
     bool    skipDisplay;    // if set to true, means that we are displaying the skip page
     uint8_t dataDirection;  // used to know whether the skip page is reached from back or forward
     uint8_t currentTagValueIndex;
-    uint8_t currentExtensionPage;
-    uint8_t nbExtensionPages;
+    // (16 bits because a list of 255 elements has 256 extension pages, including the back one)
+    uint16_t                      currentExtensionPage;
+    uint16_t                      nbExtensionPages;
     const nbgl_contentValueExt_t *extension;
     nbgl_step_t                   extensionStepCtx;
     const char *aliasValue;  // displayed value of the alias pair, used as heading of its details
@@ -253,22 +254,74 @@ static bool isTagValueListValid(const nbgl_contentTagValueList_t *tagValueList)
            || (((uint16_t) tagValueList->startIndex + tagValueList->nbPairs) <= (UINT8_MAX + 1));
 }
 
-// Helper to check that a tag/value list is valid and that its callback, if any, provides all pairs.
-// The list must not be NULL. An empty list is complete, since no pair is retrieved from it.
-static bool isTagValueListComplete(const nbgl_contentTagValueList_t *tagValueList)
+static bool checkTagValueList(const nbgl_contentTagValueList_t *tagValueList, bool checkAliases);
+
+// Helper to check that the details of a pair displayed as an alias can be displayed in full:
+// the list of an INFO_LIST_ALIAS or TAG_VALUE_LIST_ALIAS alias must exist and must not be empty,
+// and the one of a TAG_VALUE_LIST_ALIAS alias using a callback must be provided with all its pairs.
+// Otherwise opening the alias would crash, or display empty details, preventing to verify the
+// actual value. (pairs of an alias list are not checked for aliases, since their details are not
+// reachable)
+static bool isAliasDetailsComplete(const nbgl_contentTagValue_t *pair)
 {
-    if ((tagValueList->pairs != NULL) || (tagValueList->nbPairs == 0)) {
+    const nbgl_contentValueExt_t *extension;
+
+    // the extension is in an union with valueIcon, only relevant for an alias
+    if (!pair->aliasValue || (pair->extension == NULL)) {
         return true;
     }
-    if ((tagValueList->callback == NULL) || !isTagValueListValid(tagValueList)) {
-        return false;
+    extension = PIC(pair->extension);
+    if (extension->aliasType == INFO_LIST_ALIAS) {
+        const nbgl_contentInfoList_t *infoList = PIC(extension->infolist);
+        return (infoList != NULL) && (infoList->nbInfos > 0);
+    }
+    if (extension->aliasType == TAG_VALUE_LIST_ALIAS) {
+        const nbgl_contentTagValueList_t *aliasList = PIC(extension->tagValuelist);
+        return (aliasList != NULL) && (aliasList->nbPairs > 0)
+               && checkTagValueList(aliasList, false);
+    }
+    return true;
+}
+
+// Helper to check that a non NULL tag/value list is valid and that its callback, if any, provides
+// all pairs. If checkAliases is true, the details of every pair displayed as an alias are checked
+// too (see isAliasDetailsComplete()). An empty list is complete, since no pair is retrieved from
+// it.
+static bool checkTagValueList(const nbgl_contentTagValueList_t *tagValueList, bool checkAliases)
+{
+    if (tagValueList->nbPairs == 0) {
+        return true;
+    }
+    if (tagValueList->pairs == NULL) {
+        if ((tagValueList->callback == NULL) || !isTagValueListValid(tagValueList)) {
+            return false;
+        }
+    }
+    else if (!checkAliases) {
+        return true;
     }
     for (uint8_t i = 0; i < tagValueList->nbPairs; i++) {
-        if (PIC(tagValueList->callback(tagValueList->startIndex + i)) == NULL) {
+        const nbgl_contentTagValue_t *pair;
+
+        if (tagValueList->pairs != NULL) {
+            pair = PIC(&tagValueList->pairs[i]);
+        }
+        else {
+            pair = PIC(tagValueList->callback(tagValueList->startIndex + i));
+        }
+        if ((pair == NULL) || (checkAliases && !isAliasDetailsComplete(pair))) {
             return false;
         }
     }
     return true;
+}
+
+// Helper to check that a tag/value list is valid, that its callback, if any, provides all pairs,
+// and that the details of all its aliases can be displayed in full.
+// The list must not be NULL. An empty list is complete, since no pair is retrieved from it.
+static bool isTagValueListComplete(const nbgl_contentTagValueList_t *tagValueList)
+{
+    return checkTagValueList(tagValueList, true);
 }
 
 // Helper to check that the tag/value list of a content, if any, is complete
@@ -1134,7 +1187,7 @@ static void displayExtensionStep(nbgl_stepPosition_t pos)
             case ADDRESS_BOOK_ALIAS: {
                 bool    has_scope = (context.review.extension->aliasSubName != NULL);
                 bool    has_tn    = (context.review.extension->explanation != NULL);
-                uint8_t page      = context.review.currentExtensionPage;
+                uint8_t page      = (uint8_t) context.review.currentExtensionPage;
                 if (page == 0) {
                     text    = aliasHeading;
                     subText = has_scope ? context.review.extension->aliasSubName
@@ -1163,7 +1216,7 @@ static void displayExtensionStep(nbgl_stepPosition_t pos)
                 tagValueList = context.review.extension->tagValuelist;
                 // these values are tag/value pairs, so their max number of lines applies
                 getPairData(tagValueList,
-                            context.review.currentExtensionPage,
+                            (uint8_t) context.review.currentExtensionPage,
                             &text,
                             &subText,
                             &pairExtension,
@@ -1230,11 +1283,27 @@ static void displayAliasFullValue(void)
                   + ((context.review.extension->explanation != NULL) ? 1 : 0);
             break;
         case INFO_LIST_ALIAS:
-            context.review.nbExtensionPages = context.review.extension->infolist->nbInfos + 1;
+        case TAG_VALUE_LIST_ALIAS: {
+            // such details are rejected when starting the review (see isAliasDetailsComplete()),
+            // but nothing must be drawn from them anyway
+            uint8_t nbElements = 0;
+            if (context.review.extension->aliasType == INFO_LIST_ALIAS) {
+                const nbgl_contentInfoList_t *infoList = PIC(context.review.extension->infolist);
+                nbElements                             = (infoList != NULL) ? infoList->nbInfos : 0;
+            }
+            else {
+                const nbgl_contentTagValueList_t *aliasList
+                    = PIC(context.review.extension->tagValuelist);
+                nbElements = (aliasList != NULL) ? aliasList->nbPairs : 0;
+            }
+            if (nbElements == 0) {
+                LOG_WARN(USE_CASE_LOGGER, "displayAliasFullValue: no details to display\n");
+                return;
+            }
+            // 1 page per element + 1 back page
+            context.review.nbExtensionPages = (uint16_t) nbElements + 1;
             break;
-        case TAG_VALUE_LIST_ALIAS:
-            context.review.nbExtensionPages = context.review.extension->tagValuelist->nbPairs + 1;
-            break;
+        }
         default:
             LOG_WARN(USE_CASE_LOGGER,
                      "displayAliasFullValue: unsupported alias type %d\n",

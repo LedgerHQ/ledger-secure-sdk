@@ -1145,6 +1145,211 @@ static void test_streaming_aliases_without_title_full_values_are_displayed(void)
 }
 
 // ============================================================================
+// Aliases whose details can't be displayed in full (no list, empty list, or list using a
+// callback not providing all its pairs) must be rejected when the review is started, instead of
+// crashing or displaying empty details when opening the alias
+// ============================================================================
+
+static nbgl_contentValueExt_t     invalid_alias_ext;
+static nbgl_contentTagValueList_t invalid_alias_list;
+static nbgl_contentInfoList_t     invalid_info_list;
+
+// alias list callback, providing pairs 10 and 11 from index ALIAS_CALLBACK_START_INDEX, but
+// never the second one
+static nbgl_contentTagValue_t *get_alias_pair_with_missing(uint8_t pairIndex)
+{
+    if (pairIndex == ALIAS_CALLBACK_START_INDEX + 1) {
+        return NULL;
+    }
+    return get_alias_pair(pairIndex);
+}
+
+static void reset_counters(void)
+{
+    nb_draws   = 0;
+    nb_choices = 0;
+    nb_quits   = 0;
+}
+
+// Pair 1 of the review list has invalid_alias_ext as alias. Checks that all the review use cases
+// (with the review list using a callback or not) are rejected without any display
+static void check_reviews_with_invalid_alias_are_rejected(void)
+{
+    for (int withCallback = 0; withCallback < 2; withCallback++) {
+        nbgl_content_t         content  = {0};
+        nbgl_genericContents_t contents = {0};
+
+        pairs[1].aliasValue = 1;
+        pairs[1].extension  = &invalid_alias_ext;
+
+        list = withCallback ? make_callback_list(3, 50) : make_tag_value_list(3);
+        reset_counters();
+        nbgl_useCaseReview(
+            TYPE_TRANSACTION, &list, &C_icon_warning, "Review", NULL, NULL, on_choice);
+        assert_rejected_without_display();
+
+        reset_counters();
+        nbgl_useCaseAddressReview("0xADDRESS", &list, &C_icon_warning, "Verify", NULL, on_choice);
+        assert_rejected_without_display();
+
+        reset_counters();
+        nbgl_useCaseReviewStreamingContinue(&list, on_choice);
+        assert_rejected_without_display();
+
+        content.type                                 = TAG_VALUE_CONFIRM;
+        content.content.tagValueConfirm.tagValueList = list;
+        contents.contentsList                        = &content;
+        contents.nbContents                          = 1;
+        reset_counters();
+        nbgl_useCaseGenericReview(&contents, "Reject", on_quit);
+        TEST_ASSERT_EQUAL_INT(0, nb_draws);
+        TEST_ASSERT_EQUAL_INT(1, nb_quits);
+    }
+}
+
+static void set_invalid_tag_value_list_alias(void)
+{
+    invalid_alias_list       = make_tag_value_list(2);
+    invalid_alias_list.pairs = &pairs[10];
+    memset(&invalid_alias_ext, 0, sizeof(invalid_alias_ext));
+    invalid_alias_ext.aliasType    = TAG_VALUE_LIST_ALIAS;
+    invalid_alias_ext.tagValuelist = &invalid_alias_list;
+}
+
+static void set_invalid_info_list_alias(void)
+{
+    static const char *const infoTypes[]    = {"type0", "type1"};
+    static const char *const infoContents[] = {"content0", "content1"};
+
+    memset(&invalid_info_list, 0, sizeof(invalid_info_list));
+    invalid_info_list.nbInfos      = 2;
+    invalid_info_list.infoTypes    = infoTypes;
+    invalid_info_list.infoContents = infoContents;
+    memset(&invalid_alias_ext, 0, sizeof(invalid_alias_ext));
+    invalid_alias_ext.aliasType = INFO_LIST_ALIAS;
+    invalid_alias_ext.infolist  = &invalid_info_list;
+}
+
+static void test_review_without_alias_list_is_rejected(void)
+{
+    set_invalid_tag_value_list_alias();
+    invalid_alias_ext.tagValuelist = NULL;
+    check_reviews_with_invalid_alias_are_rejected();
+}
+
+static void test_review_with_empty_alias_list_is_rejected(void)
+{
+    set_invalid_tag_value_list_alias();
+    invalid_alias_list.nbPairs = 0;
+    check_reviews_with_invalid_alias_are_rejected();
+}
+
+static void test_review_without_alias_list_pairs_nor_callback_is_rejected(void)
+{
+    set_invalid_tag_value_list_alias();
+    invalid_alias_list.pairs = NULL;
+    check_reviews_with_invalid_alias_are_rejected();
+}
+
+static void test_review_with_missing_alias_list_callback_pair_is_rejected(void)
+{
+    set_invalid_tag_value_list_alias();
+    invalid_alias_list.pairs      = NULL;
+    invalid_alias_list.callback   = get_alias_pair_with_missing;
+    invalid_alias_list.startIndex = ALIAS_CALLBACK_START_INDEX;
+    check_reviews_with_invalid_alias_are_rejected();
+}
+
+static void test_review_with_alias_list_callback_index_overflow_is_rejected(void)
+{
+    set_invalid_tag_value_list_alias();
+    invalid_alias_list.pairs = NULL;
+    // the last pair would be retrieved with callback(UINT8_MAX + 1), wrapping to 0
+    invalid_alias_list.callback   = get_alias_pair;
+    invalid_alias_list.startIndex = UINT8_MAX;
+    check_reviews_with_invalid_alias_are_rejected();
+}
+
+static void test_review_without_alias_info_list_is_rejected(void)
+{
+    set_invalid_info_list_alias();
+    invalid_alias_ext.infolist = NULL;
+    check_reviews_with_invalid_alias_are_rejected();
+}
+
+static void test_review_with_empty_alias_info_list_is_rejected(void)
+{
+    set_invalid_info_list_alias();
+    invalid_info_list.nbInfos = 0;
+    check_reviews_with_invalid_alias_are_rejected();
+}
+
+// ============================================================================
+// Aliases with 255 elements: their 255 pages and the back page must all be displayed (the
+// number of extension pages, 256, used to wrap to 0, displaying nothing)
+// ============================================================================
+
+// Opens the details of the single alias pair of a streaming review, then checks that its
+// 255 pages are displayed, named by tag_names, then the back page, which leaves the modal
+static void check_alias_with_max_elements_is_displayed(nbgl_contentValueExt_t *extension)
+{
+    static nbgl_contentTagValue_t     aliasPair;
+    static nbgl_contentTagValueList_t aliasPairList;
+
+    memset(&aliasPair, 0, sizeof(aliasPair));
+    aliasPair.item       = "alias";
+    aliasPair.value      = "alias value";
+    aliasPair.aliasValue = 1;
+    aliasPair.extension  = extension;
+    memset(&aliasPairList, 0, sizeof(aliasPairList));
+    aliasPairList.pairs   = &aliasPair;
+    aliasPairList.nbPairs = 1;
+
+    nbgl_useCaseReviewStreamingContinue(&aliasPairList, on_choice);
+    TEST_ASSERT_EQUAL_STRING("alias", last_text);
+    press(BUTTON_BOTH_PRESSED);
+    for (int i = 0; i < MAX_ELEMS; i++) {
+        TEST_ASSERT_EQUAL_STRING(tag_names[i], last_text);
+        press(BUTTON_RIGHT_PRESSED);
+    }
+    TEST_ASSERT_EQUAL_PTR(&C_icon_back_x, last_icon);
+    // the back page is the last one
+    press(BUTTON_RIGHT_PRESSED);
+    TEST_ASSERT_EQUAL_PTR(&C_icon_back_x, last_icon);
+    // and leaves the modal
+    press(BUTTON_BOTH_PRESSED);
+    TEST_ASSERT_EQUAL_INT(1, nb_redraws);
+    TEST_ASSERT_EQUAL_INT(0, nb_choices);
+}
+
+static void test_alias_list_with_max_pairs_is_displayed(void)
+{
+    static nbgl_contentValueExt_t     extension;
+    static nbgl_contentTagValueList_t aliasList;
+
+    aliasList = make_tag_value_list(MAX_ELEMS);
+    memset(&extension, 0, sizeof(extension));
+    extension.aliasType    = TAG_VALUE_LIST_ALIAS;
+    extension.tagValuelist = &aliasList;
+    check_alias_with_max_elements_is_displayed(&extension);
+}
+
+static void test_alias_info_list_with_max_infos_is_displayed(void)
+{
+    static nbgl_contentValueExt_t extension;
+    static nbgl_contentInfoList_t infoList;
+
+    memset(&infoList, 0, sizeof(infoList));
+    infoList.nbInfos      = MAX_ELEMS;
+    infoList.infoTypes    = bar_texts;
+    infoList.infoContents = bar_texts;
+    memset(&extension, 0, sizeof(extension));
+    extension.aliasType = INFO_LIST_ALIAS;
+    extension.infolist  = &infoList;
+    check_alias_with_max_elements_is_displayed(&extension);
+}
+
+// ============================================================================
 // nbgl_useCaseChoiceWithDetails: intro pages + bar pages + confirm/cancel
 // ============================================================================
 
@@ -1542,6 +1747,15 @@ int main(void)
     RUN_TEST(test_streaming_alias_full_values_are_reachable);
     RUN_TEST(test_aliases_without_title_full_values_are_displayed);
     RUN_TEST(test_streaming_aliases_without_title_full_values_are_displayed);
+    RUN_TEST(test_review_without_alias_list_is_rejected);
+    RUN_TEST(test_review_with_empty_alias_list_is_rejected);
+    RUN_TEST(test_review_without_alias_list_pairs_nor_callback_is_rejected);
+    RUN_TEST(test_review_with_missing_alias_list_callback_pair_is_rejected);
+    RUN_TEST(test_review_with_alias_list_callback_index_overflow_is_rejected);
+    RUN_TEST(test_review_without_alias_info_list_is_rejected);
+    RUN_TEST(test_review_with_empty_alias_info_list_is_rejected);
+    RUN_TEST(test_alias_list_with_max_pairs_is_displayed);
+    RUN_TEST(test_alias_info_list_with_max_infos_is_displayed);
     RUN_TEST(test_choice_overflow_is_rejected);
     RUN_TEST(test_choice_first_overflowing_count_is_rejected);
     RUN_TEST(test_choice_max_bars_reaches_confirm_and_cancel);
