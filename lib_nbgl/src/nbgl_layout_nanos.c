@@ -113,8 +113,10 @@ static void buttonCallback(nbgl_screen_t *screen, nbgl_buttonEvent_t buttonEvent
  */
 void layoutAddObject(nbgl_layoutInternal_t *layout, nbgl_obj_t *obj)
 {
-    if (layout->nbChildren == NB_MAX_SCREEN_CHILDREN) {
+    if (layout->nbChildren >= NB_MAX_SCREEN_CHILDREN) {
         LOG_FATAL(LAYOUT_LOGGER, "layoutAddObject(): No more object\n");
+        // LOG_FATAL is a no-op in release builds: never write past the array
+        return;
     }
     layout->children[layout->nbChildren] = obj;
     layout->nbChildren++;
