@@ -573,32 +573,37 @@ static uint8_t getTagValueListModalPage(const nbgl_contentTagValueList_t *tagVal
 
 static bool checkTagValueList(const nbgl_contentTagValueList_t *tagValueList, bool checkAliases);
 
-// Helper to check that the details of a pair displayed as a TAG_VALUE_LIST_ALIAS alias can be
-// displayed in full: its list must exist, must not be empty (its modal would have no page) and,
-// if it uses a callback, must be provided with all its pairs by it. Otherwise touching the alias
-// would display empty details, or nothing at all, preventing to verify the actual value.
-// (pairs of this list are not checked for aliases, since their details are not reachable)
-static bool isAliasTagValueListValid(const nbgl_contentTagValue_t *pair)
+// Helper to check that the details of a pair displayed as an alias can be displayed in full:
+// the list of an INFO_LIST_ALIAS or TAG_VALUE_LIST_ALIAS alias must exist and must not be empty
+// (its modal would have no page), and the one of a TAG_VALUE_LIST_ALIAS alias using a callback
+// must be provided with all its pairs by it. Otherwise touching the alias would crash, or display
+// empty details, or nothing at all, preventing to verify the actual value.
+// (pairs of an alias list are not checked for aliases, since their details are not reachable)
+static bool isAliasDetailsValid(const nbgl_contentTagValue_t *pair)
 {
-    const nbgl_contentValueExt_t     *extension;
-    const nbgl_contentTagValueList_t *aliasList;
+    const nbgl_contentValueExt_t *extension;
 
     // the extension is in an union with valueIcon, only relevant for an alias
     if (!pair->aliasValue || (pair->extension == NULL)) {
         return true;
     }
     extension = PIC(pair->extension);
-    if (extension->aliasType != TAG_VALUE_LIST_ALIAS) {
-        return true;
+    if (extension->aliasType == INFO_LIST_ALIAS) {
+        const nbgl_contentInfoList_t *infoList = PIC(extension->infolist);
+        return (infoList != NULL) && (infoList->nbInfos > 0);
     }
-    aliasList = PIC(extension->tagValuelist);
-    return (aliasList != NULL) && (aliasList->nbPairs > 0) && checkTagValueList(aliasList, false);
+    if (extension->aliasType == TAG_VALUE_LIST_ALIAS) {
+        const nbgl_contentTagValueList_t *aliasList = PIC(extension->tagValuelist);
+        return (aliasList != NULL) && (aliasList->nbPairs > 0)
+               && checkTagValueList(aliasList, false);
+    }
+    return true;
 }
 
 // Helper to check that all pairs of a non NULL tag/value list retrieved with a callback are
 // provided by it, with an index fitting in uint8_t (from startIndex to startIndex + nbPairs - 1).
-// If checkAliases is true, the details of every pair displayed as a TAG_VALUE_LIST_ALIAS alias
-// are checked too (see isAliasTagValueListValid()).
+// If checkAliases is true, the details of every pair displayed as an alias are checked too
+// (see isAliasDetailsValid()).
 // An empty list is valid, since no pair is retrieved from it.
 static bool checkTagValueList(const nbgl_contentTagValueList_t *tagValueList, bool checkAliases)
 {
@@ -623,7 +628,7 @@ static bool checkTagValueList(const nbgl_contentTagValueList_t *tagValueList, bo
         else {
             pair = PIC(tagValueList->callback(tagValueList->startIndex + i));
         }
-        if ((pair == NULL) || (checkAliases && !isAliasTagValueListValid(pair))) {
+        if ((pair == NULL) || (checkAliases && !isAliasDetailsValid(pair))) {
             return false;
         }
     }
@@ -632,7 +637,7 @@ static bool checkTagValueList(const nbgl_contentTagValueList_t *tagValueList, bo
 
 // Helper to check that all pairs of a tag/value list retrieved with a callback are provided by it,
 // with an index fitting in uint8_t (from startIndex to startIndex + nbPairs - 1), and that the
-// details of all its TAG_VALUE_LIST_ALIAS aliases can be displayed in full.
+// details of all its aliases can be displayed in full.
 // A NULL list is valid: callers where the list is mandatory must reject it themselves.
 // An empty list is valid too, since no pair is retrieved from it.
 static bool isTagValueListValid(const nbgl_contentTagValueList_t *tagValueList)
@@ -1711,6 +1716,12 @@ static void displayFullValuePage(const char                   *backText,
     const char *modalTitle
         = (extension->backText != NULL) ? PIC(extension->backText) : PIC(backText);
     if (extension->aliasType == INFO_LIST_ALIAS) {
+        // such a list is rejected when starting the review (see isAliasDetailsValid()), but
+        // nothing must be drawn from it anyway
+        if ((extension->infolist == NULL) || (extension->infolist->nbInfos == 0)) {
+            LOG_WARN(USE_CASE_LOGGER, "displayFullValuePage(): no info list to display\n");
+            return;
+        }
         genericContext.currentInfos = extension->infolist;
         displayInfosListModal(modalTitle, extension->infolist, true);
     }
@@ -3550,7 +3561,7 @@ static void displayTagValueListModal(const nbgl_contentTagValueList_t *tagValues
     uint8_t nbElementsInPage;
     uint8_t elemIdx = 0;
 
-    // such a list is rejected when starting the review (see isAliasTagValueListValid()), but
+    // such a list is rejected when starting the review (see isAliasDetailsValid()), but
     // nothing must be drawn from it anyway
     if ((tagValues == NULL) || (tagValues->nbPairs == 0)) {
         LOG_WARN(USE_CASE_LOGGER, "displayTagValueListModal(): no tag/value list to display\n");

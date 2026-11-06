@@ -1875,6 +1875,51 @@ void test_review_is_rejected_with_empty_alias_list(void)
     }
 }
 
+// An INFO_LIST_ALIAS alias without info list, or with an empty one, must be rejected too
+// (touching it used to dereference the NULL list, or to display an empty modal)
+static void checkReviewWithAliasInfoListIsRejected(const nbgl_contentInfoList_t *infoList)
+{
+    for (uint8_t withCallback = 0; withCallback < 2; withCallback++) {
+        buildList(NB_PAIRS, withCallback);
+        extensions[0].aliasType = INFO_LIST_ALIAS;
+        extensions[0].infolist  = infoList;
+        nbgl_useCaseGenericReview(&contents, "Reject", onReject);
+        TEST_ASSERT_EQUAL_INT(1, nb_rejects);
+        TEST_ASSERT_NULL(page_callback);
+
+        nbgl_useCaseReview(TYPE_TRANSACTION,
+                           &content.content.tagValueConfirm.tagValueList,
+                           &C_Warning_64px,
+                           "Review",
+                           NULL,
+                           "Sign",
+                           onChoice);
+        TEST_ASSERT_EQUAL_INT(1, nb_choices);
+        TEST_ASSERT_FALSE(last_choice);
+        TEST_ASSERT_NULL(page_callback);
+        nb_rejects = 0;
+        nb_choices = 0;
+    }
+}
+
+void test_review_is_rejected_without_alias_info_list(void)
+{
+    checkReviewWithAliasInfoListIsRejected(NULL);
+}
+
+void test_review_is_rejected_with_empty_alias_info_list(void)
+{
+    static const char *const      infoTypes[]    = {"type"};
+    static const char *const      infoContents[] = {"content"};
+    static nbgl_contentInfoList_t infoList;
+
+    memset(&infoList, 0, sizeof(infoList));
+    infoList.infoTypes    = infoTypes;
+    infoList.infoContents = infoContents;
+    infoList.nbInfos      = 0;
+    checkReviewWithAliasInfoListIsRejected(&infoList);
+}
+
 void test_review_with_alias_list_at_uint8_limit_is_accepted(void)
 {
     // the last pair of the alias list is retrieved with callback(UINT8_MAX)
@@ -2584,6 +2629,8 @@ int main(void)
     RUN_TEST(test_review_is_rejected_without_alias_list);
     RUN_TEST(test_review_is_rejected_with_empty_alias_list);
     RUN_TEST(test_review_with_alias_list_at_uint8_limit_is_accepted);
+    RUN_TEST(test_review_is_rejected_without_alias_info_list);
+    RUN_TEST(test_review_is_rejected_with_empty_alias_info_list);
     RUN_TEST(test_review_list_pages_split_with_drawn_font);
     RUN_TEST(test_review_confirm_pages_split_with_drawn_font);
     RUN_TEST(test_more_details_pages_show_whole_value);
