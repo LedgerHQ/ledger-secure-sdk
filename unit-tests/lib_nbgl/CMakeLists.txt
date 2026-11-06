@@ -37,6 +37,33 @@ ledger_unit_tests_add_test(
                     APPNAME="UnitTests"
 )
 
+# Nano (non touch) build of the NBGL steps
+ledger_unit_tests_add_test(
+    NAME            test_nbgl_step_nanos
+    SOURCES         ${SDK_DIR}/lib_nbgl/src/nbgl_step.c
+    INCLUDE_DIRS    ${CMAKE_CURRENT_SOURCE_DIR}
+                    ${SDK_DIR}
+                    ${SDK_DIR}/include
+                    ${SDK_DIR}/io/include
+                    ${SDK_DIR}/lib_cxng/include
+                    ${SDK_DIR}/lib_nbgl/include
+                    ${SDK_DIR}/lib_nbgl/src
+                    ${SDK_DIR}/lib_ux_nbgl
+                    ${SDK_DIR}/target/nanox/include
+    COMPILE_DEFS    TARGET_NANOX
+                    OS_UNIT_TEST
+                    HAVE_NBGL
+                    NBGL_STEP
+                    SCREEN_SIZE_NANO
+                    BAGL_WIDTH=128
+                    BAGL_HEIGHT=64
+                    noreturn=
+                    __IO=volatile
+                    IO_HID_EP_LENGTH=64
+                    OS_IO_SEPH_BUFFER_SIZE=272
+                    APPNAME="UnitTests"
+)
+
 # Touch (Flex) build of the NBGL pages
 ledger_unit_tests_add_test(
     NAME            test_nbgl_page
