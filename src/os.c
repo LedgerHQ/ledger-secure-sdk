@@ -139,13 +139,6 @@ void u4le_encode(unsigned char *buffer, unsigned int offset, unsigned int value)
     U4LE_ENCODE(buffer, offset, value);
 }
 
-void os_reset(void)
-{
-    os_io_seph_cmd_se_reset();
-    for (;;) {
-    }
-}
-
 void *os_memmove(void *dest, const void *src, size_t n)
 {
     return memmove(dest, src, n);

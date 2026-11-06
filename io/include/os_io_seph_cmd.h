@@ -55,7 +55,6 @@ typedef enum {
 int  os_io_seph_cmd_general_status(void);
 int  os_io_seph_cmd_more_time(void);
 int  os_io_seph_cmd_setup_ticker(unsigned int interval_ms);
-int  os_io_seph_cmd_device_shutdown(uint8_t critical_battery);
 int  os_io_seph_cmd_se_reset(void);
 int  os_io_seph_cmd_usb_disconnect(void);
 int  os_io_seph_cmd_mcu_status(void);

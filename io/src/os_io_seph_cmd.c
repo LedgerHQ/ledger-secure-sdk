@@ -128,16 +128,6 @@ int os_io_seph_cmd_setup_ticker(unsigned int interval_ms)
     return os_io_tx_cmd(OS_IO_PACKET_TYPE_SEPH, buffer, 5, NULL);
 }
 
-int os_io_seph_cmd_device_shutdown(uint8_t critical_battery)
-{
-    uint8_t buffer[4];
-    buffer[0] = SEPROXYHAL_TAG_DEVICE_OFF;
-    buffer[1] = 0;
-    buffer[2] = 1;
-    buffer[3] = critical_battery;
-    return os_io_tx_cmd(OS_IO_PACKET_TYPE_SEPH, buffer, 4, NULL);
-}
-
 int os_io_seph_cmd_se_reset(void)
 {
     return os_io_tx_cmd(
