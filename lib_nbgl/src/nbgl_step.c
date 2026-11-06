@@ -291,7 +291,7 @@ static void displayTextPage(StepContext_t *ctx, uint16_t textPage)
     }
     nbgl_layoutDescription_t layoutDescription = {0};
     nbgl_layoutNavigation_t  navInfo           = {
-        .direction = HORIZONTAL_NAV,
+                   .direction = HORIZONTAL_NAV,
     };
 
     layoutDescription.modal                  = ctx->modal;
