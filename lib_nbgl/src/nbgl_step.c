@@ -155,6 +155,25 @@ static StepContext_t *getContextFromLayout(nbgl_layout_t layout)
     return ctx;
 }
 
+// (re)acquires the layout of the given step context. When re-rendering a step (internal page
+// navigation in a text step, selection change in a menu list), the layout currently held by the
+// context must be released first: for a modal step, nbgl_layoutGet() pushes a new screen and
+// consumes one of the few modal layout slots, so not releasing it would leak a screen layer on
+// every page, until the pool is exhausted.
+static bool getStepLayout(StepContext_t *ctx, const nbgl_layoutDescription_t *layoutDescription)
+{
+    if (ctx->layout != NULL) {
+        nbgl_layoutRelease((nbgl_layout_t *) ctx->layout);
+        ctx->layout = NULL;
+    }
+    ctx->layout = nbgl_layoutGet(layoutDescription);
+    if (ctx->layout == NULL) {
+        LOG_WARN(STEP_LOGGER, "getStepLayout(): impossible to get a layout\n");
+        return false;
+    }
+    return true;
+}
+
 // from the current details context, return the number of bytes of the given subText displayed in
 // a page
 static uint16_t getSubTextPageLen(StepContext_t *ctx, const char *subText)
@@ -272,7 +291,7 @@ static void displayTextPage(StepContext_t *ctx, uint16_t textPage)
     }
     nbgl_layoutDescription_t layoutDescription = {0};
     nbgl_layoutNavigation_t  navInfo           = {
-                   .direction = HORIZONTAL_NAV,
+        .direction = HORIZONTAL_NAV,
     };
 
     layoutDescription.modal                  = ctx->modal;
@@ -280,7 +299,9 @@ static void displayTextPage(StepContext_t *ctx, uint16_t textPage)
     layoutDescription.ticker.tickerCallback  = ctx->ticker.tickerCallback;
     layoutDescription.ticker.tickerIntervale = ctx->ticker.tickerIntervale;
     layoutDescription.ticker.tickerValue     = ctx->ticker.tickerValue;
-    ctx->layout                              = nbgl_layoutGet(&layoutDescription);
+    if (!getStepLayout(ctx, &layoutDescription)) {
+        return;
+    }
 
     navInfo.indication = getNavigationInfo(
         ctx->textContext.pos, ctx->textContext.nbPages, ctx->textContext.currentPage);
@@ -408,7 +429,9 @@ static void displayMenuList(StepContext_t *ctx)
     layoutDescription.ticker.tickerIntervale = ctx->ticker.tickerIntervale;
     layoutDescription.ticker.tickerValue     = ctx->ticker.tickerValue;
 
-    ctx->layout = nbgl_layoutGet(&layoutDescription);
+    if (!getStepLayout(ctx, &layoutDescription)) {
+        return;
+    }
     nbgl_layoutAddMenuList(ctx->layout, list);
     if (list->nbChoices > 1) {
         nbgl_layoutNavigation_t navInfo = {.direction = VERTICAL_NAV};
