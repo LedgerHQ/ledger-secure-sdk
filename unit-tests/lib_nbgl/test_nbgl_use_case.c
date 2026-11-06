@@ -1734,6 +1734,109 @@ void test_alias_list_modal_many_pages_of_several_pairs(void)
 }
 
 // ============================================================================
+// V-396: a review whose TAG_VALUE_LIST_ALIAS details can't be displayed in full (no list, empty
+// list, or list using a callback not providing all its pairs) must be rejected when started,
+// instead of displaying empty details when touching the alias
+// ============================================================================
+
+static nbgl_contentTagValue_t *getAliasListPairWithMissing(uint8_t pairIndex)
+{
+    if (pairIndex == aliasList.startIndex + 2) {
+        return NULL;
+    }
+    return getAliasListPair(pairIndex);
+}
+
+// Starts a generic review, then a simple review, whose first pair has the alias list as alias
+// (the review list itself using a callback or not), and checks that both are rejected
+static void checkReviewWithAliasListIsRejected(bool withCallback)
+{
+    buildList(NB_PAIRS, withCallback);
+    extensions[0].aliasType    = TAG_VALUE_LIST_ALIAS;
+    extensions[0].tagValuelist = &aliasList;
+    nbgl_useCaseGenericReview(&contents, "Reject", onReject);
+    TEST_ASSERT_EQUAL_INT(1, nb_rejects);
+    TEST_ASSERT_NULL(page_callback);
+
+    nbgl_useCaseReview(TYPE_TRANSACTION,
+                       &content.content.tagValueConfirm.tagValueList,
+                       &C_Warning_64px,
+                       "Review",
+                       NULL,
+                       "Sign",
+                       onChoice);
+    TEST_ASSERT_EQUAL_INT(1, nb_choices);
+    TEST_ASSERT_FALSE(last_choice);
+    TEST_ASSERT_NULL(page_callback);
+    nb_rejects = 0;
+    nb_choices = 0;
+}
+
+void test_review_is_rejected_on_missing_alias_list_callback_pair(void)
+{
+    for (uint8_t withCallback = 0; withCallback < 2; withCallback++) {
+        buildAliasList();
+        useAliasListCallback();
+        aliasList.callback = getAliasListPairWithMissing;
+        checkReviewWithAliasListIsRejected(withCallback);
+    }
+}
+
+void test_review_is_rejected_without_alias_list_callback(void)
+{
+    for (uint8_t withCallback = 0; withCallback < 2; withCallback++) {
+        buildAliasList();
+        useAliasListCallback();
+        aliasList.callback = NULL;
+        checkReviewWithAliasListIsRejected(withCallback);
+    }
+}
+
+void test_review_is_rejected_on_alias_list_callback_index_overflow(void)
+{
+    for (uint8_t withCallback = 0; withCallback < 2; withCallback++) {
+        buildAliasList();
+        useAliasListCallback();
+        // the last pair would be retrieved with callback(UINT8_MAX + 1), wrapping to 0
+        aliasList.startIndex = UINT8_MAX + 2 - NB_ALIAS_LIST_PAIRS;
+        checkReviewWithAliasListIsRejected(withCallback);
+    }
+}
+
+void test_review_is_rejected_without_alias_list(void)
+{
+    for (uint8_t withCallback = 0; withCallback < 2; withCallback++) {
+        buildList(NB_PAIRS, withCallback);
+        extensions[0].aliasType    = TAG_VALUE_LIST_ALIAS;
+        extensions[0].tagValuelist = NULL;
+        nbgl_useCaseGenericReview(&contents, "Reject", onReject);
+        TEST_ASSERT_EQUAL_INT(1, nb_rejects);
+        TEST_ASSERT_NULL(page_callback);
+        nb_rejects = 0;
+    }
+}
+
+void test_review_is_rejected_with_empty_alias_list(void)
+{
+    for (uint8_t withCallback = 0; withCallback < 2; withCallback++) {
+        buildAliasList();
+        aliasList.nbPairs = 0;
+        checkReviewWithAliasListIsRejected(withCallback);
+    }
+}
+
+void test_review_with_alias_list_at_uint8_limit_is_accepted(void)
+{
+    // the last pair of the alias list is retrieved with callback(UINT8_MAX)
+    buildAliasList();
+    useAliasListCallback();
+    aliasList.startIndex = UINT8_MAX + 1 - NB_ALIAS_LIST_PAIRS;
+    openAliasListModal();
+    TEST_ASSERT_EQUAL_INT(0, nb_rejects);
+    checkAliasListModalPages(0);
+}
+
+// ============================================================================
 // Review pages are split with the font used to draw their values
 // ============================================================================
 
@@ -2423,6 +2526,12 @@ int main(void)
     RUN_TEST(test_alias_list_modal_31_32_33_pages);
     RUN_TEST(test_alias_list_modal_max_pages);
     RUN_TEST(test_alias_list_modal_many_pages_of_several_pairs);
+    RUN_TEST(test_review_is_rejected_on_missing_alias_list_callback_pair);
+    RUN_TEST(test_review_is_rejected_without_alias_list_callback);
+    RUN_TEST(test_review_is_rejected_on_alias_list_callback_index_overflow);
+    RUN_TEST(test_review_is_rejected_without_alias_list);
+    RUN_TEST(test_review_is_rejected_with_empty_alias_list);
+    RUN_TEST(test_review_with_alias_list_at_uint8_limit_is_accepted);
     RUN_TEST(test_review_list_pages_split_with_drawn_font);
     RUN_TEST(test_review_confirm_pages_split_with_drawn_font);
     RUN_TEST(test_more_details_pages_show_whole_value);
