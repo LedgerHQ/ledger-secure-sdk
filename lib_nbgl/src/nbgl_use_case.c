@@ -356,6 +356,9 @@ static const SecurityReportItem_t securityReportItems[NB_WARNING_TYPES] = {
 // configuration of warning when using @ref nbgl_useCaseReviewBlindSigning()
 static const nbgl_warning_t blindSigningWarning = {.predefinedSet = (1 << BLIND_SIGNING_WARN)};
 
+// local copy of a caller's warning, used when it has to be normalized (see normalizeWarning())
+static nbgl_warning_t normalizedWarning;
+
 #ifdef NBGL_QRCODE
 /* buffer to store reduced address under QR Code */
 static char reducedAddress[QRCODE_REDUCED_ADDR_LEN];
@@ -3582,6 +3585,21 @@ static bool isWarningEmpty(const nbgl_warning_t *warning)
                && (warning->prelude == NULL));
 }
 
+// Gated signing is a stricter flavor of blind signing: it must go through the whole blind signing
+// warning flow (initial warning page with explicit risk acceptance, security report, tip-box...).
+// If the caller only set GATED_SIGNING_WARN, use a local copy with BLIND_SIGNING_WARN also set,
+// so that no warning page or report entry is silently skipped.
+static const nbgl_warning_t *normalizeWarning(const nbgl_warning_t *warning)
+{
+    if ((warning == NULL) || ((warning->predefinedSet & (1 << GATED_SIGNING_WARN)) == 0)
+        || (warning->predefinedSet & (1 << BLIND_SIGNING_WARN))) {
+        return warning;
+    }
+    memcpy(&normalizedWarning, warning, sizeof(normalizedWarning));
+    normalizedWarning.predefinedSet |= (1 << BLIND_SIGNING_WARN);
+    return &normalizedWarning;
+}
+
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
@@ -4637,7 +4655,7 @@ void nbgl_useCaseAdvancedReview(nbgl_operationType_t              operationType,
     reviewWithWarnCtx.reviewTitle    = reviewTitle;
     reviewWithWarnCtx.reviewSubTitle = reviewSubTitle;
     reviewWithWarnCtx.finishTitle    = finishTitle;
-    reviewWithWarnCtx.warning        = warning;
+    reviewWithWarnCtx.warning        = normalizeWarning(warning);
     reviewWithWarnCtx.choiceCallback = choiceCallback;
 
     // if the warning contains a prelude, display it first
@@ -4645,7 +4663,7 @@ void nbgl_useCaseAdvancedReview(nbgl_operationType_t              operationType,
         displayPrelude();
     }
     // display the initial warning only of a risk/threat or blind signing or prelude
-    else if (HAS_INITIAL_WARNING(warning)) {
+    else if (HAS_INITIAL_WARNING(reviewWithWarnCtx.warning)) {
         displayInitialWarning();
     }
     else {
@@ -4832,14 +4850,14 @@ void nbgl_useCaseAdvancedReviewStreamingStart(nbgl_operationType_t       operati
     reviewWithWarnCtx.reviewTitle    = reviewTitle;
     reviewWithWarnCtx.reviewSubTitle = reviewSubTitle;
     reviewWithWarnCtx.choiceCallback = choiceCallback;
-    reviewWithWarnCtx.warning        = warning;
+    reviewWithWarnCtx.warning        = normalizeWarning(warning);
 
     // if the warning contains a prelude, display it first
     if (reviewWithWarnCtx.warning->prelude) {
         displayPrelude();
     }
     // display the initial warning only of a risk/threat or blind signing
-    else if (HAS_INITIAL_WARNING(warning)) {
+    else if (HAS_INITIAL_WARNING(reviewWithWarnCtx.warning)) {
         displayInitialWarning();
     }
     else {

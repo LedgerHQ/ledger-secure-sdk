@@ -1383,6 +1383,56 @@ void test_predefined_warning_takes_precedence_over_custom_fields(void)
 }
 
 // ============================================================================
+// V-162: a gated signing only warning shall display its initial warning page
+// ============================================================================
+
+// A GATED_SIGNING_WARN only warning shall display the gated signing initial page (with explicit
+// risk acceptance) before the review, then the same top-right buttons as blind signing
+void test_gated_signing_only_warning_is_displayed_before_review(void)
+{
+    nbgl_warning_t warning = {.predefinedSet = (1 << GATED_SIGNING_WARN)};
+
+    for (uint8_t streaming = 0; streaming < 2; streaming++) {
+        page_callback        = NULL;
+        warning_choice_drawn = false;
+        center_description   = NULL;
+        startAdvancedReview(&warning, streaming);
+
+        // the gated signing warning page shall be drawn, and the review not started
+        TEST_ASSERT_TRUE(warning_choice_drawn);
+        TEST_ASSERT_NULL(page_callback);
+        TEST_ASSERT_EQUAL_INT(0, nb_choices);
+        TEST_ASSERT_NOT_NULL(center_description);
+        TEST_ASSERT_NOT_NULL(strstr(center_description, "ledger.com/integrated-apps"));
+        // the caller's warning shall not be modified
+        TEST_ASSERT_EQUAL_UINT32(1 << GATED_SIGNING_WARN, warning.predefinedSet);
+
+        // accept the risk: the review shall start, with the blind signing top-right buttons
+        layout_callback(warning_choice_token, 1);
+        checkTopRightButtons(&WARNING_ICON, false, streaming);
+    }
+}
+
+// A GATED_SIGNING_WARN only warning page shall allow to reject the operation without reviewing
+void test_gated_signing_only_warning_can_be_rejected(void)
+{
+    nbgl_warning_t warning = {.predefinedSet = (1 << GATED_SIGNING_WARN)};
+
+    for (uint8_t streaming = 0; streaming < 2; streaming++) {
+        page_callback        = NULL;
+        warning_choice_drawn = false;
+        nb_choices           = 0;
+        startAdvancedReview(&warning, streaming);
+        TEST_ASSERT_TRUE(warning_choice_drawn);
+
+        layout_callback(warning_choice_token, 0);
+        TEST_ASSERT_NULL(page_callback);
+        TEST_ASSERT_EQUAL_INT(1, nb_choices);
+        TEST_ASSERT_FALSE(last_choice);
+    }
+}
+
+// ============================================================================
 // nbMaxLinesForValue of the pairs: a value with a max number of lines is counted with its
 // truncated height to split the pages, so it shares its page and never needs a "More" page
 // ============================================================================
@@ -2517,6 +2567,8 @@ int main(void)
     RUN_TEST(test_no_warning_no_review_details_button);
     RUN_TEST(test_predefined_warning_without_custom_fields);
     RUN_TEST(test_predefined_warning_takes_precedence_over_custom_fields);
+    RUN_TEST(test_gated_signing_only_warning_is_displayed_before_review);
+    RUN_TEST(test_gated_signing_only_warning_can_be_rejected);
     RUN_TEST(test_pair_max_lines_shares_page);
     RUN_TEST(test_no_pair_max_lines_uses_details_page);
     RUN_TEST(test_alias_list_modal_pages_fit);
