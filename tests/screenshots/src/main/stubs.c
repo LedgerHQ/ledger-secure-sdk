@@ -189,7 +189,12 @@ int os_io_ux_cmd_redisplay(void)
 }
 #endif  // HAVE_BLE
 
-void halt(void) {}
+void halt(void)
+{
+    printf("%s\n", __func__);
+    while (1) {
+    };
+}
 
 void cx_rng_no_throw(uint8_t *buffer, size_t len)
 {

@@ -72,10 +72,14 @@ SYSCALL unsigned short io_seph_recv(unsigned char *buffer PLENGTH(maxlength),
 #define io_seproxyhal_spi_recv           io_seph_recv
 
 void io_seproxyhal_general_status(void);
-void io_seproxyhal_se_reset(void);
-void io_seproxyhal_disable_io(void);
-void io_seproxyhal_io_heartbeat(void);
-void io_seproxyhal_request_mcu_status(void);
+
+/**
+ * @deprecated: Use halt() syscall instead
+ */
+DEPRECATED void io_seproxyhal_se_reset(void);
+void            io_seproxyhal_disable_io(void);
+void            io_seproxyhal_io_heartbeat(void);
+void            io_seproxyhal_request_mcu_status(void);
 
 #ifdef HAVE_BAGL
 void io_seproxyhal_display_default(const bagl_element_t *element);
