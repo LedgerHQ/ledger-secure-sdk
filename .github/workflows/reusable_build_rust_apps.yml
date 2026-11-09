@@ -67,8 +67,16 @@ jobs:
           run: pip install ledgered
         - name: Get all rust apps
           id: get_rust_apps
+          env:
+            GH_TOKEN: ${{ inputs.app_repo_suffix && secrets.CI_BOT_TOKEN || github.token }}
+            APP_REPO_SUFFIX: ${{ inputs.app_repo_suffix }}
           run: |
-            python .github/workflows/get_rust_apps.py "${{ inputs.app_repo_suffix && secrets.CI_BOT_TOKEN || secrets.GITHUB_TOKEN }}" ${{ inputs.app_repo_suffix }}
+            # Recent Rust SDK revisions read the token from GH_TOKEN, older ones from the first argument
+            if grep -q 'GH_TOKEN' .github/workflows/get_rust_apps.py; then
+              python .github/workflows/get_rust_apps.py "$APP_REPO_SUFFIX"
+            else
+              python .github/workflows/get_rust_apps.py "$GH_TOKEN" "$APP_REPO_SUFFIX"
+            fi
             echo "rust_apps=$(cat rust_apps.json)" >> $GITHUB_OUTPUT
 
     display-rust-apps:
