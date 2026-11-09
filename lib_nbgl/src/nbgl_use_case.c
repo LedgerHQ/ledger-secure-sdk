@@ -38,8 +38,7 @@
     (pagesData[pageIdx / PAGES_PER_UINT8] = pageData \
                                             << ((pageIdx % PAGES_PER_UINT8) * PAGE_DATA_BITS))
 
-#define MAX_PAGE_NB       256
-#define MAX_MODAL_PAGE_NB 32
+#define MAX_PAGE_NB 256
 
 /* Alias to clarify usage of genericContext hasStartingContent and hasFinishingContent feature */
 #define STARTING_CONTENT  localContentsList[0]
@@ -110,7 +109,6 @@ typedef enum {
 typedef struct DetailsContext_s {
     uint8_t     nbPages;
     uint8_t     currentPage;
-    uint8_t     currentPairIdx;
     bool        wrapping;
     const char *tag;
     const char *value;
@@ -304,7 +302,6 @@ static GenericContext_t genericContext;
 static nbgl_content_t
     localContentsList[3];  // 3 needed for nbgl_useCaseReview (starting page / tags / final page)
 static uint8_t genericContextPagesInfo[MAX_PAGE_NB / PAGES_PER_UINT8];
-static uint8_t modalContextPagesInfo[MAX_MODAL_PAGE_NB / PAGES_PER_UINT8];
 
 // contexts for bundle navigation
 static nbgl_BundleNavContext_t bundleNavContext;
@@ -359,6 +356,9 @@ static const SecurityReportItem_t securityReportItems[NB_WARNING_TYPES] = {
 // configuration of warning when using @ref nbgl_useCaseReviewBlindSigning()
 static const nbgl_warning_t blindSigningWarning = {.predefinedSet = (1 << BLIND_SIGNING_WARN)};
 
+// local copy of a caller's warning, used when it has to be normalized (see normalizeWarning())
+static nbgl_warning_t normalizedWarning;
+
 #ifdef NBGL_QRCODE
 /* buffer to store reduced address under QR Code */
 static char reducedAddress[QRCODE_REDUCED_ADDR_LEN];
@@ -398,6 +398,9 @@ static void displayAddressQRCode(void);
 #endif  // NBGL_QRCODE
 
 static uint8_t getNbLinesInDetailsPage(const nbgl_contentTagValue_t *pair);
+static uint8_t getNbTagValuesInDetailsPage(uint8_t                           nbPairs,
+                                           const nbgl_contentTagValueList_t *tagValueList,
+                                           uint8_t                           startIndex);
 
 static void modalLayoutTouchCallback(int token, uint8_t index);
 static void displaySkipWarning(void);
@@ -476,27 +479,6 @@ static void genericContextGetPageInfo(uint8_t pageIdx, uint8_t *nbElements, bool
     }
 }
 
-// Helper to set modalContext page info
-static void modalContextSetPageInfo(uint8_t pageIdx, uint8_t nbElements)
-{
-    uint8_t pageData = SET_PAGE_NB_ELEMENTS(nbElements);
-
-    modalContextPagesInfo[pageIdx / PAGES_PER_UINT8]
-        &= ~(0x0F << ((pageIdx % PAGES_PER_UINT8) * PAGE_DATA_BITS));
-    modalContextPagesInfo[pageIdx / PAGES_PER_UINT8]
-        |= pageData << ((pageIdx % PAGES_PER_UINT8) * PAGE_DATA_BITS);
-}
-
-// Helper to get modalContext page info
-static void modalContextGetPageInfo(uint8_t pageIdx, uint8_t *nbElements)
-{
-    uint8_t pageData = modalContextPagesInfo[pageIdx / PAGES_PER_UINT8]
-                       >> ((pageIdx % PAGES_PER_UINT8) * PAGE_DATA_BITS);
-    if (nbElements != NULL) {
-        *nbElements = GET_PAGE_NB_ELEMENTS(pageData);
-    }
-}
-
 // Simple helper to get the number of elements inside a nbgl_content_t
 static uint8_t getContentNbElement(const nbgl_content_t *content)
 {
@@ -563,25 +545,117 @@ static nbgl_contentTagValue_t *getModalTagValuePair(uint8_t pairIndex)
     return (nbgl_contentTagValue_t *) getTagValuePair(&tagValueList, pairIndex);
 }
 
-// Helper to check that all pairs of a tag/value list retrieved with a callback are provided by it,
-// with an index fitting in uint8_t (from startIndex to startIndex + nbPairs - 1).
-// A NULL list is valid: callers where the list is mandatory must reject it themselves.
-// An empty list is valid too, since no pair is retrieved from it.
-static bool isTagValueListValid(const nbgl_contentTagValueList_t *tagValueList)
+// Computes the index of the first pair (relative to the list) of the given page of the alias
+// tag/value list modal, and the number of pairs in this page, by replaying the pagination from the
+// first page. No page table is used, so that the number of pages is not bounded (at most one page
+// per pair, see getNbTagValuesInDetailsPage()), and so that the number of pairs per page is not
+// limited by the encoding of a page table
+static uint8_t getTagValueListModalPage(const nbgl_contentTagValueList_t *tagValues,
+                                        uint8_t                           pageIdx,
+                                        uint8_t                          *nbPairsInPage)
 {
-    if ((tagValueList == NULL) || (tagValueList->pairs != NULL) || (tagValueList->nbPairs == 0)) {
+    uint8_t startIdx = 0;
+    uint8_t page     = 0;
+
+    *nbPairsInPage = 0;
+    while (startIdx < tagValues->nbPairs) {
+        uint8_t nbPairs
+            = getNbTagValuesInDetailsPage(tagValues->nbPairs - startIdx, tagValues, startIdx);
+        if (page == pageIdx) {
+            *nbPairsInPage = nbPairs;
+            break;
+        }
+        startIdx += nbPairs;
+        page++;
+    }
+    return startIdx;
+}
+
+static bool checkTagValueList(const nbgl_contentTagValueList_t *tagValueList, bool checkAliases);
+
+// Helper to check that the details of a pair displayed as an alias can be displayed in full:
+// the list of an INFO_LIST_ALIAS or TAG_VALUE_LIST_ALIAS alias must exist and must not be empty
+// (its modal would have no page), and the one of a TAG_VALUE_LIST_ALIAS alias using a callback
+// must be provided with all its pairs by it. Otherwise touching the alias would crash, or display
+// empty details, or nothing at all, preventing to verify the actual value.
+// (pairs of an alias list are not checked for aliases, since their details are not reachable)
+static bool isAliasDetailsValid(const nbgl_contentTagValue_t *pair)
+{
+    const nbgl_contentValueExt_t *extension;
+
+    // the extension is in an union with valueIcon, only relevant for an alias
+    if (!pair->aliasValue || (pair->extension == NULL)) {
         return true;
     }
-    if ((tagValueList->callback == NULL)
-        || (((uint16_t) tagValueList->startIndex + tagValueList->nbPairs) > (UINT8_MAX + 1))) {
-        return false;
+    extension = PIC(pair->extension);
+    if (extension->aliasType == INFO_LIST_ALIAS) {
+        const nbgl_contentInfoList_t *infoList = PIC(extension->infolist);
+        return (infoList != NULL) && (infoList->nbInfos > 0);
+    }
+    if (extension->aliasType == TAG_VALUE_LIST_ALIAS) {
+        const nbgl_contentTagValueList_t *aliasList = PIC(extension->tagValuelist);
+        return (aliasList != NULL) && (aliasList->nbPairs > 0)
+               && checkTagValueList(aliasList, false);
+    }
+    return true;
+}
+
+// Helper to check that all pairs of a non NULL tag/value list retrieved with a callback are
+// provided by it, with an index fitting in uint8_t (from startIndex to startIndex + nbPairs - 1).
+// If checkAliases is true, the details of every pair displayed as an alias are checked too
+// (see isAliasDetailsValid()).
+// An empty list is valid, since no pair is retrieved from it.
+static bool checkTagValueList(const nbgl_contentTagValueList_t *tagValueList, bool checkAliases)
+{
+    if (tagValueList->nbPairs == 0) {
+        return true;
+    }
+    if (tagValueList->pairs == NULL) {
+        if ((tagValueList->callback == NULL)
+            || (((uint16_t) tagValueList->startIndex + tagValueList->nbPairs) > (UINT8_MAX + 1))) {
+            return false;
+        }
+    }
+    else if (!checkAliases) {
+        return true;
     }
     for (uint8_t i = 0; i < tagValueList->nbPairs; i++) {
-        if (PIC(tagValueList->callback(tagValueList->startIndex + i)) == NULL) {
+        const nbgl_contentTagValue_t *pair;
+
+        if (tagValueList->pairs != NULL) {
+            pair = PIC(&tagValueList->pairs[i]);
+        }
+        else {
+            pair = PIC(tagValueList->callback(tagValueList->startIndex + i));
+        }
+        if ((pair == NULL) || (checkAliases && !isAliasDetailsValid(pair))) {
             return false;
         }
     }
     return true;
+}
+
+// Helper to check that all pairs of a tag/value list retrieved with a callback are provided by it,
+// with an index fitting in uint8_t (from startIndex to startIndex + nbPairs - 1), and that the
+// details of all its aliases can be displayed in full.
+// A NULL list is valid: callers where the list is mandatory must reject it themselves.
+// An empty list is valid too, since no pair is retrieved from it.
+static bool isTagValueListValid(const nbgl_contentTagValueList_t *tagValueList)
+{
+    return (tagValueList == NULL) || checkTagValueList(tagValueList, true);
+}
+
+// Helper to check that the whole address to verify can be displayed in the ADDR_VERIF_NB_PAIRS
+// pages of the address confirmation, otherwise a suffix of the address would never be displayed
+// before the "Confirm" action. A null number of pages is also rejected, in case of overflow.
+static bool isAddressReviewable(const char *address)
+{
+    if (address == NULL) {
+        return false;
+    }
+    uint8_t nbChunks = nbgl_getTextNbPagesInWidth(
+        LARGE_MEDIUM_FONT, address, NB_MAX_LINES_IN_REVIEW, AVAILABLE_WIDTH);
+    return (nbChunks > 0) && (nbChunks <= ADDR_VERIF_NB_PAIRS);
 }
 
 // Helper to retrieve the content inside a nbgl_genericContents_t using
@@ -1642,6 +1716,12 @@ static void displayFullValuePage(const char                   *backText,
     const char *modalTitle
         = (extension->backText != NULL) ? PIC(extension->backText) : PIC(backText);
     if (extension->aliasType == INFO_LIST_ALIAS) {
+        // such a list is rejected when starting the review (see isAliasDetailsValid()), but
+        // nothing must be drawn from it anyway
+        if ((extension->infolist == NULL) || (extension->infolist->nbInfos == 0)) {
+            LOG_WARN(USE_CASE_LOGGER, "displayFullValuePage(): no info list to display\n");
+            return;
+        }
         genericContext.currentInfos = extension->infolist;
         displayInfosListModal(modalTitle, extension->infolist, true);
     }
@@ -1760,39 +1840,29 @@ static void displayTagValueListModalPage(uint8_t pageIdx, bool forceFullRefresh)
                                          .tagValueList.smallCaseForValue = true,
                                          .tagValueList.wrapping          = detailsContext.wrapping};
     uint8_t                   nbElementsInPage;
+    uint8_t                   firstPairIdx;
 
-    // if first page or forward
-    if (detailsContext.currentPage <= pageIdx) {
-        modalContextGetPageInfo(pageIdx, &nbElementsInPage);
-    }
-    else {
-        // backward direction
-        modalContextGetPageInfo(pageIdx + 1, &nbElementsInPage);
-        detailsContext.currentPairIdx -= nbElementsInPage;
-        modalContextGetPageInfo(pageIdx, &nbElementsInPage);
-        detailsContext.currentPairIdx -= nbElementsInPage;
-    }
+    firstPairIdx
+        = getTagValueListModalPage(genericContext.currentTagValues, pageIdx, &nbElementsInPage);
     detailsContext.currentPage = pageIdx;
 
     content.tagValueList.nbPairs = nbElementsInPage;
     if (genericContext.currentTagValues->pairs != NULL) {
-        content.tagValueList.pairs
-            = &genericContext.currentTagValues->pairs[detailsContext.currentPairIdx];
+        content.tagValueList.pairs = &genericContext.currentTagValues->pairs[firstPairIdx];
     }
     else {
         // index of the pairs of the page is relative to the startIndex of the list
         content.tagValueList.callback = getModalTagValuePair;
         content.tagValueList.startIndex
-            = genericContext.currentTagValues->startIndex + detailsContext.currentPairIdx;
+            = genericContext.currentTagValues->startIndex + firstPairIdx;
     }
     if (nbElementsInPage == 1) {
         // a pair alone in its page may be too long to fit (see getNbTagValuesInDetailsPage()):
         // its value is then truncated to the lines fitting in the page, ending with "..."
         content.tagValueList.nbMaxLinesForValue = getNbLinesInDetailsPage(
-            getTagValuePair(genericContext.currentTagValues, detailsContext.currentPairIdx));
+            getTagValuePair(genericContext.currentTagValues, firstPairIdx));
         content.tagValueList.hideEndOfLastLine = true;
     }
-    detailsContext.currentPairIdx += nbElementsInPage;
     if (info.nbPages == 1) {
         // if only one page, no navigation bar, and use a footer instead
         info.navWithButtons.quitText = "Close";
@@ -2225,8 +2295,11 @@ static void keyboardGeneric_cb(int token, uint8_t index)
             }
             break;
         default:
+            // only forward tokens matching a currently used suggestion button
             if ((keyboardContext.keyboardContent.type == KEYBOARD_WITH_SUGGESTIONS)
-                && (token >= keyboardContext.keyboardContent.suggestionButtons.firstButtonToken)) {
+                && (token >= keyboardContext.keyboardContent.suggestionButtons.firstButtonToken)
+                && (token < (keyboardContext.keyboardContent.suggestionButtons.firstButtonToken
+                             + keyboardContext.keyboardContent.suggestionButtons.nbUsedButtons))) {
                 onControls(token, index);
             }
             break;
@@ -2584,10 +2657,12 @@ static void prepareAddressConfirmationPages(const char                       *ad
     // bounds the rendered slice to NB_MAX_LINES_IN_REVIEW lines, so successive
     // chunks visually pick up where the previous left off. forcePageStart on
     // all but the first chunk ensures each chunk starts a fresh page.
+    // The address is never truncated: callers reject it beforehand (see isAddressReviewable())
+    // if it needs more than ADDR_VERIF_NB_PAIRS chunks.
     nbAddressChunks = nbgl_getTextNbPagesInWidth(
         LARGE_MEDIUM_FONT, address, NB_MAX_LINES_IN_REVIEW, AVAILABLE_WIDTH);
-    bool addressTruncated = (nbAddressChunks > ADDR_VERIF_NB_PAIRS);
-    if (addressTruncated) {
+    // Defensive bound (should never trigger thanks to isAddressReviewable())
+    if (nbAddressChunks > ADDR_VERIF_NB_PAIRS) {
         nbAddressChunks = ADDR_VERIF_NB_PAIRS;
     }
     {
@@ -2658,7 +2733,7 @@ static void prepareAddressConfirmationPages(const char                       *ad
     // at NB_MAX_LINES_IN_REVIEW lines so each chunk-pair occupies exactly one page
     tagValueConfirm->tagValueList.nbMaxLinesForValue
         = (nbAddressChunks > 1) ? NB_MAX_LINES_IN_REVIEW : 0;
-    tagValueConfirm->tagValueList.hideEndOfLastLine = addressTruncated;
+    tagValueConfirm->tagValueList.hideEndOfLastLine = false;
     tagValueConfirm->tagValueList.wrapping          = false;
 
     // Number of extras left to place on a second page
@@ -3486,21 +3561,24 @@ static void displayTagValueListModal(const nbgl_contentTagValueList_t *tagValues
     uint8_t nbElementsInPage;
     uint8_t elemIdx = 0;
 
+    // such a list is rejected when starting the review (see isAliasDetailsValid()), but
+    // nothing must be drawn from it anyway
+    if ((tagValues == NULL) || (tagValues->nbPairs == 0)) {
+        LOG_WARN(USE_CASE_LOGGER, "displayTagValueListModal(): no tag/value list to display\n");
+        return;
+    }
+
     // initialize context
     memset(&detailsContext, 0, sizeof(detailsContext));
     nbElements = tagValues->nbPairs;
 
+    // count the pages, without any limit: as every page contains at least one pair (see
+    // getNbTagValuesInDetailsPage()), there are at most nbPairs (<= 255) pages, so all pairs are
+    // always reachable
     while (nbElements > 0) {
-        if (detailsContext.nbPages >= MAX_MODAL_PAGE_NB) {
-            LOG_WARN(USE_CASE_LOGGER,
-                     "displayTagValueListModal(): too many pages, truncating at %d\n",
-                     MAX_MODAL_PAGE_NB);
-            break;
-        }
         nbElementsInPage = getNbTagValuesInDetailsPage(nbElements, tagValues, elemIdx);
 
         elemIdx += nbElementsInPage;
-        modalContextSetPageInfo(detailsContext.nbPages, nbElementsInPage);
         nbElements -= nbElementsInPage;
         detailsContext.nbPages++;
     }
@@ -3516,6 +3594,21 @@ static bool isWarningEmpty(const nbgl_warning_t *warning)
            || ((warning->predefinedSet == 0) && (warning->info == NULL)
                && (warning->introDetails == NULL) && (warning->reviewDetails == NULL)
                && (warning->prelude == NULL));
+}
+
+// Gated signing is a stricter flavor of blind signing: it must go through the whole blind signing
+// warning flow (initial warning page with explicit risk acceptance, security report, tip-box...).
+// If the caller only set GATED_SIGNING_WARN, use a local copy with BLIND_SIGNING_WARN also set,
+// so that no warning page or report entry is silently skipped.
+static const nbgl_warning_t *normalizeWarning(const nbgl_warning_t *warning)
+{
+    if ((warning == NULL) || ((warning->predefinedSet & (1 << GATED_SIGNING_WARN)) == 0)
+        || (warning->predefinedSet & (1 << BLIND_SIGNING_WARN))) {
+        return warning;
+    }
+    memcpy(&normalizedWarning, warning, sizeof(normalizedWarning));
+    normalizedWarning.predefinedSet |= (1 << BLIND_SIGNING_WARN);
+    return &normalizedWarning;
 }
 
 /**********************
@@ -4573,7 +4666,7 @@ void nbgl_useCaseAdvancedReview(nbgl_operationType_t              operationType,
     reviewWithWarnCtx.reviewTitle    = reviewTitle;
     reviewWithWarnCtx.reviewSubTitle = reviewSubTitle;
     reviewWithWarnCtx.finishTitle    = finishTitle;
-    reviewWithWarnCtx.warning        = warning;
+    reviewWithWarnCtx.warning        = normalizeWarning(warning);
     reviewWithWarnCtx.choiceCallback = choiceCallback;
 
     // if the warning contains a prelude, display it first
@@ -4581,7 +4674,7 @@ void nbgl_useCaseAdvancedReview(nbgl_operationType_t              operationType,
         displayPrelude();
     }
     // display the initial warning only of a risk/threat or blind signing or prelude
-    else if (HAS_INITIAL_WARNING(warning)) {
+    else if (HAS_INITIAL_WARNING(reviewWithWarnCtx.warning)) {
         displayInitialWarning();
     }
     else {
@@ -4768,14 +4861,14 @@ void nbgl_useCaseAdvancedReviewStreamingStart(nbgl_operationType_t       operati
     reviewWithWarnCtx.reviewTitle    = reviewTitle;
     reviewWithWarnCtx.reviewSubTitle = reviewSubTitle;
     reviewWithWarnCtx.choiceCallback = choiceCallback;
-    reviewWithWarnCtx.warning        = warning;
+    reviewWithWarnCtx.warning        = normalizeWarning(warning);
 
     // if the warning contains a prelude, display it first
     if (reviewWithWarnCtx.warning->prelude) {
         displayPrelude();
     }
     // display the initial warning only of a risk/threat or blind signing
-    else if (HAS_INITIAL_WARNING(warning)) {
+    else if (HAS_INITIAL_WARNING(reviewWithWarnCtx.warning)) {
         displayInitialWarning();
     }
     else {
@@ -4913,7 +5006,7 @@ void nbgl_useCaseAddressConfirmationExt(const char                       *addres
                                         nbgl_choiceCallback_t             callback,
                                         const nbgl_contentTagValueList_t *tagValueList)
 {
-    if (!isTagValueListValid(tagValueList)) {
+    if (!isAddressReviewable(address) || !isTagValueListValid(tagValueList)) {
         if (callback != NULL) {
             callback(false);
         }
@@ -4969,7 +5062,7 @@ void nbgl_useCaseAddressReview(const char                       *address,
                                const char                       *reviewSubTitle,
                                nbgl_choiceCallback_t             choiceCallback)
 {
-    if (!isTagValueListValid(additionalTagValueList)) {
+    if (!isAddressReviewable(address) || !isTagValueListValid(additionalTagValueList)) {
         if (choiceCallback != NULL) {
             choiceCallback(false);
         }

@@ -682,8 +682,10 @@ void layoutUpdateCallbackObjToken(nbgl_layoutInternal_t *layout, nbgl_obj_t *obj
  */
 void layoutAddObject(nbgl_layoutInternal_t *layout, nbgl_obj_t *obj)
 {
-    if (layout->container->nbChildren == NB_MAX_CONTAINER_CHILDREN) {
+    if (layout->container->nbChildren >= NB_MAX_CONTAINER_CHILDREN) {
         LOG_FATAL(LAYOUT_LOGGER, "layoutAddObject(): No more object\n");
+        // LOG_FATAL is a no-op in release builds: never write past the array
+        return;
     }
     layout->container->children[layout->container->nbChildren] = obj;
     layout->container->nbChildren++;
