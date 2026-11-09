@@ -40,10 +40,12 @@ typedef struct ReviewContext_s {
     bool    skipDisplay;    // if set to true, means that we are displaying the skip page
     uint8_t dataDirection;  // used to know whether the skip page is reached from back or forward
     uint8_t currentTagValueIndex;
-    uint8_t currentExtensionPage;
-    uint8_t nbExtensionPages;
+    // (16 bits because a list of 255 elements has 256 extension pages, including the back one)
+    uint16_t                      currentExtensionPage;
+    uint16_t                      nbExtensionPages;
     const nbgl_contentValueExt_t *extension;
     nbgl_step_t                   extensionStepCtx;
+    const char *aliasValue;  // displayed value of the alias pair, used as heading of its details
 
 } ReviewContext_t;
 
@@ -214,6 +216,9 @@ static ReviewWithWarningContext_t reviewWithWarnCtx;
 // configuration of warning when using @ref nbgl_useCaseReviewBlindSigning()
 static const nbgl_warning_t blindSigningWarning = {.predefinedSet = (1 << BLIND_SIGNING_WARN)};
 
+// local copy of a caller's warning, used when it has to be normalized (see normalizeWarning())
+static nbgl_warning_t normalizedWarning;
+
 // Operation type for streaming (because the one in 'context' is reset at each streaming API call)
 nbgl_operationType_t streamingOpType;
 
@@ -249,22 +254,74 @@ static bool isTagValueListValid(const nbgl_contentTagValueList_t *tagValueList)
            || (((uint16_t) tagValueList->startIndex + tagValueList->nbPairs) <= (UINT8_MAX + 1));
 }
 
-// Helper to check that a tag/value list is valid and that its callback, if any, provides all pairs.
-// The list must not be NULL. An empty list is complete, since no pair is retrieved from it.
-static bool isTagValueListComplete(const nbgl_contentTagValueList_t *tagValueList)
+static bool checkTagValueList(const nbgl_contentTagValueList_t *tagValueList, bool checkAliases);
+
+// Helper to check that the details of a pair displayed as an alias can be displayed in full:
+// the list of an INFO_LIST_ALIAS or TAG_VALUE_LIST_ALIAS alias must exist and must not be empty,
+// and the one of a TAG_VALUE_LIST_ALIAS alias using a callback must be provided with all its pairs.
+// Otherwise opening the alias would crash, or display empty details, preventing to verify the
+// actual value. (pairs of an alias list are not checked for aliases, since their details are not
+// reachable)
+static bool isAliasDetailsComplete(const nbgl_contentTagValue_t *pair)
 {
-    if ((tagValueList->pairs != NULL) || (tagValueList->nbPairs == 0)) {
+    const nbgl_contentValueExt_t *extension;
+
+    // the extension is in an union with valueIcon, only relevant for an alias
+    if (!pair->aliasValue || (pair->extension == NULL)) {
         return true;
     }
-    if ((tagValueList->callback == NULL) || !isTagValueListValid(tagValueList)) {
-        return false;
+    extension = PIC(pair->extension);
+    if (extension->aliasType == INFO_LIST_ALIAS) {
+        const nbgl_contentInfoList_t *infoList = PIC(extension->infolist);
+        return (infoList != NULL) && (infoList->nbInfos > 0);
+    }
+    if (extension->aliasType == TAG_VALUE_LIST_ALIAS) {
+        const nbgl_contentTagValueList_t *aliasList = PIC(extension->tagValuelist);
+        return (aliasList != NULL) && (aliasList->nbPairs > 0)
+               && checkTagValueList(aliasList, false);
+    }
+    return true;
+}
+
+// Helper to check that a non NULL tag/value list is valid and that its callback, if any, provides
+// all pairs. If checkAliases is true, the details of every pair displayed as an alias are checked
+// too (see isAliasDetailsComplete()). An empty list is complete, since no pair is retrieved from
+// it.
+static bool checkTagValueList(const nbgl_contentTagValueList_t *tagValueList, bool checkAliases)
+{
+    if (tagValueList->nbPairs == 0) {
+        return true;
+    }
+    if (tagValueList->pairs == NULL) {
+        if ((tagValueList->callback == NULL) || !isTagValueListValid(tagValueList)) {
+            return false;
+        }
+    }
+    else if (!checkAliases) {
+        return true;
     }
     for (uint8_t i = 0; i < tagValueList->nbPairs; i++) {
-        if (PIC(tagValueList->callback(tagValueList->startIndex + i)) == NULL) {
+        const nbgl_contentTagValue_t *pair;
+
+        if (tagValueList->pairs != NULL) {
+            pair = PIC(&tagValueList->pairs[i]);
+        }
+        else {
+            pair = PIC(tagValueList->callback(tagValueList->startIndex + i));
+        }
+        if ((pair == NULL) || (checkAliases && !isAliasDetailsComplete(pair))) {
             return false;
         }
     }
     return true;
+}
+
+// Helper to check that a tag/value list is valid, that its callback, if any, provides all pairs,
+// and that the details of all its aliases can be displayed in full.
+// The list must not be NULL. An empty list is complete, since no pair is retrieved from it.
+static bool isTagValueListComplete(const nbgl_contentTagValueList_t *tagValueList)
+{
+    return checkTagValueList(tagValueList, true);
 }
 
 // Helper to check that the tag/value list of a content, if any, is complete
@@ -1106,8 +1163,15 @@ static void displayExtensionStep(nbgl_stepPosition_t pos)
 
     if (context.review.extensionStepCtx != NULL) {
         nbgl_stepRelease(context.review.extensionStepCtx);
+        context.review.extensionStepCtx = NULL;
     }
     if (context.review.currentExtensionPage < (context.review.nbExtensionPages - 1)) {
+        // title is only documented for QR Code aliases, so for ENS and Address Book aliases,
+        // fall back to the displayed alias value (as on touchscreen devices) if not provided
+        const char *aliasHeading = (context.review.extension->title != NULL)
+                                       ? context.review.extension->title
+                                       : context.review.aliasValue;
+
         if (context.review.currentExtensionPage == 0) {
             pos |= FIRST_STEP;
         }
@@ -1117,20 +1181,20 @@ static void displayExtensionStep(nbgl_stepPosition_t pos)
 
         switch (context.review.extension->aliasType) {
             case ENS_ALIAS:
-                text    = context.review.extension->title;
+                text    = aliasHeading;
                 subText = context.review.extension->fullValue;
                 break;
             case ADDRESS_BOOK_ALIAS: {
                 bool    has_scope = (context.review.extension->aliasSubName != NULL);
                 bool    has_tn    = (context.review.extension->explanation != NULL);
-                uint8_t page      = context.review.currentExtensionPage;
+                uint8_t page      = (uint8_t) context.review.currentExtensionPage;
                 if (page == 0) {
-                    text    = context.review.extension->title;
+                    text    = aliasHeading;
                     subText = has_scope ? context.review.extension->aliasSubName
                                         : context.review.extension->fullValue;
                 }
                 else if (has_scope && page == 1) {
-                    text    = context.review.extension->title;
+                    text    = aliasHeading;
                     subText = context.review.extension->fullValue;
                 }
                 else if (has_tn) {
@@ -1152,7 +1216,7 @@ static void displayExtensionStep(nbgl_stepPosition_t pos)
                 tagValueList = context.review.extension->tagValuelist;
                 // these values are tag/value pairs, so their max number of lines applies
                 getPairData(tagValueList,
-                            context.review.currentExtensionPage,
+                            (uint8_t) context.review.currentExtensionPage,
                             &text,
                             &subText,
                             &pairExtension,
@@ -1207,6 +1271,7 @@ static void displayAliasFullValue(void)
     }
     context.review.currentExtensionPage = 0;
     context.review.extensionStepCtx     = NULL;
+    context.review.aliasValue           = (subText != NULL) ? PIC(subText) : "";
     // create a modal flow to display this extension
     switch (context.review.extension->aliasType) {
         case ENS_ALIAS:
@@ -1218,11 +1283,27 @@ static void displayAliasFullValue(void)
                   + ((context.review.extension->explanation != NULL) ? 1 : 0);
             break;
         case INFO_LIST_ALIAS:
-            context.review.nbExtensionPages = context.review.extension->infolist->nbInfos + 1;
+        case TAG_VALUE_LIST_ALIAS: {
+            // such details are rejected when starting the review (see isAliasDetailsComplete()),
+            // but nothing must be drawn from them anyway
+            uint8_t nbElements = 0;
+            if (context.review.extension->aliasType == INFO_LIST_ALIAS) {
+                const nbgl_contentInfoList_t *infoList = PIC(context.review.extension->infolist);
+                nbElements                             = (infoList != NULL) ? infoList->nbInfos : 0;
+            }
+            else {
+                const nbgl_contentTagValueList_t *aliasList
+                    = PIC(context.review.extension->tagValuelist);
+                nbElements = (aliasList != NULL) ? aliasList->nbPairs : 0;
+            }
+            if (nbElements == 0) {
+                LOG_WARN(USE_CASE_LOGGER, "displayAliasFullValue: no details to display\n");
+                return;
+            }
+            // 1 page per element + 1 back page
+            context.review.nbExtensionPages = (uint16_t) nbElements + 1;
             break;
-        case TAG_VALUE_LIST_ALIAS:
-            context.review.nbExtensionPages = context.review.extension->tagValuelist->nbPairs + 1;
-            break;
+        }
         default:
             LOG_WARN(USE_CASE_LOGGER,
                      "displayAliasFullValue: unsupported alias type %d\n",
@@ -1487,7 +1568,11 @@ static void displayStreamingReviewPage(nbgl_stepPosition_t pos)
                         &isCenteredInfo,
                         &nbMaxLines);
             if (extension != NULL) {
-                forcedType = FORCE_BUTTON;
+                // allow the user to review the full value behind the alias, as in non-streaming
+                // review
+                context.stepCallback                = displayAliasFullValue;
+                context.review.currentTagValueIndex = context.currentPage;
+                forcedType                          = FORCE_BUTTON;
             }
             else {
                 if (isCenteredInfo) {
@@ -2535,6 +2620,21 @@ static void displayPrelude(void)
     displayWarningStep();
 }
 
+// Gated signing is a stricter flavor of blind signing: it must go through the whole blind signing
+// warning flow (initial warning page with explicit risk acceptance, security report, tip-box...).
+// If the caller only set GATED_SIGNING_WARN, use a local copy with BLIND_SIGNING_WARN also set,
+// so that no warning page or report entry is silently skipped.
+static const nbgl_warning_t *normalizeWarning(const nbgl_warning_t *warning)
+{
+    if ((warning == NULL) || ((warning->predefinedSet & (1 << GATED_SIGNING_WARN)) == 0)
+        || (warning->predefinedSet & (1 << BLIND_SIGNING_WARN))) {
+        return warning;
+    }
+    memcpy(&normalizedWarning, warning, sizeof(normalizedWarning));
+    normalizedWarning.predefinedSet |= (1 << BLIND_SIGNING_WARN);
+    return &normalizedWarning;
+}
+
 /**********************
  *  GLOBAL FUNCTIONS
  **********************/
@@ -2908,7 +3008,7 @@ void nbgl_useCaseAdvancedReview(nbgl_operationType_t              operationType,
     reviewWithWarnCtx.reviewTitle    = reviewTitle;
     reviewWithWarnCtx.reviewSubTitle = reviewSubTitle;
     reviewWithWarnCtx.finishTitle    = finishTitle;
-    reviewWithWarnCtx.warning        = warning;
+    reviewWithWarnCtx.warning        = normalizeWarning(warning);
     reviewWithWarnCtx.choiceCallback = choiceCallback;
 
     // if the warning contains a prelude, display it first
@@ -2916,7 +3016,7 @@ void nbgl_useCaseAdvancedReview(nbgl_operationType_t              operationType,
         displayPrelude();
     }
     // display the initial warning only of a risk/threat or blind signing or prelude
-    else if (HAS_INITIAL_WARNING(warning)) {
+    else if (HAS_INITIAL_WARNING(reviewWithWarnCtx.warning)) {
         displayInitialWarning();
     }
     else {
@@ -3271,14 +3371,14 @@ void nbgl_useCaseAdvancedReviewStreamingStart(nbgl_operationType_t       operati
     reviewWithWarnCtx.reviewTitle    = reviewTitle;
     reviewWithWarnCtx.reviewSubTitle = reviewSubTitle;
     reviewWithWarnCtx.choiceCallback = choiceCallback;
-    reviewWithWarnCtx.warning        = warning;
+    reviewWithWarnCtx.warning        = normalizeWarning(warning);
 
     // if the warning contains a prelude, display it first
     if (reviewWithWarnCtx.warning->prelude) {
         displayPrelude();
     }
     // display the initial warning only of a risk/threat or blind signing or prelude
-    else if (HAS_INITIAL_WARNING(warning)) {
+    else if (HAS_INITIAL_WARNING(reviewWithWarnCtx.warning)) {
         displayInitialWarning();
     }
     else {

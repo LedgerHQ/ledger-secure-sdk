@@ -113,7 +113,7 @@ extern "C" {
 #define HAS_INITIAL_WARNING(_warning)                                    \
     ((_warning->predefinedSet                                            \
       & ((1 << W3C_THREAT_DETECTED_WARN) | (1 << W3C_RISK_DETECTED_WARN) \
-         | (1 << BLIND_SIGNING_WARN)))                                   \
+         | (1 << BLIND_SIGNING_WARN) | (1 << GATED_SIGNING_WARN)))       \
      || (_warning->info != NULL))
 
 /**********************

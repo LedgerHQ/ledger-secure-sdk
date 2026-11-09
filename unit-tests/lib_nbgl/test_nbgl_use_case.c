@@ -29,6 +29,8 @@
 // Regression tests for V-298: when an INFOS_LIST with extensions is automatically paginated in a
 // generic content, every page must keep the extensions, and touching the alias of an info on any
 // page must display the full value of this info (and not of an info of another page).
+// Regression tests for V-284: an address needing more pages than the address confirmation can
+// hold must be rejected (fail closed) instead of being confirmable while truncated.
 
 // number of pairs of the TAG_VALUE_CONFIRM list
 #define NB_PAIRS            12
@@ -464,6 +466,9 @@ bool nbgl_getTextMaxLenInNbLines(nbgl_font_id_e fontId,
     return true;
 }
 
+// number of pages returned by nbgl_getTextNbPagesInWidth(), reset to 1 for every test
+static uint8_t nb_text_pages;
+
 uint8_t nbgl_getTextNbPagesInWidth(nbgl_font_id_e fontId,
                                    const char    *text,
                                    uint8_t        nbLinesPerPage,
@@ -473,7 +478,7 @@ uint8_t nbgl_getTextNbPagesInWidth(nbgl_font_id_e fontId,
     (void) text;
     (void) nbLinesPerPage;
     (void) maxWidth;
-    return 1;
+    return nb_text_pages;
 }
 
 void nbgl_textReduceOnNbLines(nbgl_font_id_e fontId,
@@ -623,6 +628,7 @@ void setUp(void)
     nb_keypads            = 0;
     keypad_callback       = NULL;
     keypad_text           = NULL;
+    nb_text_pages         = 1;
     memset(&modal_nav, 0, sizeof(modal_nav));
     memset(&modal_content, 0, sizeof(modal_content));
 
@@ -1008,6 +1014,78 @@ void test_address_review_is_rejected_without_callback(void)
 }
 
 // ============================================================================
+// V-284: an address too long to be fully displayed must be rejected
+// ============================================================================
+
+#define ADDR_MAX_NB_PAGES 3
+
+void test_address_review_at_max_length_is_fully_displayed(void)
+{
+    nb_text_pages = ADDR_MAX_NB_PAGES;
+    nbgl_useCaseAddressReview("0xADDRESS", NULL, &C_Warning_64px, "Verify address", NULL, onChoice);
+    TEST_ASSERT_EQUAL_INT(0, nb_choices);
+    TEST_ASSERT_NOT_NULL(page_callback);
+    TEST_ASSERT_EQUAL(EXTENDED_CENTER, page_content.type);
+    // first page + one page per address chunk
+    TEST_ASSERT_EQUAL_UINT8(1 + ADDR_MAX_NB_PAGES, page_nav.nbPages);
+
+    // every chunk page is displayed, without hiding the end of the address, and the confirmation
+    // is only available on the last chunk page
+    for (uint8_t page = 1; page <= ADDR_MAX_NB_PAGES; page++) {
+        const nbgl_contentTagValueList_t *list;
+
+        page_callback(page_nav.navWithButtons.navToken, page);
+        if (page < ADDR_MAX_NB_PAGES) {
+            TEST_ASSERT_EQUAL(TAG_VALUE_LIST, page_content.type);
+            list = &page_content.tagValueList;
+        }
+        else {
+            TEST_ASSERT_EQUAL(TAG_VALUE_CONFIRM, page_content.type);
+            TEST_ASSERT_EQUAL_STRING("Confirm", page_content.tagValueConfirm.confirmationText);
+            list = &page_content.tagValueConfirm.tagValueList;
+        }
+        TEST_ASSERT_EQUAL_UINT8(1, list->nbPairs);
+        TEST_ASSERT_EQUAL_STRING("Address", list->pairs[0].item);
+        TEST_ASSERT_FALSE(list->hideEndOfLastLine);
+    }
+    TEST_ASSERT_EQUAL_INT(0, nb_choices);
+}
+
+// Checks that an address needing the given number of pages is rejected by both address APIs,
+// without displaying anything
+static void checkAddressIsRejected(uint8_t nbPages)
+{
+    nb_text_pages = nbPages;
+    nbgl_useCaseAddressReview("0xADDRESS", NULL, &C_Warning_64px, "Verify address", NULL, onChoice);
+    TEST_ASSERT_EQUAL_INT(1, nb_choices);
+    TEST_ASSERT_FALSE(last_choice);
+    TEST_ASSERT_NULL(page_callback);
+
+    nbgl_useCaseAddressConfirmationExt("0xADDRESS", onChoice, NULL);
+    TEST_ASSERT_EQUAL_INT(2, nb_choices);
+    TEST_ASSERT_FALSE(last_choice);
+    TEST_ASSERT_NULL(page_callback);
+}
+
+void test_address_review_over_max_length_is_rejected(void)
+{
+    checkAddressIsRejected(ADDR_MAX_NB_PAGES + 1);
+}
+
+void test_address_review_with_overflowed_nb_pages_is_rejected(void)
+{
+    checkAddressIsRejected(0);
+}
+
+void test_address_review_without_address_is_rejected(void)
+{
+    nbgl_useCaseAddressReview(NULL, NULL, &C_Warning_64px, "Verify address", NULL, onChoice);
+    TEST_ASSERT_EQUAL_INT(1, nb_choices);
+    TEST_ASSERT_FALSE(last_choice);
+    TEST_ASSERT_NULL(page_callback);
+}
+
+// ============================================================================
 // V-293: custom warning only made of the info field
 // ============================================================================
 
@@ -1305,6 +1383,56 @@ void test_predefined_warning_takes_precedence_over_custom_fields(void)
 }
 
 // ============================================================================
+// V-162: a gated signing only warning shall display its initial warning page
+// ============================================================================
+
+// A GATED_SIGNING_WARN only warning shall display the gated signing initial page (with explicit
+// risk acceptance) before the review, then the same top-right buttons as blind signing
+void test_gated_signing_only_warning_is_displayed_before_review(void)
+{
+    nbgl_warning_t warning = {.predefinedSet = (1 << GATED_SIGNING_WARN)};
+
+    for (uint8_t streaming = 0; streaming < 2; streaming++) {
+        page_callback        = NULL;
+        warning_choice_drawn = false;
+        center_description   = NULL;
+        startAdvancedReview(&warning, streaming);
+
+        // the gated signing warning page shall be drawn, and the review not started
+        TEST_ASSERT_TRUE(warning_choice_drawn);
+        TEST_ASSERT_NULL(page_callback);
+        TEST_ASSERT_EQUAL_INT(0, nb_choices);
+        TEST_ASSERT_NOT_NULL(center_description);
+        TEST_ASSERT_NOT_NULL(strstr(center_description, "ledger.com/integrated-apps"));
+        // the caller's warning shall not be modified
+        TEST_ASSERT_EQUAL_UINT32(1 << GATED_SIGNING_WARN, warning.predefinedSet);
+
+        // accept the risk: the review shall start, with the blind signing top-right buttons
+        layout_callback(warning_choice_token, 1);
+        checkTopRightButtons(&WARNING_ICON, false, streaming);
+    }
+}
+
+// A GATED_SIGNING_WARN only warning page shall allow to reject the operation without reviewing
+void test_gated_signing_only_warning_can_be_rejected(void)
+{
+    nbgl_warning_t warning = {.predefinedSet = (1 << GATED_SIGNING_WARN)};
+
+    for (uint8_t streaming = 0; streaming < 2; streaming++) {
+        page_callback        = NULL;
+        warning_choice_drawn = false;
+        nb_choices           = 0;
+        startAdvancedReview(&warning, streaming);
+        TEST_ASSERT_TRUE(warning_choice_drawn);
+
+        layout_callback(warning_choice_token, 0);
+        TEST_ASSERT_NULL(page_callback);
+        TEST_ASSERT_EQUAL_INT(1, nb_choices);
+        TEST_ASSERT_FALSE(last_choice);
+    }
+}
+
+// ============================================================================
 // nbMaxLinesForValue of the pairs: a value with a max number of lines is counted with its
 // truncated height to split the pages, so it shares its page and never needs a "More" page
 // ============================================================================
@@ -1419,9 +1547,11 @@ void test_no_pair_max_lines_uses_details_page(void)
 // the font used to draw them (small bold for values), in which their values take 2 lines
 // ============================================================================
 
-#define NB_ALIAS_LIST_PAIRS 8
+#define NB_ALIAS_LIST_PAIRS  8
+// max number of pairs of an alias list (nbPairs is an uint8_t)
+#define MAX_ALIAS_LIST_PAIRS 255
 
-static nbgl_contentTagValue_t     aliasListPairs[NB_ALIAS_LIST_PAIRS];
+static nbgl_contentTagValue_t     aliasListPairs[MAX_ALIAS_LIST_PAIRS];
 static nbgl_contentTagValueList_t aliasList;
 
 // Builds a list of NB_ALIAS_LIST_PAIRS alias pairs with WIDER_IN_BOLD values, to be changed by
@@ -1451,41 +1581,62 @@ static void openAliasListModal(void)
     TEST_ASSERT_NOT_NULL(modal_callback);
 }
 
+// Checks that the current modal page displays the pairs of the alias list from firstPair, and
+// returns its number of pairs
+static uint8_t checkAliasListModalPage(uint16_t firstPair, uint16_t pairHeight)
+{
+    uint8_t nbPairs = modal_content.tagValueList.nbPairs;
+    TEST_ASSERT_EQUAL(TAG_VALUE_LIST, modal_content.type);
+    TEST_ASSERT_GREATER_THAN_UINT8(0, nbPairs);
+    TEST_ASSERT_LESS_OR_EQUAL_UINT16(aliasList.nbPairs, firstPair + nbPairs);
+    if (aliasList.pairs != NULL) {
+        TEST_ASSERT_EQUAL_PTR(&aliasListPairs[firstPair], modal_content.tagValueList.pairs);
+    }
+    else {
+        const nbgl_contentTagValueList_t *drawn = &modal_content.tagValueList;
+        TEST_ASSERT_NULL(drawn->pairs);
+        TEST_ASSERT_NOT_NULL(drawn->callback);
+        TEST_ASSERT_EQUAL_UINT8(aliasList.startIndex + firstPair, drawn->startIndex);
+        for (uint8_t i = 0; i < nbPairs; i++) {
+            TEST_ASSERT_EQUAL_PTR(&aliasListPairs[firstPair + i],
+                                  drawn->callback(drawn->startIndex + i));
+        }
+    }
+    if (pairHeight > 0) {
+        TEST_ASSERT_LESS_THAN_UINT16(
+            TAG_VALUE_AREA_HEIGHT,
+            PRE_TAG_VALUE_MARGIN + nbPairs * pairHeight + (nbPairs - 1) * INTER_TAG_VALUE_MARGIN);
+    }
+    return nbPairs;
+}
+
 // Goes through all modal pages, checking that each page contains at least one pair and that all
 // pairs are displayed once. If pairHeight is not 0, also checks that the pairs fit in each page.
 // If the alias list uses a callback, the pairs of each page must be retrieved with the callback of
-// the page, from its startIndex
+// the page, from its startIndex. Then goes back from the last page to the first one, checking that
+// each page displays the same pairs as in forward direction
 static void checkAliasListModalPages(uint16_t pairHeight)
 {
-    uint8_t nbPairsDrawn = 0;
-    for (uint8_t page = 0; page < modal_nav.nbPages; page++) {
-        uint8_t nbPairs = modal_content.tagValueList.nbPairs;
-        TEST_ASSERT_EQUAL(TAG_VALUE_LIST, modal_content.type);
-        if (aliasList.pairs != NULL) {
-            TEST_ASSERT_EQUAL_PTR(&aliasListPairs[nbPairsDrawn], modal_content.tagValueList.pairs);
-        }
-        else {
-            const nbgl_contentTagValueList_t *drawn = &modal_content.tagValueList;
-            TEST_ASSERT_NULL(drawn->pairs);
-            TEST_ASSERT_NOT_NULL(drawn->callback);
-            TEST_ASSERT_EQUAL_UINT8(aliasList.startIndex + nbPairsDrawn, drawn->startIndex);
-            for (uint8_t i = 0; i < nbPairs; i++) {
-                TEST_ASSERT_EQUAL_PTR(&aliasListPairs[nbPairsDrawn + i],
-                                      drawn->callback(drawn->startIndex + i));
-            }
-        }
-        TEST_ASSERT_GREATER_THAN_UINT8(0, nbPairs);
-        if (pairHeight > 0) {
-            TEST_ASSERT_LESS_THAN_UINT16(TAG_VALUE_AREA_HEIGHT,
-                                         PRE_TAG_VALUE_MARGIN + nbPairs * pairHeight
-                                             + (nbPairs - 1) * INTER_TAG_VALUE_MARGIN);
-        }
-        nbPairsDrawn += nbPairs;
-        if ((page + 1) < modal_nav.nbPages) {
+    uint16_t firstPairs[MAX_ALIAS_LIST_PAIRS];
+    uint16_t nbPairsDrawn = 0;
+    uint8_t  nbPages      = modal_nav.nbPages;
+
+    TEST_ASSERT_GREATER_THAN_UINT8(0, nbPages);
+    for (uint8_t page = 0; page < nbPages; page++) {
+        TEST_ASSERT_EQUAL_UINT8(page, modal_nav.activePage);
+        firstPairs[page] = nbPairsDrawn;
+        nbPairsDrawn += checkAliasListModalPage(nbPairsDrawn, pairHeight);
+        if ((page + 1) < nbPages) {
             modal_callback(modal_nav.navWithButtons.navToken, page + 1);
         }
     }
-    TEST_ASSERT_EQUAL_UINT8(NB_ALIAS_LIST_PAIRS, nbPairsDrawn);
+    TEST_ASSERT_EQUAL_UINT16(aliasList.nbPairs, nbPairsDrawn);
+    // backward direction
+    for (int16_t page = nbPages - 2; page >= 0; page--) {
+        modal_callback(modal_nav.navWithButtons.navToken, page);
+        TEST_ASSERT_EQUAL_UINT8(page, modal_nav.activePage);
+        checkAliasListModalPage(firstPairs[page], pairHeight);
+    }
 }
 
 void test_alias_list_modal_pages_fit(void)
@@ -1521,9 +1672,9 @@ void test_alias_list_modal_pair_too_long_has_its_page(void)
 
 static nbgl_contentTagValue_t *getAliasListPair(uint8_t pairIndex)
 {
-    TEST_ASSERT_GREATER_OR_EQUAL_UINT8(ALIAS_LIST_START_INDEX, pairIndex);
-    TEST_ASSERT_LESS_THAN_UINT8(ALIAS_LIST_START_INDEX + NB_ALIAS_LIST_PAIRS, pairIndex);
-    return &aliasListPairs[pairIndex - ALIAS_LIST_START_INDEX];
+    TEST_ASSERT_GREATER_OR_EQUAL_UINT8(aliasList.startIndex, pairIndex);
+    TEST_ASSERT_LESS_THAN_UINT16(aliasList.startIndex + aliasList.nbPairs, pairIndex);
+    return &aliasListPairs[pairIndex - aliasList.startIndex];
 }
 
 // Changes the alias list built by buildAliasList() to a list using a callback
@@ -1571,6 +1722,212 @@ void test_alias_list_modal_with_callback_pair_too_long(void)
     // open the modal again to check all pages from the first one: touching the alias calls
     // displayTagValueListModal(), which resets detailsContext
     openAliasListModal();
+    checkAliasListModalPages(0);
+}
+
+// V-300: the modal pages of an alias list were limited to 32, the pairs beyond were silently never
+// displayed. Builds a list of nbPairs pairs, each one too long to fit with another one, so that
+// every pair has its own page (as many pages as pairs), optionally using a callback (with the
+// given startIndex), and checks that all pairs are reachable in both directions
+static void checkAliasListModalWithManyPages(uint8_t nbPairs, bool withCallback, uint8_t startIndex)
+{
+    memset(aliasListPairs, 0, sizeof(aliasListPairs));
+    for (uint16_t i = 0; i < nbPairs; i++) {
+        aliasListPairs[i].item  = "Item";
+        aliasListPairs[i].value = LONG_VALUE;
+    }
+    memset(&aliasList, 0, sizeof(aliasList));
+    aliasList.pairs   = aliasListPairs;
+    aliasList.nbPairs = nbPairs;
+    if (withCallback) {
+        aliasList.pairs      = NULL;
+        aliasList.callback   = getAliasListPair;
+        aliasList.startIndex = startIndex;
+    }
+    openAliasListModal();
+    TEST_ASSERT_EQUAL_UINT8(nbPairs, modal_nav.nbPages);
+    checkAliasListModalPages(0);
+}
+
+void test_alias_list_modal_31_32_33_pages(void)
+{
+    for (uint8_t withCallback = 0; withCallback < 2; withCallback++) {
+        checkAliasListModalWithManyPages(31, withCallback, ALIAS_LIST_START_INDEX);
+        checkAliasListModalWithManyPages(32, withCallback, ALIAS_LIST_START_INDEX);
+        checkAliasListModalWithManyPages(33, withCallback, ALIAS_LIST_START_INDEX);
+    }
+}
+
+void test_alias_list_modal_max_pages(void)
+{
+    // a list of 255 pairs, each in its own page: 255 pages, all reachable
+    checkAliasListModalWithManyPages(MAX_ALIAS_LIST_PAIRS, false, 0);
+    checkAliasListModalWithManyPages(MAX_ALIAS_LIST_PAIRS, true, 0);
+}
+
+void test_alias_list_modal_many_pages_of_several_pairs(void)
+{
+    // a list of 255 short pairs, several per page, needing more than 32 pages: all pairs are
+    // reachable in both directions, and fit in their page
+    memset(aliasListPairs, 0, sizeof(aliasListPairs));
+    for (uint16_t i = 0; i < MAX_ALIAS_LIST_PAIRS; i++) {
+        aliasListPairs[i].item  = "Item";
+        aliasListPairs[i].value = WIDER_IN_BOLD;
+    }
+    memset(&aliasList, 0, sizeof(aliasList));
+    aliasList.pairs   = aliasListPairs;
+    aliasList.nbPairs = MAX_ALIAS_LIST_PAIRS;
+    openAliasListModal();
+    TEST_ASSERT_GREATER_THAN_UINT8(32, modal_nav.nbPages);
+    TEST_ASSERT_LESS_THAN_UINT8(MAX_ALIAS_LIST_PAIRS, modal_nav.nbPages);
+    checkAliasListModalPages(TEXT_HEIGHT + TAG_VALUE_INTERVALE + 2 * TEXT_HEIGHT);
+}
+
+// ============================================================================
+// V-396: a review whose TAG_VALUE_LIST_ALIAS details can't be displayed in full (no list, empty
+// list, or list using a callback not providing all its pairs) must be rejected when started,
+// instead of displaying empty details when touching the alias
+// ============================================================================
+
+static nbgl_contentTagValue_t *getAliasListPairWithMissing(uint8_t pairIndex)
+{
+    if (pairIndex == aliasList.startIndex + 2) {
+        return NULL;
+    }
+    return getAliasListPair(pairIndex);
+}
+
+// Starts a generic review, then a simple review, whose first pair has the alias list as alias
+// (the review list itself using a callback or not), and checks that both are rejected
+static void checkReviewWithAliasListIsRejected(bool withCallback)
+{
+    buildList(NB_PAIRS, withCallback);
+    extensions[0].aliasType    = TAG_VALUE_LIST_ALIAS;
+    extensions[0].tagValuelist = &aliasList;
+    nbgl_useCaseGenericReview(&contents, "Reject", onReject);
+    TEST_ASSERT_EQUAL_INT(1, nb_rejects);
+    TEST_ASSERT_NULL(page_callback);
+
+    nbgl_useCaseReview(TYPE_TRANSACTION,
+                       &content.content.tagValueConfirm.tagValueList,
+                       &C_Warning_64px,
+                       "Review",
+                       NULL,
+                       "Sign",
+                       onChoice);
+    TEST_ASSERT_EQUAL_INT(1, nb_choices);
+    TEST_ASSERT_FALSE(last_choice);
+    TEST_ASSERT_NULL(page_callback);
+    nb_rejects = 0;
+    nb_choices = 0;
+}
+
+void test_review_is_rejected_on_missing_alias_list_callback_pair(void)
+{
+    for (uint8_t withCallback = 0; withCallback < 2; withCallback++) {
+        buildAliasList();
+        useAliasListCallback();
+        aliasList.callback = getAliasListPairWithMissing;
+        checkReviewWithAliasListIsRejected(withCallback);
+    }
+}
+
+void test_review_is_rejected_without_alias_list_callback(void)
+{
+    for (uint8_t withCallback = 0; withCallback < 2; withCallback++) {
+        buildAliasList();
+        useAliasListCallback();
+        aliasList.callback = NULL;
+        checkReviewWithAliasListIsRejected(withCallback);
+    }
+}
+
+void test_review_is_rejected_on_alias_list_callback_index_overflow(void)
+{
+    for (uint8_t withCallback = 0; withCallback < 2; withCallback++) {
+        buildAliasList();
+        useAliasListCallback();
+        // the last pair would be retrieved with callback(UINT8_MAX + 1), wrapping to 0
+        aliasList.startIndex = UINT8_MAX + 2 - NB_ALIAS_LIST_PAIRS;
+        checkReviewWithAliasListIsRejected(withCallback);
+    }
+}
+
+void test_review_is_rejected_without_alias_list(void)
+{
+    for (uint8_t withCallback = 0; withCallback < 2; withCallback++) {
+        buildList(NB_PAIRS, withCallback);
+        extensions[0].aliasType    = TAG_VALUE_LIST_ALIAS;
+        extensions[0].tagValuelist = NULL;
+        nbgl_useCaseGenericReview(&contents, "Reject", onReject);
+        TEST_ASSERT_EQUAL_INT(1, nb_rejects);
+        TEST_ASSERT_NULL(page_callback);
+        nb_rejects = 0;
+    }
+}
+
+void test_review_is_rejected_with_empty_alias_list(void)
+{
+    for (uint8_t withCallback = 0; withCallback < 2; withCallback++) {
+        buildAliasList();
+        aliasList.nbPairs = 0;
+        checkReviewWithAliasListIsRejected(withCallback);
+    }
+}
+
+// An INFO_LIST_ALIAS alias without info list, or with an empty one, must be rejected too
+// (touching it used to dereference the NULL list, or to display an empty modal)
+static void checkReviewWithAliasInfoListIsRejected(const nbgl_contentInfoList_t *infoList)
+{
+    for (uint8_t withCallback = 0; withCallback < 2; withCallback++) {
+        buildList(NB_PAIRS, withCallback);
+        extensions[0].aliasType = INFO_LIST_ALIAS;
+        extensions[0].infolist  = infoList;
+        nbgl_useCaseGenericReview(&contents, "Reject", onReject);
+        TEST_ASSERT_EQUAL_INT(1, nb_rejects);
+        TEST_ASSERT_NULL(page_callback);
+
+        nbgl_useCaseReview(TYPE_TRANSACTION,
+                           &content.content.tagValueConfirm.tagValueList,
+                           &C_Warning_64px,
+                           "Review",
+                           NULL,
+                           "Sign",
+                           onChoice);
+        TEST_ASSERT_EQUAL_INT(1, nb_choices);
+        TEST_ASSERT_FALSE(last_choice);
+        TEST_ASSERT_NULL(page_callback);
+        nb_rejects = 0;
+        nb_choices = 0;
+    }
+}
+
+void test_review_is_rejected_without_alias_info_list(void)
+{
+    checkReviewWithAliasInfoListIsRejected(NULL);
+}
+
+void test_review_is_rejected_with_empty_alias_info_list(void)
+{
+    static const char *const      infoTypes[]    = {"type"};
+    static const char *const      infoContents[] = {"content"};
+    static nbgl_contentInfoList_t infoList;
+
+    memset(&infoList, 0, sizeof(infoList));
+    infoList.infoTypes    = infoTypes;
+    infoList.infoContents = infoContents;
+    infoList.nbInfos      = 0;
+    checkReviewWithAliasInfoListIsRejected(&infoList);
+}
+
+void test_review_with_alias_list_at_uint8_limit_is_accepted(void)
+{
+    // the last pair of the alias list is retrieved with callback(UINT8_MAX)
+    buildAliasList();
+    useAliasListCallback();
+    aliasList.startIndex = UINT8_MAX + 1 - NB_ALIAS_LIST_PAIRS;
+    openAliasListModal();
+    TEST_ASSERT_EQUAL_INT(0, nb_rejects);
     checkAliasListModalPages(0);
 }
 
@@ -1911,6 +2268,77 @@ void test_keyboard_with_suggestions_stops_at_max_len(void)
     TEST_ASSERT_EQUAL_HEX32(0, kbd_mask);
 }
 
+// V-141: only tokens of used suggestion buttons must be forwarded to the application
+#define FIRST_SUGGESTION_TOKEN 0x40
+static uint8_t nb_used_suggestions;
+static int     nb_suggestion_selections;
+static int     last_suggestion_token;
+
+static void on_suggestion_selected(int token, uint8_t index)
+{
+    (void) index;
+    nb_suggestion_selections++;
+    last_suggestion_token = token;
+}
+
+static void fixed_suggestions(nbgl_layoutKeyboardContent_t *content, uint32_t *mask)
+{
+    content->suggestionButtons.nbUsedButtons = nb_used_suggestions;
+    content->suggestionButtons.nbCandidates  = nb_used_suggestions;
+    *mask                                    = 0;
+}
+
+static void start_suggestions_keyboard(void)
+{
+    static const char    *buttons[NB_MAX_SUGGESTION_BUTTONS];
+    nbgl_keyboardParams_t params = {
+        .type                                   = KEYBOARD_WITH_SUGGESTIONS,
+        .title                                  = "Enter word",
+        .entryBuffer                            = entry.buffer,
+        .entryMaxLen                            = ENTRY_MAX_LEN,
+        .mode                                   = MODE_LETTERS,
+        .lettersOnly                            = true,
+        .casing                                 = LOWER_CASE,
+        .suggestionParams.buttons               = buttons,
+        .suggestionParams.firstButtonToken      = FIRST_SUGGESTION_TOKEN,
+        .suggestionParams.onButtonCallback      = on_suggestion_selected,
+        .suggestionParams.updateButtonsCallback = fixed_suggestions,
+    };
+    nb_suggestion_selections = 0;
+    last_suggestion_token    = -1;
+    memset(&entry, CANARY, sizeof(entry));
+    nbgl_useCaseKeyboard(&params, on_keyboard_back);
+    TEST_ASSERT_NOT_NULL(layout_callback);
+}
+
+void test_keyboard_unused_suggestion_tokens_are_ignored(void)
+{
+    nb_used_suggestions = 0;
+    start_suggestions_keyboard();
+    // no suggestion at all at start
+    for (int i = 0; i < NB_MAX_SUGGESTION_BUTTONS; i++) {
+        layout_callback(FIRST_SUGGESTION_TOKEN + i, 0);
+    }
+    TEST_ASSERT_EQUAL_INT(0, nb_suggestion_selections);
+
+    // after typing, 1 suggestion is proposed
+    nb_used_suggestions = 1;
+    kbd_callback('a');
+    layout_callback(FIRST_SUGGESTION_TOKEN, 0);
+    TEST_ASSERT_EQUAL_INT(1, nb_suggestion_selections);
+    TEST_ASSERT_EQUAL_INT(FIRST_SUGGESTION_TOKEN, last_suggestion_token);
+    for (int i = 1; i < NB_MAX_SUGGESTION_BUTTONS; i++) {
+        layout_callback(FIRST_SUGGESTION_TOKEN + i, 0);
+    }
+    TEST_ASSERT_EQUAL_INT(1, nb_suggestion_selections);
+
+    // after a backspace, no suggestion anymore
+    nb_used_suggestions = 0;
+    kbd_callback(BACKSPACE_KEY);
+    layout_callback(FIRST_SUGGESTION_TOKEN, 0);
+    TEST_ASSERT_EQUAL_INT(1, nb_suggestion_selections);
+}
+
 void test_keyboard_without_buffer_is_rejected(void)
 {
     nbgl_keyboardParams_t params = {
@@ -2169,6 +2597,10 @@ int main(void)
     RUN_TEST(test_address_review_with_empty_list_is_displayed);
     RUN_TEST(test_address_review_without_list_is_displayed);
     RUN_TEST(test_address_review_is_rejected_without_callback);
+    RUN_TEST(test_address_review_at_max_length_is_fully_displayed);
+    RUN_TEST(test_address_review_over_max_length_is_rejected);
+    RUN_TEST(test_address_review_with_overflowed_nb_pages_is_rejected);
+    RUN_TEST(test_address_review_without_address_is_rejected);
     RUN_TEST(test_info_only_warning_is_displayed_before_review);
     RUN_TEST(test_info_only_warning_can_be_rejected);
     RUN_TEST(test_info_only_warning_is_displayed_before_streaming_review);
@@ -2180,12 +2612,25 @@ int main(void)
     RUN_TEST(test_no_warning_no_review_details_button);
     RUN_TEST(test_predefined_warning_without_custom_fields);
     RUN_TEST(test_predefined_warning_takes_precedence_over_custom_fields);
+    RUN_TEST(test_gated_signing_only_warning_is_displayed_before_review);
+    RUN_TEST(test_gated_signing_only_warning_can_be_rejected);
     RUN_TEST(test_pair_max_lines_shares_page);
     RUN_TEST(test_no_pair_max_lines_uses_details_page);
     RUN_TEST(test_alias_list_modal_pages_fit);
     RUN_TEST(test_alias_list_modal_pair_too_long_has_its_page);
     RUN_TEST(test_alias_list_modal_with_callback);
     RUN_TEST(test_alias_list_modal_with_callback_pair_too_long);
+    RUN_TEST(test_alias_list_modal_31_32_33_pages);
+    RUN_TEST(test_alias_list_modal_max_pages);
+    RUN_TEST(test_alias_list_modal_many_pages_of_several_pairs);
+    RUN_TEST(test_review_is_rejected_on_missing_alias_list_callback_pair);
+    RUN_TEST(test_review_is_rejected_without_alias_list_callback);
+    RUN_TEST(test_review_is_rejected_on_alias_list_callback_index_overflow);
+    RUN_TEST(test_review_is_rejected_without_alias_list);
+    RUN_TEST(test_review_is_rejected_with_empty_alias_list);
+    RUN_TEST(test_review_with_alias_list_at_uint8_limit_is_accepted);
+    RUN_TEST(test_review_is_rejected_without_alias_info_list);
+    RUN_TEST(test_review_is_rejected_with_empty_alias_info_list);
     RUN_TEST(test_review_list_pages_split_with_drawn_font);
     RUN_TEST(test_review_confirm_pages_split_with_drawn_font);
     RUN_TEST(test_more_details_pages_show_whole_value);
@@ -2197,6 +2642,7 @@ int main(void)
     RUN_TEST(test_threat_report_without_url);
     RUN_TEST(test_keyboard_with_button_stops_at_max_len);
     RUN_TEST(test_keyboard_with_suggestions_stops_at_max_len);
+    RUN_TEST(test_keyboard_unused_suggestion_tokens_are_ignored);
     RUN_TEST(test_keyboard_without_buffer_is_rejected);
     RUN_TEST(test_keyboard_with_zero_max_len_is_rejected);
     RUN_TEST(test_keypad_visible_digits_are_nul_terminated_at_max);
