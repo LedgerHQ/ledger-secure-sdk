@@ -26,6 +26,9 @@
 // Regression tests for V-407: a pair of the tag/value list of an alias too tall to fit in a page of
 // its modal can't be displayed in full (no continuation page), so the review must be rejected when
 // started (fail closed) instead of truncating its value.
+// Regression tests for V-408: a value needing more pages than UINT8_MAX in the "More" details
+// modal can't be displayed in full (its end is never reachable), so the review must be rejected
+// when started (fail closed) instead of silently cutting the value.
 // Regression tests for V-142: in the threat/risk report modal, a long report URL must never lead
 // to an out-of-bounds header string, nor to a QR Code encoding a truncated URL.
 // Regression tests for V-298: when an INFOS_LIST with extensions is automatically paginated in a
@@ -396,17 +399,35 @@ static const char TALLER_IN_LARGE[] = "taller in large";
 // a value displayed in many pages of the "More" details modal. Any text starting in it is split in
 // lines of a number of chars depending on the font, like real fonts (fewer chars in bold)
 #define MORE_VALUE_LEN 1500
-static char MORE_VALUE[MORE_VALUE_LEN + 1];
+// number of chars per line in the small bold font, used by the "More" details modal
+#define BOLD_CHARS_PER_LINE   20
+// number of chars of a full page of the "More" details modal
+#define DETAILS_PAGE_CHARS    (NB_MAX_LINES_IN_DETAILS * BOLD_CHARS_PER_LINE)
+// number of chars between the starts of 2 consecutive pages of the "More" details modal, for a
+// value without '\n' displayed without wrapping: the last 3 chars of a page are replaced by "..."
+// and displayed again at the beginning of the next page
+#define DETAILS_PAGE_ADVANCE  (DETAILS_PAGE_CHARS - 3)
+// length of a value without '\n' displayed in exactly UINT8_MAX pages of the "More" details modal
+#define MAX_DETAILS_VALUE_LEN ((UINT8_MAX - 1) * DETAILS_PAGE_ADVANCE + DETAILS_PAGE_CHARS)
+#define MORE_VALUE_SIZE       (MAX_DETAILS_VALUE_LEN + DETAILS_PAGE_CHARS + 1)
+static char MORE_VALUE[MORE_VALUE_SIZE];
 
 static bool isInMoreValue(const char *text)
 {
-    return (text >= MORE_VALUE) && (text < &MORE_VALUE[MORE_VALUE_LEN]);
+    return (text >= MORE_VALUE) && (text < &MORE_VALUE[MORE_VALUE_SIZE]);
+}
+
+// fills MORE_VALUE with a value of the given length, made of 'A' chars
+static void setMoreValue(uint16_t len)
+{
+    memset(MORE_VALUE, 'A', len);
+    MORE_VALUE[len] = '\0';
 }
 
 static uint16_t getNbCharsPerLine(nbgl_font_id_e fontId)
 {
     if (fontId == SMALL_BOLD_FONT) {
-        return 20;
+        return BOLD_CHARS_PER_LINE;
     }
     if (fontId == SMALL_REGULAR_FONT) {
         return 24;
@@ -2114,14 +2135,10 @@ void test_review_confirm_pages_split_with_drawn_font(void)
 // displays the end of the value, and going back displays the same pages as going forward
 // ============================================================================
 
-void test_more_details_pages_show_whole_value(void)
+// Starts a generic review of a single pair with MORE_VALUE as value, too long for a review page: it
+// has a "More" button
+static void startMoreValueReview(void)
 {
-    const char *pagesStart[UINT8_MAX];
-    uint8_t     nbPages;
-
-    memset(MORE_VALUE, 'A', MORE_VALUE_LEN);
-    MORE_VALUE[MORE_VALUE_LEN] = '\0';
-    // a single pair with this value, too long for a review page: it has a "More" button
     memset(pairs, 0, NB_PAIRS * sizeof(nbgl_contentTagValue_t));
     pairs[0].item  = items[0];
     pairs[0].value = MORE_VALUE;
@@ -2133,6 +2150,16 @@ void test_more_details_pages_show_whole_value(void)
     contents.contentsList                = &content;
     contents.nbContents                  = 1;
     nbgl_useCaseGenericReview(&contents, "Reject", onReject);
+}
+
+// Opens the "More" details modal of the review started with startMoreValueReview(), and checks that
+// all its pages are reachable, the last one displaying the end of the value, and that going back
+// displays the same pages as going forward. Returns the number of pages of the modal
+static uint8_t checkMoreDetailsPages(void)
+{
+    static const char *pagesStart[UINT8_MAX];
+    uint8_t            nbPages;
+
     TEST_ASSERT_EQUAL(TAG_VALUE_DETAILS, page_content.type);
 
     modal_pages_expected = true;
@@ -2159,11 +2186,70 @@ void test_more_details_pages_show_whole_value(void)
                 strlen(pagesStart[page]));
         }
     }
+    // the last page displays the end of the value
+    TEST_ASSERT_EQUAL_PTR(&MORE_VALUE[strlen(MORE_VALUE)],
+                          pagesStart[nbPages - 1] + strlen(pagesStart[nbPages - 1]));
     // backward: the same pages
     for (int page = nbPages - 2; page >= 0; page--) {
         modal_callback(modal_nav.navWithButtons.navToken, page);
         TEST_ASSERT_EQUAL_PTR(pagesStart[page], modal_content.tagValueList.pairs[0].value);
     }
+    return nbPages;
+}
+
+void test_more_details_pages_show_whole_value(void)
+{
+    setMoreValue(MORE_VALUE_LEN);
+    startMoreValueReview();
+    checkMoreDetailsPages();
+}
+
+// V-408: the "More" details modal has at most UINT8_MAX pages. A value needing exactly this number
+// of pages is displayed in full
+void test_more_details_with_max_pages_shows_whole_value(void)
+{
+    setMoreValue(MAX_DETAILS_VALUE_LEN);
+    startMoreValueReview();
+    TEST_ASSERT_EQUAL_INT(0, nb_rejects);
+    TEST_ASSERT_EQUAL_UINT8(UINT8_MAX, checkMoreDetailsPages());
+}
+
+// V-408: a value needing more pages than UINT8_MAX in the "More" details modal used to be silently
+// cut after the last page, its end being never displayed before approving. Such a review must be
+// rejected when started (fail closed), whether the list uses a callback or not, whatever the
+// position of the pair in the list
+static void checkReviewWithTooLongDetailsIsRejected(uint16_t len, uint8_t pairIndex)
+{
+    setMoreValue(len);
+    for (uint8_t withCallback = 0; withCallback < 2; withCallback++) {
+        buildList(NB_PAIRS, withCallback);
+        pairs[pairIndex].value      = MORE_VALUE;
+        pairs[pairIndex].aliasValue = 0;
+        nbgl_useCaseGenericReview(&contents, "Reject", onReject);
+        TEST_ASSERT_EQUAL_INT(1, nb_rejects);
+        TEST_ASSERT_NULL(page_callback);
+
+        nbgl_useCaseReview(TYPE_TRANSACTION,
+                           &content.content.tagValueConfirm.tagValueList,
+                           &C_Warning_64px,
+                           "Review",
+                           NULL,
+                           "Sign",
+                           onChoice);
+        TEST_ASSERT_EQUAL_INT(1, nb_choices);
+        TEST_ASSERT_FALSE(last_choice);
+        TEST_ASSERT_NULL(page_callback);
+        nb_rejects = 0;
+        nb_choices = 0;
+    }
+}
+
+void test_review_is_rejected_with_too_many_details_pages(void)
+{
+    // a single char more than the max is enough to be rejected
+    checkReviewWithTooLongDetailsIsRejected(MAX_DETAILS_VALUE_LEN + 1, 0);
+    checkReviewWithTooLongDetailsIsRejected(MAX_DETAILS_VALUE_LEN + 1, NB_PAIRS - 1);
+    checkReviewWithTooLongDetailsIsRejected(MORE_VALUE_SIZE - 1, 0);
 }
 
 // ============================================================================
@@ -2746,6 +2832,8 @@ int main(void)
     RUN_TEST(test_review_list_pages_split_with_drawn_font);
     RUN_TEST(test_review_confirm_pages_split_with_drawn_font);
     RUN_TEST(test_more_details_pages_show_whole_value);
+    RUN_TEST(test_more_details_with_max_pages_shows_whole_value);
+    RUN_TEST(test_review_is_rejected_with_too_many_details_pages);
     RUN_TEST(test_tag_value_max_lines);
     RUN_TEST(test_threat_report_with_short_url);
     RUN_TEST(test_threat_report_with_saturating_url);

@@ -386,6 +386,7 @@ static void displayAddressQRCode(void);
 
 static uint8_t getNbLinesInDetailsPage(const nbgl_contentTagValue_t *pair);
 static bool    isPairFittingInDetailsPage(const nbgl_contentTagValue_t *pair, bool wrapping);
+static uint16_t getNbDetailsPages(const char *value, bool wrapping);
 static uint8_t getNbTagValuesInDetailsPage(uint8_t                           nbPairs,
                                            const nbgl_contentTagValueList_t *tagValueList,
                                            uint8_t                           startIndex);
@@ -555,7 +556,20 @@ static uint8_t getTagValueListModalPage(const nbgl_contentTagValueList_t *tagVal
     return startIdx;
 }
 
-static bool checkTagValueList(const nbgl_contentTagValueList_t *tagValueList, bool checkAliases);
+static bool checkTagValueList(const nbgl_contentTagValueList_t *tagValueList, bool checkDetails);
+
+// Helper to check that the value of a pair of a review list can be displayed in full in the "More"
+// details modal, used when the pair is too long to fit in a review page: this modal has at most
+// UINT8_MAX pages (its navigation is on uint8_t), so the end of a value needing more pages would
+// never be reachable before approving the review (see displayDetails()).
+// A centered info pair has no "More" button, so its value is not checked.
+static bool isDetailsValueDisplayable(const nbgl_contentTagValue_t *pair, bool wrapping)
+{
+    if (pair->centeredInfo || (pair->value == NULL)) {
+        return true;
+    }
+    return getNbDetailsPages(pair->value, wrapping) <= UINT8_MAX;
+}
 
 // Helper to check that the details of a pair displayed as an alias can be displayed in full:
 // the list of an INFO_LIST_ALIAS or TAG_VALUE_LIST_ALIAS alias must exist and must not be empty
@@ -599,10 +613,11 @@ static bool isAliasDetailsValid(const nbgl_contentTagValue_t *pair)
 
 // Helper to check that all pairs of a non NULL tag/value list retrieved with a callback are
 // provided by it, with an index fitting in uint8_t (from startIndex to startIndex + nbPairs - 1).
-// If checkAliases is true, the details of every pair displayed as an alias are checked too
-// (see isAliasDetailsValid()).
+// If checkDetails is true, the details of every pair displayed as an alias are checked too
+// (see isAliasDetailsValid()), as well as the "More" details of every pair (see
+// isDetailsValueDisplayable()).
 // An empty list is valid, since no pair is retrieved from it.
-static bool checkTagValueList(const nbgl_contentTagValueList_t *tagValueList, bool checkAliases)
+static bool checkTagValueList(const nbgl_contentTagValueList_t *tagValueList, bool checkDetails)
 {
     if (tagValueList->nbPairs == 0) {
         return true;
@@ -613,7 +628,7 @@ static bool checkTagValueList(const nbgl_contentTagValueList_t *tagValueList, bo
             return false;
         }
     }
-    else if (!checkAliases) {
+    else if (!checkDetails) {
         return true;
     }
     for (uint8_t i = 0; i < tagValueList->nbPairs; i++) {
@@ -625,7 +640,10 @@ static bool checkTagValueList(const nbgl_contentTagValueList_t *tagValueList, bo
         else {
             pair = PIC(tagValueList->callback(tagValueList->startIndex + i));
         }
-        if ((pair == NULL) || (checkAliases && !isAliasDetailsValid(pair))) {
+        if ((pair == NULL)
+            || (checkDetails
+                && (!isAliasDetailsValid(pair)
+                    || !isDetailsValueDisplayable(pair, tagValueList->wrapping)))) {
             return false;
         }
     }
@@ -634,7 +652,7 @@ static bool checkTagValueList(const nbgl_contentTagValueList_t *tagValueList, bo
 
 // Helper to check that all pairs of a tag/value list retrieved with a callback are provided by it,
 // with an index fitting in uint8_t (from startIndex to startIndex + nbPairs - 1), and that the
-// details of all its aliases can be displayed in full.
+// details of all its aliases and the "More" details of all its pairs can be displayed in full.
 // A NULL list is valid: callers where the list is mandatory must reject it themselves.
 // An empty list is valid too, since no pair is retrieved from it.
 static bool isTagValueListValid(const nbgl_contentTagValueList_t *tagValueList)
@@ -1602,28 +1620,24 @@ static void displayGenericContextPage(uint8_t pageIdx, bool forceFullRefresh)
 // count, display and go back to the pages, so that they always match.
 // If not NULL, ellipsis is set to true if the page ends with "..." (replacing its last 3 chars,
 // which are displayed again at the beginning of the next page)
-static uint16_t getDetailsPageLen(const char *text, bool *ellipsis)
+static uint16_t getDetailsPageLen(const char *text, bool wrapping, bool *ellipsis)
 {
     uint16_t len;
 
     if (ellipsis != NULL) {
         *ellipsis = false;
     }
-    if (nbgl_getTextNbLinesInWidth(SMALL_BOLD_FONT, text, AVAILABLE_WIDTH, detailsContext.wrapping)
+    if (nbgl_getTextNbLinesInWidth(SMALL_BOLD_FONT, text, AVAILABLE_WIDTH, wrapping)
         <= NB_MAX_LINES_IN_DETAILS) {
         return 0;
     }
-    nbgl_getTextMaxLenInNbLines(SMALL_BOLD_FONT,
-                                text,
-                                AVAILABLE_WIDTH,
-                                NB_MAX_LINES_IN_DETAILS,
-                                &len,
-                                detailsContext.wrapping);
+    nbgl_getTextMaxLenInNbLines(
+        SMALL_BOLD_FONT, text, AVAILABLE_WIDTH, NB_MAX_LINES_IN_DETAILS, &len, wrapping);
     // don't start next page on a \n
     if (text[len] == '\n') {
         len++;
     }
-    else if (!detailsContext.wrapping) {
+    else if (!wrapping) {
         len -= 3;
         if (ellipsis != NULL) {
             *ellipsis = true;
@@ -1632,13 +1646,29 @@ static uint16_t getDetailsPageLen(const char *text, bool *ellipsis)
     return len;
 }
 
+// returns the number of pages needed to display the given value in the "More" details modal, with
+// exactly the same split as the one used to display them. The count stops as soon as it exceeds
+// UINT8_MAX, the max number of pages of the modal: such a value can't be displayed in full, and is
+// rejected when starting the review (see isDetailsValueDisplayable())
+static uint16_t getNbDetailsPages(const char *value, bool wrapping)
+{
+    uint16_t nbPages = 1;
+    uint16_t len;
+
+    while ((nbPages <= UINT8_MAX) && ((len = getDetailsPageLen(value, wrapping, NULL)) > 0)) {
+        value += len;
+        nbPages++;
+    }
+    return nbPages;
+}
+
 // from the current details context, return a pointer on the details at the given page
 static const char *getDetailsPageAt(uint8_t detailsPage)
 {
     uint8_t     page        = 0;
     const char *currentChar = detailsContext.value;
     while (page < detailsPage) {
-        currentChar = currentChar + getDetailsPageLen(currentChar, NULL);
+        currentChar = currentChar + getDetailsPageLen(currentChar, detailsContext.wrapping, NULL);
         page++;
     }
     return currentChar;
@@ -1681,7 +1711,7 @@ static void displayDetailsPage(uint8_t detailsPage, bool forceFullRefresh)
     }
     detailsContext.currentPage = detailsPage;
     bool     ellipsis;
-    uint16_t len = getDetailsPageLen(currentPair.value, &ellipsis);
+    uint16_t len = getDetailsPageLen(currentPair.value, detailsContext.wrapping, &ellipsis);
 
     if (len > 0) {
         content.tagValueDetails.tagValueList.hideEndOfLastLine = ellipsis;
@@ -3544,12 +3574,14 @@ static void displayDetails(const char *tag, const char *value, bool wrapping)
     detailsContext.currentPage = 0;
     detailsContext.wrapping    = wrapping;
     // count the pages with exactly the same split as the one used to display them
-    detailsContext.nbPages = 1;
-    uint16_t len;
-    while (((len = getDetailsPageLen(value, NULL)) > 0) && (detailsContext.nbPages < UINT8_MAX)) {
-        value += len;
-        detailsContext.nbPages++;
+    uint16_t nbPages = getNbDetailsPages(value, wrapping);
+    if (nbPages > UINT8_MAX) {
+        // such a value is rejected when starting the review (see isDetailsValueDisplayable()), but
+        // its end would never be reachable, so nothing must be drawn from it anyway
+        LOG_WARN(USE_CASE_LOGGER, "displayDetails(): too many pages to display the value\n");
+        return;
     }
+    detailsContext.nbPages = nbPages;
 
     displayDetailsPage(0, true);
 }
