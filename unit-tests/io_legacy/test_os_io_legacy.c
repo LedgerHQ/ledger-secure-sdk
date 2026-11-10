@@ -581,6 +581,118 @@ void test_reply_reopens_the_gate(void)
     TEST_ASSERT_EQUAL_INT(1, sent_count);
 }
 
+/* Short frames (V-100) ------------------------------------------------------*/
+
+static const uint8_t WRONG_LENGTH[] = {SWO_WRONG_LENGTH >> 8, SWO_WRONG_LENGTH & 0xFF};
+
+static const uint8_t APDU_TYPES[] = {
+    OS_IO_PACKET_TYPE_RAW_APDU,
+    OS_IO_PACKET_TYPE_USB_HID_APDU,
+    OS_IO_PACKET_TYPE_USB_CCID_APDU,
+    OS_IO_PACKET_TYPE_USB_WEBUSB_APDU,
+    OS_IO_PACKET_TYPE_USB_U2F_HID_APDU,
+    OS_IO_PACKET_TYPE_BLE_APDU,
+    OS_IO_PACKET_TYPE_NFC_APDU,
+};
+
+// Whatever the bytes left in G_io_rx_buffer past the frame, an empty command gets a
+// wrong-length answer on its own transport, and the next command is taken.
+static void check_empty_apdus_are_refused(uint8_t stale)
+{
+    for (size_t t = 0; t < sizeof(APDU_TYPES); t++) {
+        setUp();
+        memset(G_io_rx_buffer, stale, sizeof(G_io_rx_buffer));
+        memset(G_io_apdu_buffer, 0x5A, 8);
+
+        TEST_ASSERT_EQUAL_INT(0, receive(APDU_TYPES[t], NULL, 0));
+        TEST_ASSERT_FALSE_MESSAGE(os_io_reply_pending(), "latch armed by an empty command");
+        TEST_ASSERT_EQUAL(APDU_TYPE_NONE, io_os_legacy_apdu_type);
+        TEST_ASSERT_EACH_EQUAL_HEX8(0x5A, G_io_apdu_buffer, 8);
+        TEST_ASSERT_EQUAL_INT(1, sent_count);
+        TEST_ASSERT_EQUAL_UINT8(APDU_TYPES[t], sent[0].type);
+        TEST_ASSERT_EQUAL_size_t(sizeof(WRONG_LENGTH), sent[0].length);
+        TEST_ASSERT_EQUAL_HEX8_ARRAY(WRONG_LENGTH, sent[0].data, sizeof(WRONG_LENGTH));
+
+        TEST_ASSERT_EQUAL_INT(sizeof(OTHER_APDU),
+                              receive(APDU_TYPES[t], OTHER_APDU, sizeof(OTHER_APDU)));
+        TEST_ASSERT_TRUE(os_io_reply_pending());
+    }
+}
+
+void test_empty_apdu_over_stale_default_cla_is_refused(void)
+{
+    check_empty_apdus_are_refused(DEFAULT_APDU_CLA);
+}
+
+void test_empty_apdu_over_stale_app_bytes_is_refused(void)
+{
+    check_empty_apdus_are_refused(0xE0);
+}
+
+// A non-empty APDU shorter than a header still reaches the app, which answers it with its
+// own status word (apps' test_wrong_data_length expects theirs, e.g. 0x6A87 for E00300).
+void test_short_apdu_reaches_the_app(void)
+{
+    for (size_t length = 1; length < APDU_OFF_LC; length++) {
+        setUp();
+        memset(G_io_rx_buffer, DEFAULT_APDU_CLA, sizeof(G_io_rx_buffer));
+        TEST_ASSERT_EQUAL_INT(length, receive(OS_IO_PACKET_TYPE_USB_HID_APDU, HID_APDU, length));
+        TEST_ASSERT_TRUE(os_io_reply_pending());
+        TEST_ASSERT_EQUAL_HEX8_ARRAY(HID_APDU, G_io_apdu_buffer, length);
+        TEST_ASSERT_EQUAL_INT(0, sent_count);
+    }
+}
+
+// Even locked, an empty command is answered for its length and leaves no route behind.
+void test_empty_apdu_while_locked_is_refused_for_its_length(void)
+{
+    pin_set       = BOLOS_TRUE;
+    pin_validated = BOLOS_FALSE;
+
+    TEST_ASSERT_EQUAL_INT(0, receive(OS_IO_PACKET_TYPE_USB_HID_APDU, NULL, 0));
+    TEST_ASSERT_FALSE(os_io_reply_pending());
+    TEST_ASSERT_EQUAL(APDU_TYPE_NONE, io_os_legacy_apdu_type);
+    TEST_ASSERT_EQUAL_HEX8_ARRAY(WRONG_LENGTH, sent[0].data, sizeof(WRONG_LENGTH));
+}
+
+// While a command awaits its reply, an empty command is refused as busy, like any other command,
+// and the pending one is left untouched.
+void test_empty_apdu_during_review_is_refused_as_busy(void)
+{
+    receive(OS_IO_PACKET_TYPE_USB_HID_APDU, HID_APDU, sizeof(HID_APDU));
+
+    TEST_ASSERT_EQUAL_INT(0, receive(OS_IO_PACKET_TYPE_BLE_APDU, NULL, 0));
+    TEST_ASSERT_EQUAL_HEX8(0x69, sent[0].data[0]);
+    TEST_ASSERT_EQUAL_HEX8(0x01, sent[0].data[1]);
+    assert_pending_untouched(HID_APDU, sizeof(HID_APDU), APDU_TYPE_USB_HID, APDU_USB_HID);
+}
+
+// The smallest APDU, a bare header, still reaches the app.
+void test_header_only_apdu_reaches_the_app(void)
+{
+    TEST_ASSERT_EQUAL_INT(APDU_OFF_LC,
+                          receive(OS_IO_PACKET_TYPE_USB_HID_APDU, OTHER_APDU, APDU_OFF_LC));
+    TEST_ASSERT_TRUE(os_io_reply_pending());
+    TEST_ASSERT_EQUAL_HEX8_ARRAY(OTHER_APDU, G_io_apdu_buffer, APDU_OFF_LC);
+    TEST_ASSERT_EQUAL_INT(0, sent_count);
+}
+
+// A CTAP2 command is a single byte at least: an empty one gets a CTAPHID length error.
+void test_empty_cbor_is_refused_with_a_ctaphid_error(void)
+{
+    TEST_ASSERT_EQUAL_INT(0, receive(OS_IO_PACKET_TYPE_USB_U2F_HID_CBOR, NULL, 0));
+    TEST_ASSERT_FALSE(os_io_reply_pending());
+    TEST_ASSERT_FALSE(io_reply_pending_cbor);
+    TEST_ASSERT_EQUAL_INT(1, sent_count);
+    TEST_ASSERT_EQUAL_UINT8(OS_IO_PACKET_TYPE_USB_U2F_HID_RAW, sent[0].type);
+    TEST_ASSERT_EQUAL_HEX8(U2F_COMMAND_ERROR, sent[0].data[0]);
+    TEST_ASSERT_EQUAL_HEX8(CTAP1_ERR_INVALID_LENGTH, sent[0].data[1]);
+
+    TEST_ASSERT_EQUAL_INT(sizeof(GET_INFO),
+                          receive(OS_IO_PACKET_TYPE_USB_U2F_HID_CBOR, GET_INFO, sizeof(GET_INFO)));
+    TEST_ASSERT_TRUE(os_io_reply_pending());
+}
+
 /* io_seph_recv --------------------------------------------------------------*/
 
 #define CANARY      0xA5
@@ -700,6 +812,13 @@ int main(void)
     RUN_TEST(test_default_reply_sent_keeps_the_gate_open);
     RUN_TEST(test_usb_busy_without_pending_command_keeps_the_gate_open);
     RUN_TEST(test_reply_reopens_the_gate);
+    RUN_TEST(test_empty_apdu_over_stale_default_cla_is_refused);
+    RUN_TEST(test_empty_apdu_over_stale_app_bytes_is_refused);
+    RUN_TEST(test_short_apdu_reaches_the_app);
+    RUN_TEST(test_empty_apdu_while_locked_is_refused_for_its_length);
+    RUN_TEST(test_empty_apdu_during_review_is_refused_as_busy);
+    RUN_TEST(test_header_only_apdu_reaches_the_app);
+    RUN_TEST(test_empty_cbor_is_refused_with_a_ctaphid_error);
     RUN_TEST(test_seph_event_larger_than_the_buffer_is_dropped);
     RUN_TEST(test_seph_event_filling_the_buffer_is_received);
     RUN_TEST(test_itc_event_is_handed_its_length);
