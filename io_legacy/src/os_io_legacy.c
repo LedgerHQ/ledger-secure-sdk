@@ -119,25 +119,33 @@ static void hold_while_reply_in_flight(void)
 #endif  // !USE_OS_IO_STACK
 }
 
-// Answers a command that arrives while another one awaits its reply. The answer is built
-// apart: G_io_tx_buffer is G_io_apdu_buffer, which may still hold the pending command.
-static int reject_while_reply_pending(uint8_t packet_type)
+// Answers a command without handing it to the app. The answer is built apart:
+// G_io_tx_buffer is G_io_apdu_buffer, which may still hold a pending command.
+// A CTAP2 client gets the matching CTAPHID error, any other client the status word sw.
+static int reject_command(uint8_t packet_type, uint16_t sw)
 {
     int status;
 
 #ifdef HAVE_IO_U2F
     if (packet_type == OS_IO_PACKET_TYPE_USB_U2F_HID_CBOR) {
-        // A CTAP2 client expects a CTAPHID error, not a status word.
-        uint8_t error[2] = {U2F_COMMAND_ERROR, CTAP1_ERR_CHANNEL_BUSY};
-        status           = os_io_tx_cmd(OS_IO_PACKET_TYPE_USB_U2F_HID_RAW, error, sizeof(error), 0);
+        uint8_t error[2]
+            = {U2F_COMMAND_ERROR,
+               (sw == SWO_WRONG_LENGTH) ? CTAP1_ERR_INVALID_LENGTH : CTAP1_ERR_CHANNEL_BUSY};
+        status = os_io_tx_cmd(OS_IO_PACKET_TYPE_USB_U2F_HID_RAW, error, sizeof(error), 0);
     }
     else
 #endif  // HAVE_IO_U2F
     {
-        uint8_t sw[2] = {SWO_COMMAND_NOT_ACCEPTED >> 8, SWO_COMMAND_NOT_ACCEPTED & 0xFF};
-        status        = os_io_tx_cmd(packet_type, sw, sizeof(sw), 0);
+        uint8_t sw_buf[2] = {sw >> 8, sw & 0xFF};
+        status            = os_io_tx_cmd(packet_type, sw_buf, sizeof(sw_buf), 0);
     }
     return (status > 0) ? 0 : status;
+}
+
+// Answers a command that arrives while another one awaits its reply.
+static int reject_while_reply_pending(uint8_t packet_type)
+{
+    return reject_command(packet_type, SWO_COMMAND_NOT_ACCEPTED);
 }
 
 static io_apdu_media_t get_media_from_apdu_type(apdu_type_t apdu_type)
@@ -482,6 +490,15 @@ int io_legacy_apdu_rx(uint8_t handle_ux_events)
                 // whatever transport either comes from.
                 if (os_io_reply_pending()) {
                     status = reject_while_reply_pending(G_io_rx_buffer[0]);
+                    break;
+                }
+                // V-100: an empty command (the type byte alone, when the host advertises a
+                // zero length) must neither be routed on stale bytes of G_io_rx_buffer nor
+                // arm the latch: the app would never see it, so would never reply, and every
+                // later command would be refused. A non-empty but short one still reaches the
+                // app, which answers it with its own status word.
+                if (status <= 1) {
+                    status = reject_command(G_io_rx_buffer[0], SWO_WRONG_LENGTH);
                     break;
                 }
                 io_os_legacy_apdu_type = G_io_rx_buffer[0];
