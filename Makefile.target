@@ -40,6 +40,36 @@ TARGET_NAME := $(shell grep -E "^\#define\s*TARGET_[^I]" $(BOLOS_TARGET_H) | hea
 SDK_NAME    := "ledger-secure-sdk"
 SDK_VERSION := $(shell git -C $(BOLOS_SDK) describe --tags --exact-match  --match "v[0-9]*" --dirty)
 SDK_HASH    := $(shell git -C $(BOLOS_SDK) describe --always --dirty --exclude '*' --abbrev=40)
+
+# `git describe --dirty` only reports changes to tracked files, whereas Makefile.rules
+# compiles every *.[csS] and adds the directory of every *.h found ON DISK under the SDK
+# source/header paths. A file unknown to git (untracked, or ignored through .gitignore /
+# .git/info/exclude) in such a path changes the build while the embedded SDK_VERSION /
+# SDK_HASH would still claim a clean tag/commit. Such files therefore mark the SDK dirty.
+# The search covers the whole SDK tree (SDK_SOURCE_PATH is not final yet at this point),
+# minus the top-level directories that are never part of an app build.
+# Set SDK_REQUIRE_CLEAN=1 (e.g. in release CI) to fail instead of building a dirty SDK.
+SDK_PROVENANCE_EXCLUDE := doc fuzzing tests tools unit-tests
+SDK_UNTRACKED_SOURCES  := $(shell git -C $(BOLOS_SDK) ls-files --others -- '*.[csSh]' \
+                            $(foreach dir,$(SDK_PROVENANCE_EXCLUDE),':!:$(dir)/') 2>/dev/null)
+ifneq ($(SDK_UNTRACKED_SOURCES),)
+$(warning SDK tree contains source files unknown to git, SDK_VERSION/SDK_HASH marked dirty: $(SDK_UNTRACKED_SOURCES))
+ifneq ($(SDK_VERSION),)
+SDK_VERSION := $(SDK_VERSION:%-dirty=%)-dirty
+endif
+ifneq ($(SDK_HASH),)
+SDK_HASH    := $(SDK_HASH:%-dirty=%)-dirty
+endif
+endif
+ifeq ($(SDK_REQUIRE_CLEAN),1)
+ifeq ($(SDK_HASH),)
+$(error SDK_REQUIRE_CLEAN=1 but the SDK provenance at $(BOLOS_SDK) cannot be determined (not a git checkout?))
+endif
+ifneq ($(filter %-dirty,$(SDK_HASH)),)
+$(error SDK_REQUIRE_CLEAN=1 but the SDK tree at $(BOLOS_SDK) is dirty (modified or untracked files))
+endif
+endif
+
 ifeq ($(SDK_VERSION),)
 SDK_VERSION := "None"
 endif
