@@ -41,23 +41,31 @@ endif
 # --nocrc
 # Other info are considered an error and will be silently discarded.
 
+# Extract the values of option $(1) from APP_LOAD_PARAMS, and abort the build
+# if the extraction fails (e.g. option given without a value): a malformed
+# restriction must never be silently dropped, as missing --curve/--path
+# restrictions default to authorizing every curve/path.
+define extract_app_load_param
+$(shell python3 $(BOLOS_SDK)/extract_param.py $(1) $(APP_LOAD_PARAMS))$(if $(filter-out 0,$(.SHELLSTATUS)),$(error Failed to extract $(1) from APP_LOAD_PARAMS))
+endef
+
 ifneq ($(APP_LOAD_PARAMS),)
-	EXTRACTED_APP_FLAGS := $(shell python3 $(BOLOS_SDK)/extract_param.py --appFlags $(APP_LOAD_PARAMS))
+	EXTRACTED_APP_FLAGS := $(call extract_app_load_param,--appFlags)
 	APP_FLAGS_APP_LOAD_PARAMS += $(EXTRACTED_APP_FLAGS)
 
-	EXTRACTED_CURVE := $(shell python3 $(BOLOS_SDK)/extract_param.py --curve $(APP_LOAD_PARAMS))
+	EXTRACTED_CURVE := $(call extract_app_load_param,--curve)
 	CURVE_APP_LOAD_PARAMS += $(EXTRACTED_CURVE)
 
-	EXTRACTED_PATH := $(shell python3 $(BOLOS_SDK)/extract_param.py --path $(APP_LOAD_PARAMS))
+	EXTRACTED_PATH := $(call extract_app_load_param,--path)
 	PATH_APP_LOAD_PARAMS += $(EXTRACTED_PATH)
 
-	EXTRACTED_PATH_SLIP21 := $(shell python3 $(BOLOS_SDK)/extract_param.py --path_slip21 $(APP_LOAD_PARAMS))
+	EXTRACTED_PATH_SLIP21 := $(call extract_app_load_param,--path_slip21)
 	PATH_SLIP21_APP_LOAD_PARAMS += $(EXTRACTED_PATH_SLIP21)
 
-	EXTRACTED_TLVRAW := $(shell python3 $(BOLOS_SDK)/extract_param.py --tlvraw $(APP_LOAD_PARAMS))
+	EXTRACTED_TLVRAW := $(call extract_app_load_param,--tlvraw)
 	TLVRAW_APP_LOAD_PARAMS += $(EXTRACTED_TLVRAW)
 
-	EXTRACTED_DEP := $(shell python3 $(BOLOS_SDK)/extract_param.py --dep $(APP_LOAD_PARAMS))
+	EXTRACTED_DEP := $(call extract_app_load_param,--dep)
 	DEP_APP_LOAD_PARAMS += $(EXTRACTED_DEP)
 
 	ifneq ($(findstring --nocrc,$(APP_LOAD_PARAMS)),)
