@@ -44,6 +44,16 @@ typedef enum {
     TX_CHECK_SETTING_ENABLE,  ///< Transaction Check is enabled
 } tx_check_setting_t;
 
+/** Result of a descriptor or opt-in request, mapped by each app to its own status words. */
+typedef enum {
+    TX_CHECK_SUCCESS,             ///< Descriptor stored, or opt-in already done
+    TX_CHECK_PENDING,             ///< Opt-in screen displayed, the choice comes later
+    TX_CHECK_DISABLED,            ///< Transaction Check disabled by the user
+    TX_CHECK_NOT_ALLOWED,         ///< Report bound to the review in progress, swap, or app busy
+    TX_CHECK_INVALID_SIGNATURE,   ///< Descriptor signature rejected
+    TX_CHECK_INVALID_DESCRIPTOR,  ///< Descriptor malformed or rejected by the app
+} tx_check_status_t;
+
 /* Exported types, structures, unions ----------------------------------------*/
 
 /** Operation being signed, to which the received report must be bound. */
@@ -81,6 +91,7 @@ typedef struct {
 
 /* Exported functions prototypes--------------------------------------------- */
 
+#if defined(HAVE_TX_CHECK_APDU)
 /**
  * @brief Handle the SDK default APDU (CLA 0xB0, INS DEFAULT_APDU_INS_TRANSACTION_CHECK).
  *
@@ -102,36 +113,41 @@ bolos_err_t tx_check_handle_apdu(const uint8_t *buffer,
                                  uint8_t        p2,
                                  uint8_t       *buffer_out,
                                  size_t        *buffer_out_length);
+#endif  // HAVE_TX_CHECK_APDU
 
 /**
  * @brief Parse, verify and store a Transaction Check descriptor.
  *
+ * The descriptor replaces the stored report, unless that report is bound to the review in
+ * progress (between tx_check_apply_report() and tx_check_clear()). Refused during a swap.
+ *
  * @param[in] payload Complete TLV descriptor
- * @return SWO_SUCCESS,
- *         SWO_COMMAND_CODE_NOT_SUPPORTED if Transaction Check is disabled,
- *         SWO_COMMAND_NOT_ALLOWED if a descriptor is already stored,
- *         SWO_SECURITY_CONDITION_NOT_SATISFIED if the PKI signature is invalid,
- *         SWO_INCORRECT_DATA if the descriptor is invalid
+ * @return TX_CHECK_SUCCESS, TX_CHECK_DISABLED, TX_CHECK_NOT_ALLOWED, TX_CHECK_INVALID_SIGNATURE
+ *         or TX_CHECK_INVALID_DESCRIPTOR
  */
-uint16_t tx_check_provide_descriptor(const buffer_t *payload);
+tx_check_status_t tx_check_provide_descriptor(const buffer_t *payload);
 
 /**
  * @brief Display the opt-in screen if the user has not seen it yet.
  *
- * When displayed and @p response_expected is set, the 1-byte enable state is sent as the APDU
- * reply once the user has chosen.
+ * Used for an opt-in request received on an app APDU (@p response_expected set) or from the
+ * settings. No APDU reply is sent by the SDK: on TX_CHECK_SUCCESS the app replies at once, on
+ * TX_CHECK_PENDING it replies from handle_tx_check_opt_in_response().
  *
  * @param[in] response_expected Whether an APDU reply is pending
- * @return true if the opt-in screen is displayed, false if the user has already opted in
+ * @return TX_CHECK_PENDING if the opt-in screen is displayed,
+ *         TX_CHECK_SUCCESS if the user has already opted in,
+ *         TX_CHECK_NOT_ALLOWED during a swap, or when a reply is expected while a flow is on screen
  */
-bool tx_check_opt_in(bool response_expected);
+tx_check_status_t tx_check_opt_in(bool response_expected);
 
 /**
  * @brief Bind the stored report to the operation being signed and fill the review warning.
  *
  * Clears the W3C warnings and the report fields of @p warning, then, when Transaction Check is
  * enabled, sets W3C_ISSUE_WARN when no report matches the operation, otherwise the W3C warning of
- * the report risk level. Typed data must be given with its domain hash.
+ * the report risk level. When the report or @p ctx holds a domain hash, both must hold the same
+ * one.
  *
  * @param[in,out] warning Review warning, other bits are kept
  * @param[in]     ctx     Operation being signed

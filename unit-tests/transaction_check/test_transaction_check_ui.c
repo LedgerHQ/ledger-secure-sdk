@@ -17,7 +17,7 @@
 /**
  * @file test_transaction_check_ui.c
  * @brief Unit tests for transaction_check_ui.c: opt-in screen, user choice, settings update and
- *        deferred APDU reply.
+ *        deferred APDU reply, sent by the SDK or by the app.
  */
 
 #include <string.h>
@@ -31,6 +31,9 @@
 #include "status_words.h"
 #include "transaction_check.h"
 #include "transaction_check_entrypoints.h"
+#include "transaction_check_internal.h"
+
+volatile bool G_called_from_swap;
 
 /* ── Glyphs ──────────────────────────────────────────────────────────────── */
 
@@ -43,8 +46,14 @@ const nbgl_icon_details_t C_Question_Mark_Circle_40px;
 
 static bool g_setting_opt_in;
 static bool g_setting_enable;
+static bool g_app_idle;
 static int  g_finalize_calls;
 static bool g_finalize_response_expected;
+static int  g_app_reply_calls;
+static bool g_app_reply_enabled;
+static bool g_app_reply_before_status;
+
+static const char *g_status_msg;
 
 bool handle_check_tx_report(const tlv_transaction_check_out_t *descriptor)
 {
@@ -89,7 +98,14 @@ void handle_tx_check_set_setting(tx_check_setting_t setting, bool value)
 
 bool handle_tx_check_is_idle(void)
 {
-    return true;
+    return g_app_idle;
+}
+
+void handle_tx_check_opt_in_response(bool enabled)
+{
+    g_app_reply_before_status = (g_status_msg == NULL);
+    g_app_reply_calls++;
+    g_app_reply_enabled = enabled;
 }
 
 void finalize_ui_tx_check_opt_in(bool response_expected)
@@ -105,7 +121,6 @@ static int                          g_choice_count;
 static const char                  *g_message;
 static const nbgl_genericDetails_t *g_details;
 static nbgl_callback_t              g_status_cb;
-static const char                  *g_status_msg;
 static int                          g_reply_calls;
 static uint8_t                      g_reply_byte;
 static uint16_t                     g_reply_sw;
@@ -162,6 +177,11 @@ void setUp(void)
     Mocknbgl_use_case_Init();
     g_setting_opt_in             = false;
     g_setting_enable             = false;
+    g_app_idle                   = true;
+    G_called_from_swap           = false;
+    g_app_reply_calls            = 0;
+    g_app_reply_enabled          = false;
+    g_app_reply_before_status    = false;
     g_finalize_calls             = 0;
     g_finalize_response_expected = false;
     g_choice_cb                  = NULL;
@@ -189,13 +209,14 @@ void tearDown(void)
 static void test_opt_in_already_done(void)
 {
     g_setting_opt_in = true;
-    TEST_ASSERT_FALSE(tx_check_opt_in(true));
+    TEST_ASSERT_EQUAL(TX_CHECK_SUCCESS, tx_check_opt_in(true));
+    TEST_ASSERT_EQUAL(TX_CHECK_SUCCESS, tx_check_opt_in_sdk_apdu());
     TEST_ASSERT_EQUAL(0, g_choice_count);
 }
 
 static void test_opt_in_screen(void)
 {
-    TEST_ASSERT_TRUE(tx_check_opt_in(false));
+    TEST_ASSERT_EQUAL(TX_CHECK_PENDING, tx_check_opt_in(false));
     TEST_ASSERT_EQUAL(1, g_choice_count);
     TEST_ASSERT_EQUAL_STRING("Real-time warnings powered\nby 3rd service providers.", g_message);
     TEST_ASSERT_NOT_NULL(g_details);
@@ -205,15 +226,34 @@ static void test_opt_in_screen(void)
     TEST_ASSERT_FALSE(g_setting_opt_in);
 }
 
-static void test_opt_in_accepted_from_apdu(void)
+static void test_opt_in_not_allowed_when_not_idle(void)
 {
-    TEST_ASSERT_TRUE(tx_check_opt_in(true));
+    g_app_idle = false;
+    TEST_ASSERT_EQUAL(TX_CHECK_NOT_ALLOWED, tx_check_opt_in(true));
+    TEST_ASSERT_EQUAL(TX_CHECK_NOT_ALLOWED, tx_check_opt_in_sdk_apdu());
+    TEST_ASSERT_EQUAL(0, g_choice_count);
+    // the settings switch does not wait for idle
+    TEST_ASSERT_EQUAL(TX_CHECK_PENDING, tx_check_opt_in(false));
+}
+
+static void test_opt_in_not_allowed_in_swap(void)
+{
+    G_called_from_swap = true;
+    TEST_ASSERT_EQUAL(TX_CHECK_NOT_ALLOWED, tx_check_opt_in(true));
+    TEST_ASSERT_EQUAL(TX_CHECK_NOT_ALLOWED, tx_check_opt_in_sdk_apdu());
+    TEST_ASSERT_EQUAL(0, g_choice_count);
+}
+
+static void test_opt_in_accepted_from_sdk_apdu(void)
+{
+    TEST_ASSERT_EQUAL(TX_CHECK_PENDING, tx_check_opt_in_sdk_apdu());
     g_choice_cb(true);
     TEST_ASSERT_TRUE(g_setting_opt_in);
     TEST_ASSERT_TRUE(g_setting_enable);
     TEST_ASSERT_EQUAL(1, g_reply_calls);
     TEST_ASSERT_EQUAL(1, g_reply_byte);
     TEST_ASSERT_EQUAL_HEX16(SWO_SUCCESS, g_reply_sw);
+    TEST_ASSERT_EQUAL(0, g_app_reply_calls);
     TEST_ASSERT_EQUAL_STRING("Transaction Check enabled", g_status_msg);
     TEST_ASSERT_EQUAL(0, g_finalize_calls);
     g_status_cb();
@@ -221,10 +261,10 @@ static void test_opt_in_accepted_from_apdu(void)
     TEST_ASSERT_TRUE(g_finalize_response_expected);
 }
 
-static void test_opt_in_declined_from_apdu(void)
+static void test_opt_in_declined_from_sdk_apdu(void)
 {
     g_setting_enable = true;
-    TEST_ASSERT_TRUE(tx_check_opt_in(true));
+    TEST_ASSERT_EQUAL(TX_CHECK_PENDING, tx_check_opt_in_sdk_apdu());
     g_choice_cb(false);
     TEST_ASSERT_TRUE(g_setting_opt_in);
     TEST_ASSERT_FALSE(g_setting_enable);
@@ -234,12 +274,38 @@ static void test_opt_in_declined_from_apdu(void)
     TEST_ASSERT_EQUAL(1, g_finalize_calls);
 }
 
+// On the app APDU, the app sends the reply, before the status screen
+static void test_opt_in_accepted_from_app_apdu(void)
+{
+    TEST_ASSERT_EQUAL(TX_CHECK_PENDING, tx_check_opt_in(true));
+    g_choice_cb(true);
+    TEST_ASSERT_EQUAL(0, g_reply_calls);
+    TEST_ASSERT_EQUAL(1, g_app_reply_calls);
+    TEST_ASSERT_TRUE(g_app_reply_enabled);
+    TEST_ASSERT_TRUE(g_app_reply_before_status);
+    TEST_ASSERT_EQUAL_STRING("Transaction Check enabled", g_status_msg);
+    g_status_cb();
+    TEST_ASSERT_EQUAL(1, g_finalize_calls);
+    TEST_ASSERT_TRUE(g_finalize_response_expected);
+}
+
+static void test_opt_in_declined_from_app_apdu(void)
+{
+    TEST_ASSERT_EQUAL(TX_CHECK_PENDING, tx_check_opt_in(true));
+    g_choice_cb(false);
+    TEST_ASSERT_EQUAL(0, g_reply_calls);
+    TEST_ASSERT_EQUAL(1, g_app_reply_calls);
+    TEST_ASSERT_FALSE(g_app_reply_enabled);
+    TEST_ASSERT_EQUAL(1, g_finalize_calls);
+}
+
 static void test_opt_in_from_settings_sends_no_reply(void)
 {
-    TEST_ASSERT_TRUE(tx_check_opt_in(false));
+    TEST_ASSERT_EQUAL(TX_CHECK_PENDING, tx_check_opt_in(false));
     g_choice_cb(true);
     TEST_ASSERT_TRUE(g_setting_enable);
     TEST_ASSERT_EQUAL(0, g_reply_calls);
+    TEST_ASSERT_EQUAL(0, g_app_reply_calls);
     g_status_cb();
     TEST_ASSERT_EQUAL(1, g_finalize_calls);
     TEST_ASSERT_FALSE(g_finalize_response_expected);
@@ -250,8 +316,12 @@ int main(void)
     UNITY_BEGIN();
     RUN_TEST(test_opt_in_already_done);
     RUN_TEST(test_opt_in_screen);
-    RUN_TEST(test_opt_in_accepted_from_apdu);
-    RUN_TEST(test_opt_in_declined_from_apdu);
+    RUN_TEST(test_opt_in_not_allowed_when_not_idle);
+    RUN_TEST(test_opt_in_not_allowed_in_swap);
+    RUN_TEST(test_opt_in_accepted_from_sdk_apdu);
+    RUN_TEST(test_opt_in_declined_from_sdk_apdu);
+    RUN_TEST(test_opt_in_accepted_from_app_apdu);
+    RUN_TEST(test_opt_in_declined_from_app_apdu);
     RUN_TEST(test_opt_in_from_settings_sends_no_reply);
     return UNITY_END();
 }

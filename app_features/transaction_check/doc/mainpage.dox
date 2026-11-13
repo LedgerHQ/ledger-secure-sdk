@@ -51,13 +51,15 @@ The first chunk starts with the 2-byte big-endian length of the whole descriptor
 are appended. The transport is shared with the Address Book (@ref apdu_chunks.h): a continuation
 chunk is rejected when the payload in progress belongs to another feature.
 
-A single descriptor is accepted per operation: the app erases it once the operation is signed or
-rejected, with @ref tx_check_clear.
+A new descriptor replaces the stored report, except while that report is bound to the review in
+progress: from @ref tx_check_apply_report until the app erases it with @ref tx_check_clear, once
+the operation is signed or rejected. Descriptors are refused during a swap.
 
 @subsection transaction_check_apdu_opt_in Opt-in (P1 0x01)
 
 If the user has already seen the opt-in screen, the enable state is returned at once. Otherwise
-the opt-in screen is displayed and the enable state is returned after the user choice.
+the opt-in screen is displayed and the enable state is returned after the user choice. Refused
+during a swap, and while a flow is on screen.
 
 @section transaction_check_descriptor Descriptor
 
@@ -91,6 +93,7 @@ The coin app implements the entrypoints of @ref transaction_check_entrypoints.h.
 | @ref handle_tx_check_get_setting     | any time                | read the opt-in and enable settings                        |
 | @ref handle_tx_check_set_setting     | opt-in choice           | write the opt-in and enable settings                       |
 | @ref handle_tx_check_is_idle         | opt-in request          | no flow is on screen                                       |
+| @ref handle_tx_check_opt_in_response | opt-in choice           | reply to an opt-in request received on the app APDU        |
 | @ref finalize_ui_tx_check_opt_in     | after the opt-in choice | back to the home or settings screen                        |
 
 @section transaction_check_api Coin-app API
@@ -106,18 +109,22 @@ The coin app calls the functions of @ref transaction_check.h.
 
 @ref tx_check_apply_report first clears the W3C warnings and the report fields it owns, then sets
 @c W3C_ISSUE_WARN when no report matches the operation, and nothing when Transaction Check is
-disabled. Typed data must be given with its domain hash.
+disabled. When the report or the operation holds a domain hash, both must hold the same one.
+
+@ref tx_check_provide_descriptor and @ref tx_check_opt_in return a @ref tx_check_status_t, that the
+app maps to its own status words. @ref tx_check_opt_in never sends an APDU reply: the app replies at
+once on @c TX_CHECK_SUCCESS, or from @ref handle_tx_check_opt_in_response on @c TX_CHECK_PENDING.
 
 @section transaction_check_sw Status words
 
-| SW     | Meaning                                                                    |
-|--------|----------------------------------------------------------------------------|
-| 0x9000 | success, or chunk received                                                 |
-| 0x6A80 | invalid chunk or descriptor                                                |
-| 0x6982 | invalid descriptor signature                                               |
-| 0x6B00 | unknown P1, or P2 / data on an opt-in request                              |
-| 0x6980 | descriptor already received, or opt-in requested while a flow is on screen |
-| 0x911C | Transaction Check disabled                                                 |
-| 0x6C00 | APDU shorter than its Lc                                                   |
+| SW     | Meaning                                                                           |
+|--------|-----------------------------------------------------------------------------------|
+| 0x9000 | success, or chunk received                                                        |
+| 0x6A80 | invalid chunk or descriptor                                                       |
+| 0x6982 | invalid descriptor signature                                                      |
+| 0x6B00 | unknown P1, or P2 / data on an opt-in request                                     |
+| 0x6980 | report bound to the review in progress, swap, or opt-in while a flow is on screen |
+| 0x911C | Transaction Check disabled                                                        |
+| 0x6C00 | APDU shorter than its Lc                                                          |
 
 */

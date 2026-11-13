@@ -35,6 +35,9 @@
 #include "status_words.h"
 #include "transaction_check.h"
 #include "transaction_check_entrypoints.h"
+#include "transaction_check_internal.h"
+
+volatile bool G_called_from_swap;
 
 #define P1_DESCRIPTOR 0x00
 #define P1_OPT_IN     0x01
@@ -74,7 +77,6 @@ static uint8_t     g_signer_address[TRANSACTION_CHECK_MAX_ADDRESS_SIZE];
 static size_t      g_signer_address_len;
 static const void *g_signer_app_data;
 static bool        g_opt_in_displayed;
-static bool        g_opt_in_response_expected;
 
 bool handle_check_tx_report(const tlv_transaction_check_out_t *descriptor)
 {
@@ -127,15 +129,18 @@ void finalize_ui_tx_check_opt_in(bool response_expected)
     (void) response_expected;
 }
 
-/* Opt-in screen, tested in test_transaction_check_ui.c */
-bool tx_check_opt_in(bool response_expected)
+void handle_tx_check_opt_in_response(bool enabled)
 {
-    if (g_setting_opt_in) {
-        return false;
-    }
-    g_opt_in_displayed         = true;
-    g_opt_in_response_expected = response_expected;
-    return true;
+    (void) enabled;
+}
+
+/* Opt-in screen, tested in test_transaction_check_ui.c */
+static tx_check_status_t g_opt_in_ret;
+
+tx_check_status_t tx_check_opt_in_sdk_apdu(void)
+{
+    g_opt_in_displayed = true;
+    return g_opt_in_ret;
 }
 
 /* ── Helpers ─────────────────────────────────────────────────────────────── */
@@ -166,7 +171,7 @@ static void set_descriptor(transaction_check_risk_t     risk,
     }
 }
 
-static bolos_err_t provide(void)
+static tx_check_status_t provide(void)
 {
     uint8_t dummy = 0;
     return tx_check_provide_descriptor(&(const buffer_t){.ptr = &dummy, .size = 1});
@@ -217,6 +222,8 @@ void setUp(void)
     g_signer_address_len   = 0;
     g_signer_app_data      = NULL;
     g_opt_in_displayed     = false;
+    g_opt_in_ret           = TX_CHECK_SUCCESS;
+    G_called_from_swap     = false;
     memset(g_uc_tx_hash, 0xBB, sizeof(g_uc_tx_hash));
     memset(g_uc_domain_hash, 0xCC, sizeof(g_uc_domain_hash));
     memset(g_uc_address, 0xAA, sizeof(g_uc_address));
@@ -348,30 +355,55 @@ static void test_apdu_opt_in_already_opted_in(void)
     uint8_t out[4]   = {0};
     size_t  out_len  = sizeof(out);
     g_setting_enable = false;
+    g_opt_in_ret     = TX_CHECK_SUCCESS;
     TEST_ASSERT_EQUAL_HEX16(SWO_SUCCESS, send_apdu(P1_OPT_IN, 0x00, NULL, 0, out, &out_len));
     TEST_ASSERT_EQUAL(1, out_len);
     TEST_ASSERT_EQUAL(0, out[0]);
-    TEST_ASSERT_FALSE(g_opt_in_displayed);
 }
 
 static void test_apdu_opt_in_displays_screen(void)
 {
     size_t  out_len = 4;
     uint8_t out[4];
-    g_setting_opt_in = false;
+    g_opt_in_ret = TX_CHECK_PENDING;
     TEST_ASSERT_EQUAL_HEX16(SWO_NO_RESPONSE, send_apdu(P1_OPT_IN, 0x00, NULL, 0, out, &out_len));
     TEST_ASSERT_EQUAL(0, out_len);
     TEST_ASSERT_TRUE(g_opt_in_displayed);
-    TEST_ASSERT_TRUE(g_opt_in_response_expected);
 }
 
-static void test_apdu_opt_in_rejected_when_not_idle(void)
+static void test_apdu_opt_in_not_allowed(void)
 {
-    g_setting_opt_in = false;
-    g_app_idle       = false;
+    size_t  out_len = 4;
+    uint8_t out[4];
+    g_opt_in_ret = TX_CHECK_NOT_ALLOWED;
     TEST_ASSERT_EQUAL_HEX16(SWO_COMMAND_NOT_ALLOWED,
-                            send_apdu(P1_OPT_IN, 0x00, NULL, 0, NULL, NULL));
-    TEST_ASSERT_FALSE(g_opt_in_displayed);
+                            send_apdu(P1_OPT_IN, 0x00, NULL, 0, out, &out_len));
+    TEST_ASSERT_EQUAL(0, out_len);
+}
+
+// Each descriptor status keeps its status word on the SDK APDU
+static void test_apdu_descriptor_status_words(void)
+{
+    const uint8_t apdu[] = {0x00, 0x01, 0x01};
+
+    g_uc_ret = TLV_TRANSACTION_CHECK_SIGNATURE_ERROR | 0x01;
+    TEST_ASSERT_EQUAL_HEX16(
+        SWO_SECURITY_CONDITION_NOT_SATISFIED,
+        send_apdu(P1_DESCRIPTOR, APDU_CHUNKS_P2_FIRST, apdu, sizeof(apdu), NULL, NULL));
+    g_uc_ret = TLV_TRANSACTION_CHECK_MISSING_TAG;
+    TEST_ASSERT_EQUAL_HEX16(
+        SWO_INCORRECT_DATA,
+        send_apdu(P1_DESCRIPTOR, APDU_CHUNKS_P2_FIRST, apdu, sizeof(apdu), NULL, NULL));
+    g_uc_ret         = TLV_TRANSACTION_CHECK_SUCCESS;
+    g_setting_enable = false;
+    TEST_ASSERT_EQUAL_HEX16(
+        SWO_COMMAND_CODE_NOT_SUPPORTED,
+        send_apdu(P1_DESCRIPTOR, APDU_CHUNKS_P2_FIRST, apdu, sizeof(apdu), NULL, NULL));
+    g_setting_enable   = true;
+    G_called_from_swap = true;
+    TEST_ASSERT_EQUAL_HEX16(
+        SWO_COMMAND_NOT_ALLOWED,
+        send_apdu(P1_DESCRIPTOR, APDU_CHUNKS_P2_FIRST, apdu, sizeof(apdu), NULL, NULL));
 }
 
 static void test_apdu_opt_in_rejects_p2_and_data(void)
@@ -387,27 +419,70 @@ static void test_apdu_opt_in_rejects_p2_and_data(void)
 static void test_provide_disabled(void)
 {
     g_setting_enable = false;
-    TEST_ASSERT_EQUAL_HEX16(SWO_COMMAND_CODE_NOT_SUPPORTED, provide());
+    TEST_ASSERT_EQUAL(TX_CHECK_DISABLED, provide());
     TEST_ASSERT_EQUAL(0, g_uc_calls);
 }
 
-static void test_provide_twice_rejected(void)
+static void test_provide_replaces_report(void)
 {
-    TEST_ASSERT_EQUAL_HEX16(SWO_SUCCESS, provide());
-    TEST_ASSERT_EQUAL_HEX16(SWO_COMMAND_NOT_ALLOWED, provide());
+    TEST_ASSERT_EQUAL(TX_CHECK_SUCCESS, provide());
+    set_descriptor(TRANSACTION_CHECK_RISK_MALICIOUS,
+                   TRANSACTION_CHECK_CATEGORY_OTHERS,
+                   TRANSACTION_CHECK_TYPE_TRANSACTION);
+    TEST_ASSERT_EQUAL(TX_CHECK_SUCCESS, provide());
+    tx_check_context_t ctx = tx_context();
+    TEST_ASSERT_EQUAL_HEX32(1 << W3C_THREAT_DETECTED_WARN, apply(&ctx));
+}
+
+static void test_provide_invalid_drops_report(void)
+{
+    TEST_ASSERT_EQUAL(TX_CHECK_SUCCESS, provide());
+    g_uc_ret = TLV_TRANSACTION_CHECK_MISSING_TAG;
+    TEST_ASSERT_EQUAL(TX_CHECK_INVALID_DESCRIPTOR, provide());
+    tx_check_context_t ctx = tx_context();
+    TEST_ASSERT_EQUAL_HEX32(1 << W3C_ISSUE_WARN, apply(&ctx));
+}
+
+static void test_provide_rejected_while_bound_to_review(void)
+{
+    TEST_ASSERT_EQUAL(TX_CHECK_SUCCESS, provide());
+    tx_check_context_t ctx = tx_context();
+    TEST_ASSERT_EQUAL_HEX32(1 << W3C_NO_THREAT_WARN, apply(&ctx));
+    TEST_ASSERT_EQUAL(TX_CHECK_NOT_ALLOWED, provide());
+    // the review still shows the bound report
+    TEST_ASSERT_EQUAL_STRING("Provider", g_warning.reportProvider);
+    tx_check_clear();
+    TEST_ASSERT_EQUAL(TX_CHECK_SUCCESS, provide());
+}
+
+static void test_provide_replaces_unbound_report(void)
+{
+    TEST_ASSERT_EQUAL(TX_CHECK_SUCCESS, provide());
+    // a report not matching the operation is not bound to the review
+    g_hash[0] ^= 0xFF;
+    tx_check_context_t ctx = tx_context();
+    TEST_ASSERT_EQUAL_HEX32(1 << W3C_ISSUE_WARN, apply(&ctx));
+    TEST_ASSERT_EQUAL(TX_CHECK_SUCCESS, provide());
+}
+
+static void test_provide_rejected_in_swap(void)
+{
+    G_called_from_swap = true;
+    TEST_ASSERT_EQUAL(TX_CHECK_NOT_ALLOWED, provide());
+    TEST_ASSERT_EQUAL(0, g_uc_calls);
 }
 
 static void test_provide_parsing_error(void)
 {
     g_uc_ret = TLV_TRANSACTION_CHECK_MISSING_TAG;
-    TEST_ASSERT_EQUAL_HEX16(SWO_INCORRECT_DATA, provide());
+    TEST_ASSERT_EQUAL(TX_CHECK_INVALID_DESCRIPTOR, provide());
 }
 
 static void test_provide_signature_error(void)
 {
     // PKI status combined with the signature error mask
     g_uc_ret = TLV_TRANSACTION_CHECK_SIGNATURE_ERROR | 0x01;
-    TEST_ASSERT_EQUAL_HEX16(SWO_SECURITY_CONDITION_NOT_SATISFIED, provide());
+    TEST_ASSERT_EQUAL(TX_CHECK_INVALID_SIGNATURE, provide());
 }
 
 static void test_max_payload_size(void)
@@ -418,30 +493,30 @@ static void test_max_payload_size(void)
 static void test_provide_additional_data_rejected(void)
 {
     g_uc_out.additional_data_received = true;
-    TEST_ASSERT_EQUAL_HEX16(SWO_INCORRECT_DATA, provide());
+    TEST_ASSERT_EQUAL(TX_CHECK_INVALID_DESCRIPTOR, provide());
 }
 
 static void test_provide_address_too_long(void)
 {
     g_uc_out.address.size = TRANSACTION_CHECK_MAX_ADDRESS_SIZE + 1;
-    TEST_ASSERT_EQUAL_HEX16(SWO_INCORRECT_DATA, provide());
+    TEST_ASSERT_EQUAL(TX_CHECK_INVALID_DESCRIPTOR, provide());
 }
 
 static void test_provide_rejected_by_app_is_not_stored(void)
 {
     g_check_descriptor_ret = false;
-    TEST_ASSERT_EQUAL_HEX16(SWO_INCORRECT_DATA, provide());
+    TEST_ASSERT_EQUAL(TX_CHECK_INVALID_DESCRIPTOR, provide());
     tx_check_context_t ctx = tx_context();
     TEST_ASSERT_EQUAL_HEX32(1 << W3C_ISSUE_WARN, apply(&ctx));
     g_check_descriptor_ret = true;
-    TEST_ASSERT_EQUAL_HEX16(SWO_SUCCESS, provide());
+    TEST_ASSERT_EQUAL(TX_CHECK_SUCCESS, provide());
 }
 
 /* ── Binding to the operation ────────────────────────────────────────────── */
 
 static void test_apply_disabled_leaves_warning(void)
 {
-    TEST_ASSERT_EQUAL_HEX16(SWO_SUCCESS, provide());
+    TEST_ASSERT_EQUAL(TX_CHECK_SUCCESS, provide());
     g_setting_enable       = false;
     tx_check_context_t ctx = tx_context();
     TEST_ASSERT_EQUAL_HEX32(0, apply(&ctx));
@@ -456,7 +531,7 @@ static void test_apply_without_report(void)
 
 static void test_apply_without_operation(void)
 {
-    TEST_ASSERT_EQUAL_HEX16(SWO_SUCCESS, provide());
+    TEST_ASSERT_EQUAL(TX_CHECK_SUCCESS, provide());
     TEST_ASSERT_EQUAL_HEX32(1 << W3C_ISSUE_WARN, apply(NULL));
     tx_check_context_t ctx = tx_context();
     ctx.tx_hash            = NULL;
@@ -465,7 +540,7 @@ static void test_apply_without_operation(void)
 
 static void test_apply_type_mismatch(void)
 {
-    TEST_ASSERT_EQUAL_HEX16(SWO_SUCCESS, provide());
+    TEST_ASSERT_EQUAL(TX_CHECK_SUCCESS, provide());
     tx_check_context_t ctx = tx_context();
     ctx.type               = TRANSACTION_CHECK_TYPE_TYPED_DATA;
     TEST_ASSERT_EQUAL_HEX32(1 << W3C_ISSUE_WARN, apply(&ctx));
@@ -473,7 +548,7 @@ static void test_apply_type_mismatch(void)
 
 static void test_apply_chain_id_rejected(void)
 {
-    TEST_ASSERT_EQUAL_HEX16(SWO_SUCCESS, provide());
+    TEST_ASSERT_EQUAL(TX_CHECK_SUCCESS, provide());
     g_check_chain_id_ret   = false;
     tx_check_context_t ctx = tx_context();
     TEST_ASSERT_EQUAL_HEX32(1 << W3C_ISSUE_WARN, apply(&ctx));
@@ -482,7 +557,7 @@ static void test_apply_chain_id_rejected(void)
 static void test_apply_signer_rejected(void)
 {
     static const int app_data = 0;
-    TEST_ASSERT_EQUAL_HEX16(SWO_SUCCESS, provide());
+    TEST_ASSERT_EQUAL(TX_CHECK_SUCCESS, provide());
     g_check_signer_ret     = false;
     tx_check_context_t ctx = tx_context();
     ctx.app_data           = &app_data;
@@ -494,7 +569,7 @@ static void test_apply_signer_rejected(void)
 
 static void test_apply_hash_mismatch(void)
 {
-    TEST_ASSERT_EQUAL_HEX16(SWO_SUCCESS, provide());
+    TEST_ASSERT_EQUAL(TX_CHECK_SUCCESS, provide());
     g_hash[0] ^= 0xFF;
     tx_check_context_t ctx = tx_context();
     TEST_ASSERT_EQUAL_HEX32(1 << W3C_ISSUE_WARN, apply(&ctx));
@@ -505,7 +580,7 @@ static void test_apply_domain_hash(void)
     set_descriptor(TRANSACTION_CHECK_RISK_BENIGN,
                    TRANSACTION_CHECK_CATEGORY_NA,
                    TRANSACTION_CHECK_TYPE_TYPED_DATA);
-    TEST_ASSERT_EQUAL_HEX16(SWO_SUCCESS, provide());
+    TEST_ASSERT_EQUAL(TX_CHECK_SUCCESS, provide());
     tx_check_context_t ctx = tx_context();
     ctx.type               = TRANSACTION_CHECK_TYPE_TYPED_DATA;
     ctx.domain_hash        = g_domain;
@@ -516,7 +591,7 @@ static void test_apply_domain_hash(void)
 
 static void test_apply_domain_hash_not_received(void)
 {
-    TEST_ASSERT_EQUAL_HEX16(SWO_SUCCESS, provide());
+    TEST_ASSERT_EQUAL(TX_CHECK_SUCCESS, provide());
     tx_check_context_t ctx = tx_context();
     ctx.domain_hash        = g_domain;
     TEST_ASSERT_EQUAL_HEX32(1 << W3C_ISSUE_WARN, apply(&ctx));
@@ -524,7 +599,7 @@ static void test_apply_domain_hash_not_received(void)
 
 static void test_apply_benign(void)
 {
-    TEST_ASSERT_EQUAL_HEX16(SWO_SUCCESS, provide());
+    TEST_ASSERT_EQUAL(TX_CHECK_SUCCESS, provide());
     tx_check_context_t ctx = tx_context();
     TEST_ASSERT_EQUAL_HEX32(1 << W3C_NO_THREAT_WARN, apply(&ctx));
     TEST_ASSERT_EQUAL_STRING("Provider", g_warning.reportProvider);
@@ -532,15 +607,28 @@ static void test_apply_benign(void)
     TEST_ASSERT_NULL(g_warning.providerMessage);
 }
 
-static void test_apply_typed_data_without_context_domain(void)
+static void test_apply_report_domain_without_context_domain(void)
 {
     set_descriptor(TRANSACTION_CHECK_RISK_BENIGN,
                    TRANSACTION_CHECK_CATEGORY_NA,
                    TRANSACTION_CHECK_TYPE_TYPED_DATA);
-    TEST_ASSERT_EQUAL_HEX16(SWO_SUCCESS, provide());
+    TEST_ASSERT_EQUAL(TX_CHECK_SUCCESS, provide());
     tx_check_context_t ctx = tx_context();
     ctx.type               = TRANSACTION_CHECK_TYPE_TYPED_DATA;
     TEST_ASSERT_EQUAL_HEX32(1 << W3C_ISSUE_WARN, apply(&ctx));
+}
+
+// Without domain on either side, typed data is bound by its hash only
+static void test_apply_typed_data_without_domain(void)
+{
+    set_descriptor(TRANSACTION_CHECK_RISK_BENIGN,
+                   TRANSACTION_CHECK_CATEGORY_NA,
+                   TRANSACTION_CHECK_TYPE_TYPED_DATA);
+    g_uc_out.domain_hash_received = false;
+    TEST_ASSERT_EQUAL(TX_CHECK_SUCCESS, provide());
+    tx_check_context_t ctx = tx_context();
+    ctx.type               = TRANSACTION_CHECK_TYPE_TYPED_DATA;
+    TEST_ASSERT_EQUAL_HEX32(1 << W3C_NO_THREAT_WARN, apply(&ctx));
 }
 
 static void test_apply_reused_warning(void)
@@ -550,7 +638,7 @@ static void test_apply_reused_warning(void)
     set_descriptor(TRANSACTION_CHECK_RISK_WARNING,
                    TRANSACTION_CHECK_CATEGORY_DAPP,
                    TRANSACTION_CHECK_TYPE_TRANSACTION);
-    TEST_ASSERT_EQUAL_HEX16(SWO_SUCCESS, provide());
+    TEST_ASSERT_EQUAL(TX_CHECK_SUCCESS, provide());
     memset(&g_warning, 0, sizeof(g_warning));
     g_warning.predefinedSet = 1 << BLIND_SIGNING_WARN;
     tx_check_apply_report(&g_warning, &ctx);
@@ -560,7 +648,7 @@ static void test_apply_reused_warning(void)
     set_descriptor(TRANSACTION_CHECK_RISK_MALICIOUS,
                    TRANSACTION_CHECK_CATEGORY_DAPP,
                    TRANSACTION_CHECK_TYPE_TRANSACTION);
-    TEST_ASSERT_EQUAL_HEX16(SWO_SUCCESS, provide());
+    TEST_ASSERT_EQUAL(TX_CHECK_SUCCESS, provide());
     tx_check_apply_report(&g_warning, &ctx);
     TEST_ASSERT_EQUAL_HEX32((1 << BLIND_SIGNING_WARN) | (1 << W3C_THREAT_DETECTED_WARN),
                             g_warning.predefinedSet);
@@ -580,7 +668,7 @@ static void test_apply_reused_warning(void)
 
 static void test_apply_keeps_other_warnings(void)
 {
-    TEST_ASSERT_EQUAL_HEX16(SWO_SUCCESS, provide());
+    TEST_ASSERT_EQUAL(TX_CHECK_SUCCESS, provide());
     tx_check_context_t ctx = tx_context();
     memset(&g_warning, 0, sizeof(g_warning));
     g_warning.predefinedSet = 1 << BLIND_SIGNING_WARN;
@@ -596,7 +684,7 @@ static void check_risk(transaction_check_risk_t     risk,
 {
     tx_check_clear();
     set_descriptor(risk, category, TRANSACTION_CHECK_TYPE_TRANSACTION);
-    TEST_ASSERT_EQUAL_HEX16(SWO_SUCCESS, provide());
+    TEST_ASSERT_EQUAL(TX_CHECK_SUCCESS, provide());
     tx_check_context_t ctx = tx_context();
     TEST_ASSERT_EQUAL_HEX32(expected_set, apply(&ctx));
     TEST_ASSERT_EQUAL_STRING(expected_text, g_warning.providerMessage);
@@ -647,11 +735,11 @@ static void test_apply_threat_texts(void)
 
 static void test_clear_drops_report(void)
 {
-    TEST_ASSERT_EQUAL_HEX16(SWO_SUCCESS, provide());
+    TEST_ASSERT_EQUAL(TX_CHECK_SUCCESS, provide());
     tx_check_clear();
     tx_check_context_t ctx = tx_context();
     TEST_ASSERT_EQUAL_HEX32(1 << W3C_ISSUE_WARN, apply(&ctx));
-    TEST_ASSERT_EQUAL_HEX16(SWO_SUCCESS, provide());
+    TEST_ASSERT_EQUAL(TX_CHECK_SUCCESS, provide());
 }
 
 int main(void)
@@ -668,10 +756,15 @@ int main(void)
     RUN_TEST(test_apdu_descriptor_continuation_of_another_feature);
     RUN_TEST(test_apdu_opt_in_already_opted_in);
     RUN_TEST(test_apdu_opt_in_displays_screen);
-    RUN_TEST(test_apdu_opt_in_rejected_when_not_idle);
+    RUN_TEST(test_apdu_opt_in_not_allowed);
+    RUN_TEST(test_apdu_descriptor_status_words);
     RUN_TEST(test_apdu_opt_in_rejects_p2_and_data);
     RUN_TEST(test_provide_disabled);
-    RUN_TEST(test_provide_twice_rejected);
+    RUN_TEST(test_provide_replaces_report);
+    RUN_TEST(test_provide_invalid_drops_report);
+    RUN_TEST(test_provide_rejected_while_bound_to_review);
+    RUN_TEST(test_provide_replaces_unbound_report);
+    RUN_TEST(test_provide_rejected_in_swap);
     RUN_TEST(test_provide_parsing_error);
     RUN_TEST(test_provide_signature_error);
     RUN_TEST(test_max_payload_size);
@@ -688,7 +781,8 @@ int main(void)
     RUN_TEST(test_apply_domain_hash);
     RUN_TEST(test_apply_domain_hash_not_received);
     RUN_TEST(test_apply_benign);
-    RUN_TEST(test_apply_typed_data_without_context_domain);
+    RUN_TEST(test_apply_report_domain_without_context_domain);
+    RUN_TEST(test_apply_typed_data_without_domain);
     RUN_TEST(test_apply_reused_warning);
     RUN_TEST(test_apply_keeps_other_warnings);
     RUN_TEST(test_apply_warning_texts);

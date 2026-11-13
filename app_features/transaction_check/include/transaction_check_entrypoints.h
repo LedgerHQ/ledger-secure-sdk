@@ -87,6 +87,16 @@ void handle_tx_check_set_setting(tx_check_setting_t setting, bool value);
 bool handle_tx_check_is_idle(void);
 
 /**
+ * @brief Reply to an opt-in request received on the app APDU.
+ *
+ * Called once the user has chosen, before finalize_ui_tx_check_opt_in(), when tx_check_opt_in()
+ * was called with a pending reply.
+ *
+ * @param[in] enabled Transaction Check enable state, to send as the 1-byte reply
+ */
+void handle_tx_check_opt_in_response(bool enabled);
+
+/**
  * @brief Leave the opt-in flow.
  *
  * Called once the user has chosen; the APDU reply, if any, has already been sent.
