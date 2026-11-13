@@ -19,6 +19,7 @@
 #include "os_helpers.h"
 #include "os_print.h"
 #include "io.h"
+#include "macros.h"
 #include "status_words.h"
 #include "nbgl_use_case.h"
 #include "transaction_check.h"
@@ -41,6 +42,12 @@ static const char                *s_how_it_works_texts[HOW_IT_WORKS_NB];
 static const nbgl_icon_details_t *s_how_it_works_icons[HOW_IT_WORKS_NB];
 
 /* Private functions ---------------------------------------------------------*/
+static void send_opt_in_reply(bool enabled)
+{
+    uint8_t reply = enabled;
+    io_send_response_pointer(&reply, sizeof(reply), SWO_SUCCESS);
+}
+
 static void finalize_opt_in(void)
 {
     finalize_ui_tx_check_opt_in(s_response_expected);
@@ -55,8 +62,7 @@ static void opt_in_choice_cb(bool enable)
     if (s_response_expected) {
         bool state = handle_tx_check_get_setting(TX_CHECK_SETTING_ENABLE);
         if (s_sdk_reply) {
-            uint8_t reply = state;
-            io_send_response_pointer(&reply, sizeof(reply), SWO_SUCCESS);
+            send_opt_in_reply(state);
         }
         else {
             handle_tx_check_opt_in_response(state);
@@ -117,6 +123,11 @@ static tx_check_status_t start_opt_in(bool response_expected, bool sdk_reply)
 }
 
 /* Exported functions --------------------------------------------------------*/
+WEAK void handle_tx_check_opt_in_response(bool enabled)
+{
+    send_opt_in_reply(enabled);
+}
+
 tx_check_status_t tx_check_opt_in(bool response_expected)
 {
     return start_opt_in(response_expected, false);
