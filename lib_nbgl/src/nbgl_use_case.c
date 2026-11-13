@@ -657,10 +657,13 @@ static bool checkTagValueList(const nbgl_contentTagValueList_t *tagValueList, bo
         else {
             pair = PIC(tagValueList->callback(tagValueList->startIndex + i));
         }
+        // the "More" details of the pair are checked BEFORE its alias details: checking the
+        // latter invokes the callback of the alias list, which may overwrite the storage of
+        // this pair (a callback is allowed to return a reusable static pair)
         if ((pair == NULL)
             || (checkDetails
-                && (!isAliasDetailsValid(pair)
-                    || !isDetailsValueDisplayable(pair, tagValueList->wrapping)))) {
+                && (!isDetailsValueDisplayable(pair, tagValueList->wrapping)
+                    || !isAliasDetailsValid(pair)))) {
             return false;
         }
     }
@@ -2369,11 +2372,14 @@ static uint16_t getTagValueHeight(const nbgl_contentTagValue_t *pair,
                                   bool                          wrapping,
                                   uint16_t                     *nbLines)
 {
-    uint16_t height;
+    // computed in 32 bits and saturated at the end, so that a very long value (whose height
+    // exceeds UINT16_MAX) can't wrap to a small height and be considered as fitting
+    uint32_t height;
     uint8_t  maxLines = layoutGetTagValueMaxLines(listMaxLines, pair, NULL);
 
     // tag height (the tag is always wrapped), and space between tag and value
-    height = nbgl_getTextHeightInWidth(SMALL_REGULAR_FONT, pair->item, AVAILABLE_WIDTH, true)
+    height = (uint32_t) nbgl_getTextHeightInWidth(
+                 SMALL_REGULAR_FONT, pair->item, AVAILABLE_WIDTH, true)
              + TAG_VALUE_INTERVALE;
     // value height, in a width reduced if there is an icon on its right, possibly limited to
     // maxLines lines
@@ -2382,12 +2388,12 @@ static uint16_t getTagValueHeight(const nbgl_contentTagValue_t *pair,
     if ((maxLines > 0) && (*nbLines > maxLines)) {
         *nbLines = maxLines;
     }
-    height += *nbLines * nbgl_getFontLineHeight(valueFont);
+    height += (uint32_t) *nbLines * nbgl_getFontLineHeight(valueFont);
     // potential alias sub-name, under the value
     if ((pair->aliasValue) && (pair->extension != NULL) && (pair->extension->aliasSubName)) {
         height += TAG_VALUE_INTERVALE + nbgl_getFontLineHeight(SMALL_REGULAR_FONT);
     }
-    return height;
+    return (height > UINT16_MAX) ? UINT16_MAX : (uint16_t) height;
 }
 
 /**
