@@ -23,6 +23,7 @@
 #include "nbgl_use_case.h"
 #include "transaction_check.h"
 #include "transaction_check_entrypoints.h"
+#include "transaction_check_internal.h"
 
 #if defined(HAVE_TX_CHECK)
 
@@ -31,6 +32,8 @@
 
 /* Private variables ---------------------------------------------------------*/
 static bool s_response_expected;
+// The reply is sent by the SDK (SDK APDU), else by the app
+static bool s_sdk_reply;
 
 // "How it works" page, displayed from the opt-in screen
 static nbgl_genericDetails_t      s_how_it_works;
@@ -50,8 +53,14 @@ static void opt_in_choice_cb(bool enable)
         handle_tx_check_set_setting(TX_CHECK_SETTING_ENABLE, enable);
     }
     if (s_response_expected) {
-        uint8_t state = handle_tx_check_get_setting(TX_CHECK_SETTING_ENABLE);
-        io_send_response_pointer(&state, sizeof(state), SWO_SUCCESS);
+        bool state = handle_tx_check_get_setting(TX_CHECK_SETTING_ENABLE);
+        if (s_sdk_reply) {
+            uint8_t reply = state;
+            io_send_response_pointer(&reply, sizeof(reply), SWO_SUCCESS);
+        }
+        else {
+            handle_tx_check_opt_in_response(state);
+        }
     }
     if (enable) {
         nbgl_useCaseStatus("Transaction Check enabled", true, finalize_opt_in);
@@ -61,14 +70,23 @@ static void opt_in_choice_cb(bool enable)
     }
 }
 
-/* Exported functions --------------------------------------------------------*/
-bool tx_check_opt_in(bool response_expected)
+static tx_check_status_t start_opt_in(bool response_expected, bool sdk_reply)
 {
+    if (tx_check_in_swap()) {
+        PRINTF("[TX CHECK] Not available in a swap\n");
+        return TX_CHECK_NOT_ALLOWED;
+    }
+    // The opt-in screen would replace a flow on screen
+    if (response_expected && !handle_tx_check_is_idle()) {
+        PRINTF("[TX CHECK] Opt-in requested while a flow is on screen\n");
+        return TX_CHECK_NOT_ALLOWED;
+    }
     if (handle_tx_check_get_setting(TX_CHECK_SETTING_OPT_IN)) {
         PRINTF("[TX CHECK] Already opted in\n");
-        return false;
+        return TX_CHECK_SUCCESS;
     }
     s_response_expected = response_expected;
+    s_sdk_reply         = sdk_reply;
 
     s_how_it_works_texts[0] = "Transaction is checked for threats before signing.";
     s_how_it_works_texts[1]
@@ -95,6 +113,19 @@ bool tx_check_opt_in(bool response_expected)
                                           "Maybe later",
                                           &s_how_it_works,
                                           opt_in_choice_cb);
-    return true;
+    return TX_CHECK_PENDING;
 }
+
+/* Exported functions --------------------------------------------------------*/
+tx_check_status_t tx_check_opt_in(bool response_expected)
+{
+    return start_opt_in(response_expected, false);
+}
+
+#if defined(HAVE_TX_CHECK_APDU)
+tx_check_status_t tx_check_opt_in_sdk_apdu(void)
+{
+    return start_opt_in(true, true);
+}
+#endif  // HAVE_TX_CHECK_APDU
 #endif  // HAVE_TX_CHECK

@@ -23,6 +23,7 @@
 #include "apdu_chunks.h"
 #include "transaction_check.h"
 #include "transaction_check_entrypoints.h"
+#include "transaction_check_internal.h"
 
 #if defined(HAVE_TX_CHECK)
 
@@ -38,6 +39,7 @@
 /* Private types, structures, unions -----------------------------------------*/
 typedef struct {
     bool                         received;
+    bool                         bound;  ///< Bound to the review in progress, until cleared
     bool                         chain_id_received;
     bool                         domain_hash_received;
     uint64_t                     chain_id;
@@ -90,13 +92,9 @@ static bool report_matches(const tx_check_context_t *ctx)
                ctx->tx_hash);
         return false;
     }
-    // Typed data is bound to its domain
-    if ((ctx->type == TRANSACTION_CHECK_TYPE_TYPED_DATA) && (ctx->domain_hash == NULL)) {
-        PRINTF("[TX CHECK] No domain to bind the typed data report to\n");
-        return false;
-    }
-    if (ctx->domain_hash != NULL) {
-        if (!s_report.domain_hash_received
+    // A domain hash on either side must be matched by the same one on the other side
+    if ((ctx->domain_hash != NULL) || s_report.domain_hash_received) {
+        if ((ctx->domain_hash == NULL) || !s_report.domain_hash_received
             || (memcmp(s_report.domain_hash, ctx->domain_hash, TRANSACTION_CHECK_HASH_SIZE) != 0)) {
             PRINTF("[TX CHECK] DOMAIN_HASH mismatch\n");
             return false;
@@ -152,40 +150,45 @@ void tx_check_clear(void)
     explicit_bzero(&s_report, sizeof(s_report));
 }
 
-uint16_t tx_check_provide_descriptor(const buffer_t *payload)
+tx_check_status_t tx_check_provide_descriptor(const buffer_t *payload)
 {
     tlv_transaction_check_out_t out = {0};
 
     if (!handle_tx_check_get_setting(TX_CHECK_SETTING_ENABLE)) {
         PRINTF("[TX CHECK] Transaction Check is disabled\n");
-        return SWO_COMMAND_CODE_NOT_SUPPORTED;
+        return TX_CHECK_DISABLED;
     }
-    // A report already bound to a review on screen must not be replaced
-    if (s_report.received) {
-        PRINTF("[TX CHECK] Report already received\n");
-        return SWO_COMMAND_NOT_ALLOWED;
+    if (tx_check_in_swap()) {
+        PRINTF("[TX CHECK] Not available in a swap\n");
+        return TX_CHECK_NOT_ALLOWED;
     }
+    // The review on screen points to the stored report
+    if (s_report.bound) {
+        PRINTF("[TX CHECK] Report bound to the review in progress\n");
+        return TX_CHECK_NOT_ALLOWED;
+    }
+    tx_check_clear();
 
     tlv_transaction_check_status_t status = tlv_use_case_transaction_check(payload, &out);
     if (status & TLV_TRANSACTION_CHECK_SIGNATURE_ERROR) {
         PRINTF("[TX CHECK] Descriptor signature rejected with status 0x%x\n", status);
-        return SWO_SECURITY_CONDITION_NOT_SATISFIED;
+        return TX_CHECK_INVALID_SIGNATURE;
     }
     if (status != TLV_TRANSACTION_CHECK_SUCCESS) {
         PRINTF("[TX CHECK] Descriptor parsing failed with status %d\n", status);
-        return SWO_INCORRECT_DATA;
+        return TX_CHECK_INVALID_DESCRIPTOR;
     }
     if (out.additional_data_received) {
         PRINTF("[TX CHECK] Unsupported ADDITIONAL_DATA tag\n");
-        return SWO_INCORRECT_DATA;
+        return TX_CHECK_INVALID_DESCRIPTOR;
     }
     if (out.address.size > sizeof(s_report.address)) {
         PRINTF("[TX CHECK] Address too long: %u\n", out.address.size);
-        return SWO_INCORRECT_DATA;
+        return TX_CHECK_INVALID_DESCRIPTOR;
     }
     if (!handle_check_tx_report(&out)) {
         PRINTF("[TX CHECK] Descriptor rejected by the app\n");
-        return SWO_INCORRECT_DATA;
+        return TX_CHECK_INVALID_DESCRIPTOR;
     }
 
     s_report.chain_id_received    = out.chain_id_received;
@@ -210,7 +213,7 @@ uint16_t tx_check_provide_descriptor(const buffer_t *payload)
            s_report.category,
            s_report.type,
            s_report.tiny_url);
-    return SWO_SUCCESS;
+    return TX_CHECK_SUCCESS;
 }
 
 void tx_check_apply_report(nbgl_warning_t *warning, const tx_check_context_t *ctx)
@@ -248,6 +251,31 @@ void tx_check_apply_report(nbgl_warning_t *warning, const tx_check_context_t *ct
     warning->reportProvider  = s_report.partner;
     warning->providerMessage = warning_text();
     warning->reportUrl       = s_report.tiny_url;
+    s_report.bound           = true;
+}
+
+#if defined(HAVE_TX_CHECK_APDU)
+/**
+ * @brief Status word of the SDK APDU for a Transaction Check status.
+ */
+static bolos_err_t status_to_sw(tx_check_status_t status)
+{
+    switch (status) {
+        case TX_CHECK_SUCCESS:
+            return SWO_SUCCESS;
+        case TX_CHECK_PENDING:
+            return SWO_NO_RESPONSE;
+        case TX_CHECK_DISABLED:
+            return SWO_COMMAND_CODE_NOT_SUPPORTED;
+        case TX_CHECK_NOT_ALLOWED:
+            return SWO_COMMAND_NOT_ALLOWED;
+        case TX_CHECK_INVALID_SIGNATURE:
+            return SWO_SECURITY_CONDITION_NOT_SATISFIED;
+        case TX_CHECK_INVALID_DESCRIPTOR:
+            return SWO_INCORRECT_DATA;
+        default:
+            return SWO_INCORRECT_DATA;
+    }
 }
 
 bolos_err_t tx_check_handle_apdu(const uint8_t *buffer,
@@ -277,19 +305,16 @@ bolos_err_t tx_check_handle_apdu(const uint8_t *buffer,
                 case APDU_CHUNKS_COMPLETE:
                     break;
             }
-            return tx_check_provide_descriptor(
-                &(const buffer_t){.ptr = payload, .size = payload_len, .offset = 0});
+            return status_to_sw(tx_check_provide_descriptor(
+                &(const buffer_t){.ptr = payload, .size = payload_len, .offset = 0}));
 
         case P1_OPT_IN:
             if ((p2 != 0) || (buffer_len != 0)) {
                 return SWO_WRONG_P1_P2;
             }
-            // The opt-in screen would replace a flow on screen
-            if (!handle_tx_check_is_idle()) {
-                return SWO_COMMAND_NOT_ALLOWED;
-            }
-            if (tx_check_opt_in(true)) {
-                return SWO_NO_RESPONSE;
+            tx_check_status_t status = tx_check_opt_in_sdk_apdu();
+            if (status != TX_CHECK_SUCCESS) {
+                return status_to_sw(status);
             }
             if (out_capacity < 1) {
                 return SWO_INCORRECT_DATA;
@@ -303,4 +328,5 @@ bolos_err_t tx_check_handle_apdu(const uint8_t *buffer,
             return SWO_WRONG_P1_P2;
     }
 }
+#endif  // HAVE_TX_CHECK_APDU
 #endif  // HAVE_TX_CHECK

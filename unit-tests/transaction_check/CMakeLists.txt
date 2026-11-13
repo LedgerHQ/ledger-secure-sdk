@@ -9,6 +9,7 @@ ledger_unit_tests_init()
 set(TC_INCLUDE_DIRS
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${SDK_DIR}/app_features/transaction_check/include
+    ${SDK_DIR}/app_features/transaction_check/src
     ${SDK_DIR}/app_features/common/include
     ${SDK_DIR}/lib_tlv/use_cases
     ${UT_INCLUDE_DIRS_SDK}
@@ -17,6 +18,8 @@ set(TC_INCLUDE_DIRS
 set(TC_COMPILE_DEFS
     ${UT_COMPILE_DEFS_SDK}
     HAVE_TX_CHECK
+    HAVE_TX_CHECK_APDU
+    HAVE_SWAP
     APPNAME="UnitTests"
     WITH_STDIO
 )
