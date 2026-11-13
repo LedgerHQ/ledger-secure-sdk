@@ -397,12 +397,12 @@ static uint8_t getNbBarsInPage(uint8_t                       nbBars,
 static void displayAddressQRCode(void);
 #endif  // NBGL_QRCODE
 
-static uint8_t getNbLinesInDetailsPage(const nbgl_contentTagValue_t *pair);
-static bool    isPairFittingInDetailsPage(const nbgl_contentTagValue_t *pair, bool wrapping);
+static uint8_t  getNbLinesInDetailsPage(const nbgl_contentTagValue_t *pair);
+static bool     isPairFittingInDetailsPage(const nbgl_contentTagValue_t *pair, bool wrapping);
 static uint16_t getNbDetailsPages(const char *value, bool wrapping);
-static uint8_t getNbTagValuesInDetailsPage(uint8_t                           nbPairs,
-                                           const nbgl_contentTagValueList_t *tagValueList,
-                                           uint8_t                           startIndex);
+static uint8_t  getNbTagValuesInDetailsPage(uint8_t                           nbPairs,
+                                            const nbgl_contentTagValueList_t *tagValueList,
+                                            uint8_t                           startIndex);
 
 static void modalLayoutTouchCallback(int token, uint8_t index);
 static void displaySkipWarning(void);
