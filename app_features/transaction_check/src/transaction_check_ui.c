@@ -42,17 +42,30 @@ static const char                *s_how_it_works_texts[HOW_IT_WORKS_NB];
 static const nbgl_icon_details_t *s_how_it_works_icons[HOW_IT_WORKS_NB];
 
 /* Private functions ---------------------------------------------------------*/
+/**
+ * @brief Send the 1-byte enable state with SWO_SUCCESS.
+ *
+ * @param[in] enabled Transaction Check enable state
+ */
 static void send_opt_in_reply(bool enabled)
 {
     uint8_t reply = enabled;
     io_send_response_pointer(&reply, sizeof(reply), SWO_SUCCESS);
 }
 
+/**
+ * @brief Hand the end of the opt-in flow over to the app.
+ */
 static void finalize_opt_in(void)
 {
     finalize_ui_tx_check_opt_in(s_response_expected);
 }
 
+/**
+ * @brief Store the user choice, send the pending reply, then display the status.
+ *
+ * @param[in] enable Whether the user enabled Transaction Check
+ */
 static void opt_in_choice_cb(bool enable)
 {
     handle_tx_check_set_setting(TX_CHECK_SETTING_OPT_IN, true);
@@ -76,6 +89,13 @@ static void opt_in_choice_cb(bool enable)
     }
 }
 
+/**
+ * @brief Display the opt-in screen if allowed and not seen yet.
+ *
+ * @param[in] response_expected Whether an APDU reply is pending
+ * @param[in] sdk_reply         Whether that reply is sent by the SDK (SDK APDU)
+ * @return TX_CHECK_PENDING, TX_CHECK_SUCCESS or TX_CHECK_NOT_ALLOWED
+ */
 static tx_check_status_t start_opt_in(bool response_expected, bool sdk_reply)
 {
     if (tx_check_in_swap()) {
@@ -123,17 +143,33 @@ static tx_check_status_t start_opt_in(bool response_expected, bool sdk_reply)
 }
 
 /* Exported functions --------------------------------------------------------*/
+/**
+ * @brief Default reply to an opt-in request on the app APDU: the 1-byte enable state.
+ *
+ * @param[in] enabled Transaction Check enable state
+ */
 WEAK void handle_tx_check_opt_in_response(bool enabled)
 {
     send_opt_in_reply(enabled);
 }
 
+/**
+ * @brief Display the opt-in screen, from the settings or for an app APDU.
+ *
+ * @param[in] response_expected Whether an APDU reply is pending
+ * @return Same as start_opt_in()
+ */
 tx_check_status_t tx_check_opt_in(bool response_expected)
 {
     return start_opt_in(response_expected, false);
 }
 
 #if defined(HAVE_TX_CHECK_APDU)
+/**
+ * @brief Display the opt-in screen for the SDK APDU, replied by the SDK.
+ *
+ * @return Same as start_opt_in()
+ */
 tx_check_status_t tx_check_opt_in_sdk_apdu(void)
 {
     return start_opt_in(true, true);
