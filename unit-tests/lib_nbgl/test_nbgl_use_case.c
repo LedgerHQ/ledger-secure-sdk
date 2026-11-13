@@ -398,7 +398,7 @@ static const char PAGE_VALUE_PLUS_ONE[] = "page value plus one";
 static const char TALLER_IN_LARGE[] = "taller in large";
 // a value displayed in many pages of the "More" details modal. Any text starting in it is split in
 // lines of a number of chars depending on the font, like real fonts (fewer chars in bold)
-#define MORE_VALUE_LEN 1500
+#define MORE_VALUE_LEN        1500
 // number of chars per line in the small bold font, used by the "More" details modal
 #define BOLD_CHARS_PER_LINE   20
 // number of chars of a full page of the "More" details modal
