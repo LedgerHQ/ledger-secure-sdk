@@ -59,8 +59,27 @@ BOLOS_TARGET_H := $(TARGET_PATH)/include/bolos_target.h
 TARGET_ID   := $(shell grep -E "^\#define\s*TARGET_ID" "$(BOLOS_TARGET_H)" | cut -f3 -d' ')
 TARGET_NAME := $(shell grep -E "^\#define\s*TARGET_[^I]" "$(BOLOS_TARGET_H)" | head -n 1 | cut -f2 -d' ')
 SDK_NAME    := "ledger-secure-sdk"
-SDK_VERSION := $(shell git -C $(BOLOS_SDK) describe --tags --exact-match  --match "v[0-9]*" --dirty)
-SDK_HASH    := $(shell git -C $(BOLOS_SDK) describe --always --dirty --exclude '*' --abbrev=40)
+# SDK_VERSION and SDK_HASH end up unquoted in shell command lines (compiler -D flags,
+# listinfo), so git's output is validated while it is still a quoted shell variable,
+# and only values made of shell-inert characters reach Make. A git tag name may contain
+# ';', '$', '`', '>', '|', ... and the "v[0-9]*" glob does not filter them out.
+# An exact matching tag that is malformed fails the build instead of falling back to "None".
+# Accepted SDK_VERSION: vX.Y.Z with optional "-suffix" parts (e.g. -ci, -rc1, -dirty).
+SDK_VERSION_REGEX := ^v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.]+)*$$
+SDK_HASH_REGEX    := ^[0-9a-f]{40}(-dirty)?$$
+SDK_INVALID_GIT_INFO := !invalid!
+# sdk_git_info(git describe arguments, validation regex)
+sdk_git_info = $(shell v="$$(git -C '$(BOLOS_SDK)' describe $(1) 2>/dev/null)" || exit 0; \
+                 if printf '%s\n' "$$v" | grep -Eqx '$(2)'; then printf '%s' "$$v"; \
+                 else printf 'Rejected SDK git metadata: %s\n' "$$v" >&2; printf '%s' '$(SDK_INVALID_GIT_INFO)'; fi)
+SDK_VERSION := $(call sdk_git_info,--tags --exact-match --match 'v[0-9]*' --dirty,$(SDK_VERSION_REGEX))
+SDK_HASH    := $(call sdk_git_info,--always --dirty --exclude '*' --abbrev=40,$(SDK_HASH_REGEX))
+ifeq ($(SDK_VERSION),$(SDK_INVALID_GIT_INFO))
+$(error SDK release tag at $(BOLOS_SDK) does not match the vX.Y.Z[-suffix] format, refusing to build)
+endif
+ifeq ($(SDK_HASH),$(SDK_INVALID_GIT_INFO))
+$(error SDK commit hash at $(BOLOS_SDK) has an unexpected format, refusing to build)
+endif
 
 # `git describe --dirty` only reports changes to tracked files, whereas Makefile.rules
 # compiles every *.[csS] and adds the directory of every *.h found ON DISK under the SDK
