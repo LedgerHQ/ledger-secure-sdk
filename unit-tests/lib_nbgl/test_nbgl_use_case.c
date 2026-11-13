@@ -1399,6 +1399,28 @@ void test_threat_takes_precedence_over_risk(void)
     }
 }
 
+// The signature confirmation prefix follows the warnings, the threat taking precedence over a risk
+void test_sign_prefix(void)
+{
+    nbgl_warning_t warning = {0};
+
+    TEST_ASSERT_EQUAL_STRING("Sign", nbgl_useCaseGetSignPrefix(NULL));
+    TEST_ASSERT_EQUAL_STRING("Sign", nbgl_useCaseGetSignPrefix(&warning));
+    warning.predefinedSet = 1 << W3C_NO_THREAT_WARN;
+    TEST_ASSERT_EQUAL_STRING("Sign", nbgl_useCaseGetSignPrefix(&warning));
+    warning.predefinedSet = 1 << W3C_RISK_DETECTED_WARN;
+    TEST_ASSERT_EQUAL_STRING("Accept risk and sign", nbgl_useCaseGetSignPrefix(&warning));
+    warning.predefinedSet = 1 << BLIND_SIGNING_WARN;
+    TEST_ASSERT_EQUAL_STRING("Accept risk and sign", nbgl_useCaseGetSignPrefix(&warning));
+    warning.predefinedSet = 1 << GATED_SIGNING_WARN;
+    TEST_ASSERT_EQUAL_STRING("Accept risk and sign", nbgl_useCaseGetSignPrefix(&warning));
+    warning.predefinedSet = 1 << W3C_THREAT_DETECTED_WARN;
+    TEST_ASSERT_EQUAL_STRING("Accept threat and sign", nbgl_useCaseGetSignPrefix(&warning));
+    warning.predefinedSet = (1 << W3C_RISK_DETECTED_WARN) | (1 << W3C_THREAT_DETECTED_WARN)
+                            | (1 << BLIND_SIGNING_WARN);
+    TEST_ASSERT_EQUAL_STRING("Accept threat and sign", nbgl_useCaseGetSignPrefix(&warning));
+}
+
 // When both a predefined warning and custom fields are given, the predefined warning shall take
 // precedence: neither the custom icons nor the custom details shall be displayed
 void test_predefined_warning_takes_precedence_over_custom_fields(void)
@@ -2642,6 +2664,7 @@ int main(void)
     RUN_TEST(test_gated_signing_only_warning_is_displayed_before_review);
     RUN_TEST(test_gated_signing_only_warning_can_be_rejected);
     RUN_TEST(test_threat_takes_precedence_over_risk);
+    RUN_TEST(test_sign_prefix);
     RUN_TEST(test_pair_max_lines_shares_page);
     RUN_TEST(test_no_pair_max_lines_uses_details_page);
     RUN_TEST(test_alias_list_modal_pages_fit);
