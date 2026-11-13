@@ -166,9 +166,6 @@ WEAK void library_app_main(libargs_t *args)
 
 WEAK BOOT_SECTION int main(int arg0)
 {
-    // exit critical section
-    __asm volatile("cpsie i");
-
     // Ensure exception will work as planned
     os_boot();
 
