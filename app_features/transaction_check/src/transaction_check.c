@@ -61,6 +61,9 @@ static tx_check_report_t s_report;
 
 /**
  * @brief Check that the stored report applies to the operation being signed.
+ *
+ * @param[in] ctx Operation being signed
+ * @return true if the report matches the operation
  */
 static bool report_matches(const tx_check_context_t *ctx)
 {
@@ -105,6 +108,8 @@ static bool report_matches(const tx_check_context_t *ctx)
 
 /**
  * @brief Text displayed in the warning, from the report risk and category.
+ *
+ * @return Warning text, NULL when no warning is displayed
  */
 static const char *warning_text(void)
 {
@@ -145,11 +150,20 @@ static const char *warning_text(void)
 }
 
 /* Exported functions --------------------------------------------------------*/
+/**
+ * @brief Erase the stored report.
+ */
 void tx_check_clear(void)
 {
     explicit_bzero(&s_report, sizeof(s_report));
 }
 
+/**
+ * @brief Parse, verify and store a descriptor, replacing a report not bound to a review.
+ *
+ * @param[in] payload Complete TLV descriptor
+ * @return Transaction Check status
+ */
 tx_check_status_t tx_check_provide_descriptor(const buffer_t *payload)
 {
     tlv_transaction_check_out_t out = {0};
@@ -216,6 +230,12 @@ tx_check_status_t tx_check_provide_descriptor(const buffer_t *payload)
     return TX_CHECK_SUCCESS;
 }
 
+/**
+ * @brief Bind the stored report to the operation being signed and fill the review warning.
+ *
+ * @param[in,out] warning Review warning
+ * @param[in]     ctx     Operation being signed
+ */
 void tx_check_apply_report(nbgl_warning_t *warning, const tx_check_context_t *ctx)
 {
     // Only the result of this call may be shown, whatever the warning held before
@@ -254,6 +274,12 @@ void tx_check_apply_report(nbgl_warning_t *warning, const tx_check_context_t *ct
     s_report.bound           = true;
 }
 
+/**
+ * @brief Standard status word of a Transaction Check status.
+ *
+ * @param[in] status Status returned by tx_check_provide_descriptor() or tx_check_opt_in()
+ * @return Status word of status_words.h, SWO_NO_RESPONSE for TX_CHECK_PENDING
+ */
 uint16_t tx_check_status_to_sw(tx_check_status_t status)
 {
     switch (status) {
@@ -275,6 +301,17 @@ uint16_t tx_check_status_to_sw(tx_check_status_t status)
 }
 
 #if defined(HAVE_TX_CHECK_APDU)
+/**
+ * @brief Handle the SDK APDU: chunked descriptor (P1 0x00) or opt-in request (P1 0x01).
+ *
+ * @param[in]     buffer            APDU data
+ * @param[in]     buffer_len        APDU data length
+ * @param[in]     p1                APDU P1
+ * @param[in]     p2                APDU P2
+ * @param[out]    buffer_out        Response data
+ * @param[in,out] buffer_out_length Response capacity in, response length out
+ * @return Status word, SWO_NO_RESPONSE when the reply is deferred
+ */
 bolos_err_t tx_check_handle_apdu(const uint8_t *buffer,
                                  size_t         buffer_len,
                                  uint8_t        p1,
