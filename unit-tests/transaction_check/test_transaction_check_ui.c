@@ -101,12 +101,15 @@ bool handle_tx_check_is_idle(void)
     return g_app_idle;
 }
 
+// Built without this override, the SDK default reply is used
+#if !defined(TEST_DEFAULT_OPT_IN_REPLY)
 void handle_tx_check_opt_in_response(bool enabled)
 {
     g_app_reply_before_status = (g_status_msg == NULL);
     g_app_reply_calls++;
     g_app_reply_enabled = enabled;
 }
+#endif
 
 void finalize_ui_tx_check_opt_in(bool response_expected)
 {
@@ -274,6 +277,7 @@ static void test_opt_in_declined_from_sdk_apdu(void)
     TEST_ASSERT_EQUAL(1, g_finalize_calls);
 }
 
+#if !defined(TEST_DEFAULT_OPT_IN_REPLY)
 // On the app APDU, the app sends the reply, before the status screen
 static void test_opt_in_accepted_from_app_apdu(void)
 {
@@ -298,6 +302,7 @@ static void test_opt_in_declined_from_app_apdu(void)
     TEST_ASSERT_FALSE(g_app_reply_enabled);
     TEST_ASSERT_EQUAL(1, g_finalize_calls);
 }
+#endif
 
 static void test_opt_in_from_settings_sends_no_reply(void)
 {
@@ -311,6 +316,21 @@ static void test_opt_in_from_settings_sends_no_reply(void)
     TEST_ASSERT_FALSE(g_finalize_response_expected);
 }
 
+#if defined(TEST_DEFAULT_OPT_IN_REPLY)
+// Without an app override, the SDK sends the reply to the app APDU
+static void test_opt_in_default_reply_from_app_apdu(void)
+{
+    TEST_ASSERT_EQUAL(TX_CHECK_PENDING, tx_check_opt_in(true));
+    g_choice_cb(true);
+    TEST_ASSERT_EQUAL(1, g_reply_calls);
+    TEST_ASSERT_EQUAL(1, g_reply_byte);
+    TEST_ASSERT_EQUAL_HEX16(SWO_SUCCESS, g_reply_sw);
+    TEST_ASSERT_EQUAL_STRING("Transaction Check enabled", g_status_msg);
+    g_status_cb();
+    TEST_ASSERT_EQUAL(1, g_finalize_calls);
+}
+#endif
+
 int main(void)
 {
     UNITY_BEGIN();
@@ -320,8 +340,12 @@ int main(void)
     RUN_TEST(test_opt_in_not_allowed_in_swap);
     RUN_TEST(test_opt_in_accepted_from_sdk_apdu);
     RUN_TEST(test_opt_in_declined_from_sdk_apdu);
+#if defined(TEST_DEFAULT_OPT_IN_REPLY)
+    RUN_TEST(test_opt_in_default_reply_from_app_apdu);
+#else
     RUN_TEST(test_opt_in_accepted_from_app_apdu);
     RUN_TEST(test_opt_in_declined_from_app_apdu);
+#endif
     RUN_TEST(test_opt_in_from_settings_sends_no_reply);
     return UNITY_END();
 }

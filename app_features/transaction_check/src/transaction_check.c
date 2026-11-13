@@ -254,11 +254,7 @@ void tx_check_apply_report(nbgl_warning_t *warning, const tx_check_context_t *ct
     s_report.bound           = true;
 }
 
-#if defined(HAVE_TX_CHECK_APDU)
-/**
- * @brief Status word of the SDK APDU for a Transaction Check status.
- */
-static bolos_err_t status_to_sw(tx_check_status_t status)
+uint16_t tx_check_status_to_sw(tx_check_status_t status)
 {
     switch (status) {
         case TX_CHECK_SUCCESS:
@@ -278,6 +274,7 @@ static bolos_err_t status_to_sw(tx_check_status_t status)
     }
 }
 
+#if defined(HAVE_TX_CHECK_APDU)
 bolos_err_t tx_check_handle_apdu(const uint8_t *buffer,
                                  size_t         buffer_len,
                                  uint8_t        p1,
@@ -305,7 +302,7 @@ bolos_err_t tx_check_handle_apdu(const uint8_t *buffer,
                 case APDU_CHUNKS_COMPLETE:
                     break;
             }
-            return status_to_sw(tx_check_provide_descriptor(
+            return tx_check_status_to_sw(tx_check_provide_descriptor(
                 &(const buffer_t){.ptr = payload, .size = payload_len, .offset = 0}));
 
         case P1_OPT_IN:
@@ -314,7 +311,7 @@ bolos_err_t tx_check_handle_apdu(const uint8_t *buffer,
             }
             tx_check_status_t status = tx_check_opt_in_sdk_apdu();
             if (status != TX_CHECK_SUCCESS) {
-                return status_to_sw(status);
+                return tx_check_status_to_sw(status);
             }
             if (out_capacity < 1) {
                 return SWO_INCORRECT_DATA;

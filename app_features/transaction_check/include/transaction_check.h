@@ -44,7 +44,7 @@ typedef enum {
     TX_CHECK_SETTING_ENABLE,  ///< Transaction Check is enabled
 } tx_check_setting_t;
 
-/** Result of a descriptor or opt-in request, mapped by each app to its own status words. */
+/** Result of a descriptor or opt-in request, mapped to status words by tx_check_status_to_sw(). */
 typedef enum {
     TX_CHECK_SUCCESS,             ///< Descriptor stored, or opt-in already done
     TX_CHECK_PENDING,             ///< Opt-in screen displayed, the choice comes later
@@ -140,6 +140,14 @@ tx_check_status_t tx_check_provide_descriptor(const buffer_t *payload);
  *         TX_CHECK_NOT_ALLOWED during a swap, or when a reply is expected while a flow is on screen
  */
 tx_check_status_t tx_check_opt_in(bool response_expected);
+
+/**
+ * @brief Standard status word of a Transaction Check status.
+ *
+ * @param[in] status Status returned by tx_check_provide_descriptor() or tx_check_opt_in()
+ * @return Status word of status_words.h, SWO_NO_RESPONSE for TX_CHECK_PENDING
+ */
+uint16_t tx_check_status_to_sw(tx_check_status_t status);
 
 /**
  * @brief Bind the stored report to the operation being signed and fill the review warning.

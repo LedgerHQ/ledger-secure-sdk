@@ -90,7 +90,8 @@ bool handle_tx_check_is_idle(void);
  * @brief Reply to an opt-in request received on the app APDU.
  *
  * Called once the user has chosen, before finalize_ui_tx_check_opt_in(), when tx_check_opt_in()
- * was called with a pending reply.
+ * was called with a pending reply. Optional: the SDK default sends the 1-byte enable state with
+ * SWO_SUCCESS.
  *
  * @param[in] enabled Transaction Check enable state, to send as the 1-byte reply
  */

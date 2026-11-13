@@ -93,7 +93,7 @@ The coin app implements the entrypoints of @ref transaction_check_entrypoints.h.
 | @ref handle_tx_check_get_setting     | any time                | read the opt-in and enable settings                        |
 | @ref handle_tx_check_set_setting     | opt-in choice           | write the opt-in and enable settings                       |
 | @ref handle_tx_check_is_idle         | opt-in request          | no flow is on screen                                       |
-| @ref handle_tx_check_opt_in_response | opt-in choice           | reply to an opt-in request received on the app APDU        |
+| @ref handle_tx_check_opt_in_response | opt-in choice           | optional, reply to an opt-in request on the app APDU       |
 | @ref finalize_ui_tx_check_opt_in     | after the opt-in choice | back to the home or settings screen                        |
 
 @section transaction_check_api Coin-app API
@@ -106,14 +106,17 @@ The coin app calls the functions of @ref transaction_check.h.
 | @ref tx_check_clear              | erase the report                                                  |
 | @ref tx_check_opt_in             | display the opt-in screen, for the settings switch or an app APDU |
 | @ref tx_check_provide_descriptor | store a descriptor received by an app APDU                        |
+| @ref tx_check_status_to_sw       | standard status word of a @ref tx_check_status_t                  |
 
 @ref tx_check_apply_report first clears the W3C warnings and the report fields it owns, then sets
 @c W3C_ISSUE_WARN when no report matches the operation, and nothing when Transaction Check is
 disabled. When the report or the operation holds a domain hash, both must hold the same one.
 
-@ref tx_check_provide_descriptor and @ref tx_check_opt_in return a @ref tx_check_status_t, that the
-app maps to its own status words. @ref tx_check_opt_in never sends an APDU reply: the app replies at
-once on @c TX_CHECK_SUCCESS, or from @ref handle_tx_check_opt_in_response on @c TX_CHECK_PENDING.
+@ref tx_check_provide_descriptor and @ref tx_check_opt_in return a @ref tx_check_status_t, that
+@ref tx_check_status_to_sw maps to the status words below; an app may use its own instead.
+@ref tx_check_opt_in never sends an APDU reply: the app replies at once on @c TX_CHECK_SUCCESS, and
+@ref handle_tx_check_opt_in_response replies on @c TX_CHECK_PENDING. Its default sends the 1-byte
+enable state with 0x9000.
 
 @section transaction_check_sw Status words
 

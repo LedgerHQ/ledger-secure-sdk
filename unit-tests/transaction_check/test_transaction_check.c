@@ -406,6 +406,18 @@ static void test_apdu_descriptor_status_words(void)
         send_apdu(P1_DESCRIPTOR, APDU_CHUNKS_P2_FIRST, apdu, sizeof(apdu), NULL, NULL));
 }
 
+static void test_status_to_sw(void)
+{
+    TEST_ASSERT_EQUAL_HEX16(SWO_SUCCESS, tx_check_status_to_sw(TX_CHECK_SUCCESS));
+    TEST_ASSERT_EQUAL_HEX16(SWO_NO_RESPONSE, tx_check_status_to_sw(TX_CHECK_PENDING));
+    TEST_ASSERT_EQUAL_HEX16(SWO_COMMAND_CODE_NOT_SUPPORTED,
+                            tx_check_status_to_sw(TX_CHECK_DISABLED));
+    TEST_ASSERT_EQUAL_HEX16(SWO_COMMAND_NOT_ALLOWED, tx_check_status_to_sw(TX_CHECK_NOT_ALLOWED));
+    TEST_ASSERT_EQUAL_HEX16(SWO_SECURITY_CONDITION_NOT_SATISFIED,
+                            tx_check_status_to_sw(TX_CHECK_INVALID_SIGNATURE));
+    TEST_ASSERT_EQUAL_HEX16(SWO_INCORRECT_DATA, tx_check_status_to_sw(TX_CHECK_INVALID_DESCRIPTOR));
+}
+
 static void test_apdu_opt_in_rejects_p2_and_data(void)
 {
     const uint8_t data[] = {0x00};
@@ -758,6 +770,7 @@ int main(void)
     RUN_TEST(test_apdu_opt_in_displays_screen);
     RUN_TEST(test_apdu_opt_in_not_allowed);
     RUN_TEST(test_apdu_descriptor_status_words);
+    RUN_TEST(test_status_to_sw);
     RUN_TEST(test_apdu_opt_in_rejects_p2_and_data);
     RUN_TEST(test_provide_disabled);
     RUN_TEST(test_provide_replaces_report);

@@ -48,3 +48,14 @@ ledger_unit_tests_add_test(
     INCLUDE_DIRS ${TC_INCLUDE_DIRS}
     COMPILE_DEFS ${TC_COMPILE_DEFS}
 )
+
+ledger_unit_tests_add_test(
+    NAME         test_transaction_check_ui_default_reply
+    SOURCES      ${SDK_DIR}/app_features/transaction_check/src/transaction_check_ui.c
+    MOCK_HEADERS ${SDK_DIR}/lib_standard_app/io.h
+                 ${SDK_DIR}/lib_nbgl/include/nbgl_use_case.h
+                 ${SDK_DIR}/lib_nbgl/include/nbgl_layout.h
+                 ${SDK_DIR}/lib_nbgl/include/nbgl_obj.h
+    INCLUDE_DIRS ${TC_INCLUDE_DIRS}
+    COMPILE_DEFS ${TC_COMPILE_DEFS}
+)
