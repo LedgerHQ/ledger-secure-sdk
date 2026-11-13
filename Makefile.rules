@@ -118,7 +118,10 @@ VPATH += $(call uniq, $(dir $(SOURCES_SDK) $(SOURCES_APP) $(GLYPH_DESTC)))
 # late APP_SOURCE_PATH additions are captured) the find runs once and the result is
 # reused, instead of re-scanning the app source tree for every object compiled.
 # (HEADERS_APP is never expanded during parsing, so the memoization can't freeze early.)
-HEADERS_APP = $(eval HEADERS_APP := $(shell find $(APP_SOURCE_PATH) -name '*.h'))$(HEADERS_APP)
+# The find is escaped ($$) so that eval only expands it once: otherwise the filenames it
+# returns would be expanded again by eval, executing any make function call that a
+# crafted filename contains (e.g. '$(shell ...).h'), before any path check.
+HEADERS_APP = $(eval HEADERS_APP := $$(shell find $(APP_SOURCE_PATH) -name '*.h'))$(HEADERS_APP)
 
 # SDK header directories discovered from the SDK source paths.
 # Frozen with := so the (expensive) find over the SDK tree runs ONCE: the SDK source

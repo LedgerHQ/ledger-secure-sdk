@@ -2252,6 +2252,42 @@ void test_review_is_rejected_with_too_many_details_pages(void)
     checkReviewWithTooLongDetailsIsRejected(MORE_VALUE_SIZE - 1, 0);
 }
 
+// A callback may return a reusable static pair: here the review list and the alias list of its
+// first pair share the same storage. The first pair has a value too long for the "More" details
+// modal, and the alias list only short values. Checking the alias details (calling the alias list
+// callback, overwriting the shared pair) used to happen first, so the "More" details check then
+// examined the last alias pair instead of the review one, and the review was wrongly accepted.
+static nbgl_contentTagValue_t sharedPair;
+
+static nbgl_contentTagValue_t *getSharedReviewPair(uint8_t pairIndex)
+{
+    sharedPair = pairs[pairIndex - callbackBase];
+    return &sharedPair;
+}
+
+static nbgl_contentTagValue_t *getSharedAliasListPair(uint8_t pairIndex)
+{
+    sharedPair = *getAliasListPair(pairIndex);
+    return &sharedPair;
+}
+
+void test_review_is_rejected_with_too_many_details_pages_and_shared_callback_pair(void)
+{
+    setMoreValue(MAX_DETAILS_VALUE_LEN + 1);
+    buildAliasList();
+    useAliasListCallback();
+    aliasList.callback = getSharedAliasListPair;
+    buildList(NB_PAIRS, true);
+    content.content.tagValueConfirm.tagValueList.callback = getSharedReviewPair;
+    pairs[0].value                                        = MORE_VALUE;
+    extensions[0].aliasType                               = TAG_VALUE_LIST_ALIAS;
+    extensions[0].tagValuelist                            = &aliasList;
+
+    nbgl_useCaseGenericReview(&contents, "Reject", onReject);
+    TEST_ASSERT_EQUAL_INT(1, nb_rejects);
+    TEST_ASSERT_NULL(page_callback);
+}
+
 // ============================================================================
 // Max number of lines of a value: the smallest of the list and pair ones, and a value of a pair
 // with a max always ends with "..." if it doesn't fit, whichever max cuts it
@@ -2834,6 +2870,7 @@ int main(void)
     RUN_TEST(test_more_details_pages_show_whole_value);
     RUN_TEST(test_more_details_with_max_pages_shows_whole_value);
     RUN_TEST(test_review_is_rejected_with_too_many_details_pages);
+    RUN_TEST(test_review_is_rejected_with_too_many_details_pages_and_shared_callback_pair);
     RUN_TEST(test_tag_value_max_lines);
     RUN_TEST(test_threat_report_with_short_url);
     RUN_TEST(test_threat_report_with_saturating_url);
