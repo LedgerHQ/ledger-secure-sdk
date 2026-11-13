@@ -45,6 +45,24 @@ define uniq =
     ${seen}
 endef
 
+# File paths discovered in the App tree (sources, headers, glyphs) are attacker-influenced
+# data: they end up in shell command lines (compiler, glyph script...), so a crafted name
+# such as 'src/a;id;.c' would run commands on the build host. Such paths are only accepted
+# if made of the conservative set of characters below (whitespace already splits words).
+SAFE_PATH_CHARS := a b c d e f g h i j k l m n o p q r s t u v w x y z \
+                   A B C D E F G H I J K L M N O P Q R S T U V W X Y Z \
+                   0 1 2 3 4 5 6 7 8 9 _ . / + - @ =
+# $(call strip_chars,<text>,<chars>): <text> with every char of the <chars> list removed.
+# Pure function nesting (no $(eval)), so the path text is never expanded as Make syntax.
+strip_chars = $(if $(2),$(call strip_chars,$(subst $(firstword $(2)),,$(1)),$(wordlist 2,$(words $(2)),$(2))),$(1))
+# $(call unsafe_paths,<paths>): words of <paths> holding a character outside SAFE_PATH_CHARS
+unsafe_paths = $(foreach p,$(1),$(if $(strip $(call strip_chars,$(p),$(SAFE_PATH_CHARS))),$(p)))
+# $(call check_safe_paths,<paths>,<kind>): abort if any of <paths> is unsafe, else empty.
+# The whole list is screened at once, the per-path search only runs on failure.
+check_safe_paths = $(if $(strip $(call strip_chars,$(1),$(SAFE_PATH_CHARS))),$(error \
+    Unsafe character in $(2) path(s): $(strip $(call unsafe_paths,$(1))) \
+    - allowed characters: letters digits _ . / + - @ =))
+
 SDK_SOURCE_PATH += io io_legacy protocol lib_u2f_legacy
 
 # adding the correct target header to sources
@@ -122,6 +140,7 @@ INCLUDES_PATH_SDK_BASE := $(INCLUDES_PATH_SDK_BASE) \
 INCLUDES_PATH_APP_BASE = \
     $(INCLUDES_PATH) \
     include \
+    $(call check_safe_paths,$(patsubst $(APP_DIR)/%,%,$(dir $(HEADERS_APP))),App header directory) \
     $(dir $(HEADERS_APP)) \
     $(GLYPH_SRC_DIR)
 
@@ -139,8 +158,9 @@ INCLUDES_PATH_APP  = $(call uniq, $(INCLUDES_PATH_APP_BASE) $(INCLUDES_PATH_SDK_
 # Separate object files from SDK and APP to avoid name conflicts
 OBJECTS_SDK += $(sort $(subst $(BOLOS_SDK), $(OBJ_DIR)/sdk, $(addsuffix .o, $(basename $(SOURCES_SDK)))))
 # App object path = $(OBJ_DIR)/app/<source path relative to APP_DIR>.o
+# Computed with Make text functions only: source paths must never reach a $(shell ...).
 OBJECTS_APP += $(sort $(addprefix $(OBJ_DIR)/app, $(addsuffix .o, $(basename \
-    $(foreach f, $(SOURCES_APP), $(shell echo $(f) | sed "s|$(APP_DIR)||" 2>/dev/null))))))
+    $(patsubst $(APP_DIR)/%,/%,$(SOURCES_APP))))))
 OBJECTS_GEN += $(sort $(SOURCES_GEN:%c=%o))
 OBJECTS_PROTOC += $(sort $(addprefix $(OBJ_DIR)/, $(addsuffix .o, $(basename $(APP_SOURCE_PROTOC)))))
 OBJECT_FILES = $(OBJECTS_GEN) $(OBJECTS_PROTOC) $(OBJECTS_APP) $(OBJECTS_SDK)
@@ -162,6 +182,14 @@ ifneq ($(wildcard $(APP_MANIFEST_FILE)),)
         $(shell ledger-manifest "$(APP_MANIFEST_FILE)" -ouc $1)
     endef
 endif
+
+# Reject App-controlled paths that would be interpreted by the shell in build recipes.
+# Done right before Makefile.rules_generic, which expands the object/depend lists.
+# Only the part below APP_DIR / BOLOS_SDK is checked: the checkout location is not
+# App-controlled.
+$(call check_safe_paths,$(patsubst $(APP_DIR)/%,%,$(SOURCES_APP) $(APP_SOURCE_PROTOC)),App source)
+$(call check_safe_paths,$(patsubst $(BOLOS_SDK)/%,%,$(patsubst $(APP_DIR)/%,%,$(SOURCES_SDK))),SDK source)
+$(call check_safe_paths,$(patsubst $(BOLOS_SDK)/%,%,$(GLYPH_FILES)),glyph)
 
 include $(BOLOS_SDK)/Makefile.rules_generic
 
