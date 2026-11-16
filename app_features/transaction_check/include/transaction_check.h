@@ -137,7 +137,8 @@ tx_check_status_t tx_check_provide_descriptor(const buffer_t *payload);
  * @param[in] response_expected Whether an APDU reply is pending
  * @return TX_CHECK_PENDING if the opt-in screen is displayed,
  *         TX_CHECK_SUCCESS if the user has already opted in,
- *         TX_CHECK_NOT_ALLOWED during a swap, or when a reply is expected while a flow is on screen
+ *         TX_CHECK_NOT_ALLOWED during a swap, or when the screen would be displayed while a reply
+ *         is expected and a flow is on screen
  */
 tx_check_status_t tx_check_opt_in(bool response_expected);
 

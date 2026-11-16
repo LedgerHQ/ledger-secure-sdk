@@ -58,8 +58,8 @@ the operation is signed or rejected. Descriptors are refused during a swap.
 @subsection transaction_check_apdu_opt_in Opt-in (P1 0x01)
 
 If the user has already seen the opt-in screen, the enable state is returned at once. Otherwise
-the opt-in screen is displayed and the enable state is returned after the user choice. Refused
-during a swap, and while a flow is on screen.
+the opt-in screen is displayed and the enable state is returned after the user choice, unless a
+flow is on screen. Refused during a swap.
 
 @section transaction_check_descriptor Descriptor
 
@@ -126,7 +126,7 @@ enable state with 0x9000.
 | 0x6A80 | invalid chunk or descriptor                                                       |
 | 0x6982 | invalid descriptor signature                                                      |
 | 0x6B00 | unknown P1, or P2 / data on an opt-in request                                     |
-| 0x6980 | report bound to the review in progress, swap, or opt-in while a flow is on screen |
+| 0x6980 | report bound to the review in progress, swap, or opt-in screen over a flow        |
 | 0x911C | Transaction Check disabled                                                        |
 | 0x6C00 | APDU shorter than its Lc                                                          |
 
