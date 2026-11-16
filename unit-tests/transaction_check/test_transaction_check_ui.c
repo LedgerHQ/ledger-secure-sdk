@@ -239,12 +239,24 @@ static void test_opt_in_not_allowed_when_not_idle(void)
     TEST_ASSERT_EQUAL(TX_CHECK_PENDING, tx_check_opt_in(false));
 }
 
+// Once opted in, the state is returned whatever is on screen
+static void test_opt_in_already_done_when_not_idle(void)
+{
+    g_setting_opt_in = true;
+    g_app_idle       = false;
+    TEST_ASSERT_EQUAL(TX_CHECK_SUCCESS, tx_check_opt_in(true));
+    TEST_ASSERT_EQUAL(TX_CHECK_SUCCESS, tx_check_opt_in_sdk_apdu());
+    TEST_ASSERT_EQUAL(0, g_choice_count);
+}
+
 static void test_opt_in_not_allowed_in_swap(void)
 {
     G_called_from_swap = true;
     TEST_ASSERT_EQUAL(TX_CHECK_NOT_ALLOWED, tx_check_opt_in(true));
     TEST_ASSERT_EQUAL(TX_CHECK_NOT_ALLOWED, tx_check_opt_in_sdk_apdu());
     TEST_ASSERT_EQUAL(0, g_choice_count);
+    g_setting_opt_in = true;
+    TEST_ASSERT_EQUAL(TX_CHECK_NOT_ALLOWED, tx_check_opt_in(true));
 }
 
 static void test_opt_in_accepted_from_sdk_apdu(void)
@@ -337,6 +349,7 @@ int main(void)
     RUN_TEST(test_opt_in_already_done);
     RUN_TEST(test_opt_in_screen);
     RUN_TEST(test_opt_in_not_allowed_when_not_idle);
+    RUN_TEST(test_opt_in_already_done_when_not_idle);
     RUN_TEST(test_opt_in_not_allowed_in_swap);
     RUN_TEST(test_opt_in_accepted_from_sdk_apdu);
     RUN_TEST(test_opt_in_declined_from_sdk_apdu);

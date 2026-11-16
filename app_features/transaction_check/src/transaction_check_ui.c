@@ -102,14 +102,14 @@ static tx_check_status_t start_opt_in(bool response_expected, bool sdk_reply)
         PRINTF("[TX CHECK] Not available in a swap\n");
         return TX_CHECK_NOT_ALLOWED;
     }
+    if (handle_tx_check_get_setting(TX_CHECK_SETTING_OPT_IN)) {
+        PRINTF("[TX CHECK] Already opted in\n");
+        return TX_CHECK_SUCCESS;
+    }
     // The opt-in screen would replace a flow on screen
     if (response_expected && !handle_tx_check_is_idle()) {
         PRINTF("[TX CHECK] Opt-in requested while a flow is on screen\n");
         return TX_CHECK_NOT_ALLOWED;
-    }
-    if (handle_tx_check_get_setting(TX_CHECK_SETTING_OPT_IN)) {
-        PRINTF("[TX CHECK] Already opted in\n");
-        return TX_CHECK_SUCCESS;
     }
     s_response_expected = response_expected;
     s_sdk_reply         = sdk_reply;
