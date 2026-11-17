@@ -114,7 +114,7 @@ static void exec_stat(void)
 {
     mem_stat_t st;
     memset(&st, 0, sizeof(st));
-    mem_stat(&allocator, &st);
+    mem_stat(allocator, &st);
     (void) st;
 }
 
