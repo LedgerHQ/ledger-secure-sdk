@@ -38,6 +38,9 @@
 #if defined(HAVE_ADDRESS_BOOK)
 #include "address_book.h"
 #endif
+#if defined(HAVE_TX_CHECK)
+#include "transaction_check.h"
+#endif
 
 /* Private enumerations ------------------------------------------------------*/
 
@@ -340,6 +343,27 @@ bolos_err_t os_io_handle_default_apdu(uint8_t                  *buffer_in,
                                             buffer_in[APDU_OFF_P2]);
                 break;
 #endif  // HAVE_ADDRESS_BOOK
+
+#if defined(HAVE_TX_CHECK_APDU)
+            case DEFAULT_APDU_INS_TRANSACTION_CHECK: {
+                // The opt-in request carries no data: Lc is optional.
+                size_t data_length = 0;
+                if (buffer_in_length > APDU_OFF_LC) {
+                    data_length = buffer_in[APDU_OFF_LC];
+                    if (buffer_in_length < (size_t) APDU_OFF_DATA + data_length) {
+                        err = SWO_INCORRECT_P3_LENGTH;
+                        goto end;
+                    }
+                }
+                err = tx_check_handle_apdu(&buffer_in[APDU_OFF_DATA],
+                                           data_length,
+                                           buffer_in[APDU_OFF_P1],
+                                           buffer_in[APDU_OFF_P2],
+                                           buffer_out,
+                                           buffer_out_length);
+                break;
+            }
+#endif  // HAVE_TX_CHECK_APDU
 
             default:
                 err = SWO_INVALID_CLA;

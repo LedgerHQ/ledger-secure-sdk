@@ -1,0 +1,133 @@
+/** @page transaction_check_mainpage Transaction Check API
+
+@section transaction_check_intro Introduction
+
+The Transaction Check feature displays, during the review, the risk assessment of a transaction
+or of typed data computed by a security provider. The assessment comes as a descriptor signed by
+the provider key (PKI certificate with the @c TX_SIMU_SIGNER usage), forwarded by the wallet
+before the signing command.
+
+The feature is only available on wallet-size screens (Stax, Flex, Apex).
+
+@section transaction_check_architecture Architecture
+
+The implementation is split between the SDK and coin applications:
+
+- @b SDK: the APDU (@c CLA=0xB0, @c INS=0x11) and its chunked transport, the descriptor parsing
+  and signature verification (@ref tlv_use_case_transaction_check.h), the storage of the report
+  until the review, its binding to the operation being signed (type, hash, domain hash), the
+  review warning (@c W3C_* bits, provider, report URL, warning text), the opt-in screens
+- @b Coin @b Application: address format and signer check, chain ID policy, persistent
+  settings, app UI states, through the entrypoints of @ref transaction_check_entrypoints.h
+
+@section transaction_check_config App configuration
+
+In the app @c Makefile:
+
+@code
+ENABLE_TX_CHECK = 1
+@endcode
+
+This defines @c HAVE_TX_CHECK on wallet-size screens and enables the TLV and PKI libraries.
+
+The generic APDU below is received by the SDK (@c HAVE_TX_CHECK_APDU). An app that only accepts
+descriptors on its own APDU disables it, and calls @ref tx_check_provide_descriptor and
+@ref tx_check_opt_in from its handler:
+
+@code
+ENABLE_TX_CHECK_APDU = 0
+@endcode
+
+@section transaction_check_apdu APDU interface
+
+| CLA  | INS  | P1   | P2                                 | Data       | Response             |
+|------|------|------|------------------------------------|------------|----------------------|
+| 0xB0 | 0x11 | 0x00 | 0x00 first chunk, 0x80 next chunks | descriptor | —                    |
+| 0xB0 | 0x11 | 0x01 | 0x00                               | none       | 1 byte: enable state |
+
+@subsection transaction_check_apdu_descriptor Descriptor (P1 0x00)
+
+The first chunk starts with the 2-byte big-endian length of the whole descriptor; next chunks
+are appended. The transport is shared with the Address Book (@ref apdu_chunks.h): a continuation
+chunk is rejected when the payload in progress belongs to another feature.
+
+A new descriptor replaces the stored report, except while that report is bound to the review in
+progress: from @ref tx_check_apply_report until the app erases it with @ref tx_check_clear, once
+the operation is signed or rejected. Descriptors are refused during a swap.
+
+@subsection transaction_check_apdu_opt_in Opt-in (P1 0x01)
+
+If the user has already seen the opt-in screen, the enable state is returned at once. Otherwise
+the opt-in screen is displayed and the enable state is returned after the user choice, unless a
+flow is on screen. Refused during a swap.
+
+@section transaction_check_descriptor Descriptor
+
+TLV structure, signed with SHA-256 over every TLV except the signature.
+
+| Tag  | Name                | Size                                            | Presence                     |
+|------|---------------------|-------------------------------------------------|------------------------------|
+| 0x01 | STRUCTURE_TYPE      | 1 (0x09)                                        | mandatory                    |
+| 0x02 | STRUCTURE_VERSION   | 1 (0x01)                                        | mandatory                    |
+| 0x22 | ADDRESS             | 20 to 44, chain format                          | mandatory                    |
+| 0x23 | CHAIN_ID            | up to 8                                         | optional, checked by the app |
+| 0x27 | TX_HASH             | 32                                              | mandatory                    |
+| 0x28 | DOMAIN_HASH         | 32                                              | optional, checked by the app |
+| 0x80 | NORMALIZED_RISK     | 1: benign, warning, malicious                   | mandatory                    |
+| 0x81 | NORMALIZED_CATEGORY | 1: n/a, others, address, dApp, losing operation | mandatory                    |
+| 0x82 | PROVIDER_MSG        | up to 25, printable                             | optional                     |
+| 0x83 | TINY_URL            | up to 30, printable                             | mandatory                    |
+| 0x84 | SIMULATION_TYPE     | 1: transaction, typed data                      | mandatory                    |
+| 0x85 | ADDITIONAL_DATA     | —                                               | rejected                     |
+| 0x15 | DER_SIGNATURE       | ECDSA secp256k1                                 | mandatory                    |
+
+@section transaction_check_entrypoints Coin-app entrypoints
+
+The coin app implements the entrypoints of @ref transaction_check_entrypoints.h.
+
+| Entrypoint                           | Called                  | Role                                                       |
+|--------------------------------------|-------------------------|------------------------------------------------------------|
+| @ref handle_check_tx_report          | descriptor received     | chain checks: address size, supported types, optional tags |
+| @ref handle_check_tx_report_signer   | review                  | the report address is the signer of the operation          |
+| @ref handle_check_tx_report_chain_id | review                  | the report chain ID applies to the operation               |
+| @ref handle_tx_check_get_setting     | any time                | read the opt-in and enable settings                        |
+| @ref handle_tx_check_set_setting     | opt-in choice           | write the opt-in and enable settings                       |
+| @ref handle_tx_check_is_idle         | opt-in request          | no flow is on screen                                       |
+| @ref handle_tx_check_opt_in_response | opt-in choice           | optional, reply to an opt-in request on the app APDU       |
+| @ref finalize_ui_tx_check_opt_in     | after the opt-in choice | back to the home or settings screen                        |
+
+@section transaction_check_api Coin-app API
+
+The coin app calls the functions of @ref transaction_check.h.
+
+| Function                         | Role                                                              |
+|----------------------------------|-------------------------------------------------------------------|
+| @ref tx_check_apply_report       | fill the review warning from the report bound to the operation    |
+| @ref tx_check_clear              | erase the report                                                  |
+| @ref tx_check_opt_in             | display the opt-in screen, for the settings switch or an app APDU |
+| @ref tx_check_provide_descriptor | store a descriptor received by an app APDU                        |
+| @ref tx_check_status_to_sw       | standard status word of a @ref tx_check_status_t                  |
+
+@ref tx_check_apply_report first clears the W3C warnings and the report fields it owns, then sets
+@c W3C_ISSUE_WARN when no report matches the operation, and nothing when Transaction Check is
+disabled. When the report or the operation holds a domain hash, both must hold the same one.
+
+@ref tx_check_provide_descriptor and @ref tx_check_opt_in return a @ref tx_check_status_t, that
+@ref tx_check_status_to_sw maps to the status words below; an app may use its own instead.
+@ref tx_check_opt_in never sends an APDU reply: the app replies at once on @c TX_CHECK_SUCCESS, and
+@ref handle_tx_check_opt_in_response replies on @c TX_CHECK_PENDING. Its default sends the 1-byte
+enable state with 0x9000.
+
+@section transaction_check_sw Status words
+
+| SW     | Meaning                                                                           |
+|--------|-----------------------------------------------------------------------------------|
+| 0x9000 | success, or chunk received                                                        |
+| 0x6A80 | invalid chunk or descriptor                                                       |
+| 0x6982 | invalid descriptor signature                                                      |
+| 0x6B00 | unknown P1, or P2 / data on an opt-in request                                     |
+| 0x6980 | report bound to the review in progress, swap, or opt-in screen over a flow        |
+| 0x911C | Transaction Check disabled                                                        |
+| 0x6C00 | APDU shorter than its Lc                                                          |
+
+*/

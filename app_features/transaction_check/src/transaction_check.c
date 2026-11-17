@@ -1,0 +1,366 @@
+/*****************************************************************************
+ *   (c) 2026 Ledger SAS.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *****************************************************************************/
+
+/* Includes ------------------------------------------------------------------*/
+#include <string.h>
+#include "os_helpers.h"
+#include "os_print.h"
+#include "os_utils.h"
+#include "status_words.h"
+#include "apdu_chunks.h"
+#include "transaction_check.h"
+#include "transaction_check_entrypoints.h"
+#include "transaction_check_internal.h"
+
+#if defined(HAVE_TX_CHECK)
+
+/* Private defines------------------------------------------------------------*/
+#define P1_DESCRIPTOR 0x00
+#define P1_OPT_IN     0x01
+
+/** Warning bits set by the Transaction Check. */
+#define TX_CHECK_WARNINGS                                                                    \
+    ((1 << W3C_ISSUE_WARN) | (1 << W3C_RISK_DETECTED_WARN) | (1 << W3C_THREAT_DETECTED_WARN) \
+     | (1 << W3C_NO_THREAT_WARN))
+
+/* Private types, structures, unions -----------------------------------------*/
+typedef struct {
+    bool                         received;
+    bool                         bound;  ///< Bound to the review in progress, until cleared
+    bool                         chain_id_received;
+    bool                         domain_hash_received;
+    uint64_t                     chain_id;
+    uint8_t                      tx_hash[TRANSACTION_CHECK_HASH_SIZE];
+    uint8_t                      domain_hash[TRANSACTION_CHECK_HASH_SIZE];
+    uint8_t                      address[TRANSACTION_CHECK_MAX_ADDRESS_SIZE];
+    uint8_t                      address_len;
+    char                         tiny_url[TRANSACTION_CHECK_URL_SIZE + 1];
+    char                         partner[TRANSACTION_CHECK_PARTNER_SIZE + 1];
+    transaction_check_risk_t     risk;
+    transaction_check_type_t     type;
+    transaction_check_category_t category;
+} tx_check_report_t;
+
+/* Private variables ---------------------------------------------------------*/
+static tx_check_report_t s_report;
+
+/* Private functions ---------------------------------------------------------*/
+
+/**
+ * @brief Check that the stored report applies to the operation being signed.
+ *
+ * @param[in] ctx Operation being signed
+ * @return true if the report matches the operation
+ */
+static bool report_matches(const tx_check_context_t *ctx)
+{
+    if (!s_report.received) {
+        PRINTF("[TX CHECK] No report received\n");
+        return false;
+    }
+    if ((ctx == NULL) || (ctx->tx_hash == NULL)) {
+        PRINTF("[TX CHECK] No operation to bind the report to\n");
+        return false;
+    }
+    if (s_report.type != ctx->type) {
+        PRINTF("[TX CHECK] Type mismatch: %d != %d\n", s_report.type, ctx->type);
+        return false;
+    }
+    if (!handle_check_tx_report_chain_id(s_report.chain_id_received, s_report.chain_id, ctx)) {
+        PRINTF("[TX CHECK] Chain ID rejected\n");
+        return false;
+    }
+    if (!handle_check_tx_report_signer(s_report.address, s_report.address_len, ctx)) {
+        PRINTF("[TX CHECK] Signer address mismatch\n");
+        return false;
+    }
+    if (memcmp(s_report.tx_hash, ctx->tx_hash, TRANSACTION_CHECK_HASH_SIZE) != 0) {
+        PRINTF("[TX CHECK] TX_HASH mismatch: %.*H != %.*H\n",
+               TRANSACTION_CHECK_HASH_SIZE,
+               s_report.tx_hash,
+               TRANSACTION_CHECK_HASH_SIZE,
+               ctx->tx_hash);
+        return false;
+    }
+    // A domain hash on either side must be matched by the same one on the other side
+    if ((ctx->domain_hash != NULL) || s_report.domain_hash_received) {
+        if ((ctx->domain_hash == NULL) || !s_report.domain_hash_received
+            || (memcmp(s_report.domain_hash, ctx->domain_hash, TRANSACTION_CHECK_HASH_SIZE) != 0)) {
+            PRINTF("[TX CHECK] DOMAIN_HASH mismatch\n");
+            return false;
+        }
+    }
+    return true;
+}
+
+/**
+ * @brief Text displayed in the warning, from the report risk and category.
+ *
+ * @return Warning text, NULL when no warning is displayed
+ */
+static const char *warning_text(void)
+{
+    switch (s_report.risk) {
+        case TRANSACTION_CHECK_RISK_WARNING:
+            switch (s_report.category) {
+                case TRANSACTION_CHECK_CATEGORY_ADDRESS:
+                    return "This transaction involves a suspicious address. "
+                           "It might not be safe to continue.";
+                case TRANSACTION_CHECK_CATEGORY_DAPP:
+                    return "This transaction involves a suspicious dApp. "
+                           "It might not be safe to continue.";
+                case TRANSACTION_CHECK_CATEGORY_LOSING_OPERATION:
+                    return "This transaction could end in a loss. "
+                           "Check transaction details carefully before signing.";
+                default:
+                    return "This transaction might be malicious. It might not be safe to "
+                           "continue. Tap the QR code icon for more details.";
+            }
+        case TRANSACTION_CHECK_RISK_MALICIOUS:
+            switch (s_report.category) {
+                case TRANSACTION_CHECK_CATEGORY_ADDRESS:
+                    return "This transaction involves a malicious address. "
+                           "Your assets will most likely be stolen.";
+                case TRANSACTION_CHECK_CATEGORY_DAPP:
+                    return "This dApp is linked to a scammer. "
+                           "Your assets will most likely be stolen.";
+                default:
+                    return "This request is malicious. Your assets will most likely be stolen. "
+                           "View full report for details.";
+            }
+        case TRANSACTION_CHECK_RISK_BENIGN:
+            // No warning screen for the benign level
+            return NULL;
+        default:
+            return NULL;
+    }
+}
+
+/* Exported functions --------------------------------------------------------*/
+/**
+ * @brief Erase the stored report.
+ */
+void tx_check_clear(void)
+{
+    explicit_bzero(&s_report, sizeof(s_report));
+}
+
+/**
+ * @brief Parse, verify and store a descriptor, replacing a report not bound to a review.
+ *
+ * @param[in] payload Complete TLV descriptor
+ * @return Transaction Check status
+ */
+tx_check_status_t tx_check_provide_descriptor(const buffer_t *payload)
+{
+    tlv_transaction_check_out_t out = {0};
+
+    if (!handle_tx_check_get_setting(TX_CHECK_SETTING_ENABLE)) {
+        PRINTF("[TX CHECK] Transaction Check is disabled\n");
+        return TX_CHECK_DISABLED;
+    }
+    if (tx_check_in_swap()) {
+        PRINTF("[TX CHECK] Not available in a swap\n");
+        return TX_CHECK_NOT_ALLOWED;
+    }
+    // The review on screen points to the stored report
+    if (s_report.bound) {
+        PRINTF("[TX CHECK] Report bound to the review in progress\n");
+        return TX_CHECK_NOT_ALLOWED;
+    }
+    tx_check_clear();
+
+    tlv_transaction_check_status_t status = tlv_use_case_transaction_check(payload, &out);
+    if (status & TLV_TRANSACTION_CHECK_SIGNATURE_ERROR) {
+        PRINTF("[TX CHECK] Descriptor signature rejected with status 0x%x\n", status);
+        return TX_CHECK_INVALID_SIGNATURE;
+    }
+    if (status != TLV_TRANSACTION_CHECK_SUCCESS) {
+        PRINTF("[TX CHECK] Descriptor parsing failed with status %d\n", status);
+        return TX_CHECK_INVALID_DESCRIPTOR;
+    }
+    if (out.additional_data_received) {
+        PRINTF("[TX CHECK] Unsupported ADDITIONAL_DATA tag\n");
+        return TX_CHECK_INVALID_DESCRIPTOR;
+    }
+    if (out.address.size > sizeof(s_report.address)) {
+        PRINTF("[TX CHECK] Address too long: %u\n", out.address.size);
+        return TX_CHECK_INVALID_DESCRIPTOR;
+    }
+    if (!handle_check_tx_report(&out)) {
+        PRINTF("[TX CHECK] Descriptor rejected by the app\n");
+        return TX_CHECK_INVALID_DESCRIPTOR;
+    }
+
+    s_report.chain_id_received    = out.chain_id_received;
+    s_report.chain_id             = out.chain_id;
+    s_report.domain_hash_received = out.domain_hash_received;
+    memmove(s_report.tx_hash, out.tx_hash.ptr, TRANSACTION_CHECK_HASH_SIZE);
+    if (out.domain_hash_received) {
+        memmove(s_report.domain_hash, out.domain_hash.ptr, TRANSACTION_CHECK_HASH_SIZE);
+    }
+    memmove(s_report.address, out.address.ptr, out.address.size);
+    s_report.address_len = (uint8_t) out.address.size;
+    strlcpy(s_report.tiny_url, out.tiny_url, sizeof(s_report.tiny_url));
+    strlcpy(s_report.partner, out.partner, sizeof(s_report.partner));
+    s_report.risk     = out.risk;
+    s_report.type     = out.type;
+    s_report.category = out.category;
+    s_report.received = true;
+
+    PRINTF("[TX CHECK] Report: partner=%s risk=%d category=%d type=%d url=%s\n",
+           s_report.partner,
+           s_report.risk,
+           s_report.category,
+           s_report.type,
+           s_report.tiny_url);
+    return TX_CHECK_SUCCESS;
+}
+
+/**
+ * @brief Bind the stored report to the operation being signed and fill the review warning.
+ *
+ * @param[in,out] warning Review warning
+ * @param[in]     ctx     Operation being signed
+ */
+void tx_check_apply_report(nbgl_warning_t *warning, const tx_check_context_t *ctx)
+{
+    // Only the result of this call may be shown, whatever the warning held before
+    warning->predefinedSet &= ~TX_CHECK_WARNINGS;
+    warning->reportProvider  = NULL;
+    warning->providerMessage = NULL;
+    warning->reportUrl       = NULL;
+
+    if (!handle_tx_check_get_setting(TX_CHECK_SETTING_ENABLE)) {
+        PRINTF("[TX CHECK] Transaction Check is disabled\n");
+        return;
+    }
+    if (!report_matches(ctx)) {
+        warning->predefinedSet |= (1 << W3C_ISSUE_WARN);
+        return;
+    }
+
+    switch (s_report.risk) {
+        case TRANSACTION_CHECK_RISK_BENIGN:
+            warning->predefinedSet |= (1 << W3C_NO_THREAT_WARN);
+            break;
+        case TRANSACTION_CHECK_RISK_WARNING:
+            warning->predefinedSet |= (1 << W3C_RISK_DETECTED_WARN);
+            break;
+        case TRANSACTION_CHECK_RISK_MALICIOUS:
+            warning->predefinedSet |= (1 << W3C_THREAT_DETECTED_WARN);
+            break;
+        default:
+            // Out-of-range values are rejected at reception
+            warning->predefinedSet |= (1 << W3C_ISSUE_WARN);
+            return;
+    }
+    warning->reportProvider  = s_report.partner;
+    warning->providerMessage = warning_text();
+    warning->reportUrl       = s_report.tiny_url;
+    s_report.bound           = true;
+}
+
+/**
+ * @brief Standard status word of a Transaction Check status.
+ *
+ * @param[in] status Status returned by tx_check_provide_descriptor() or tx_check_opt_in()
+ * @return Status word of status_words.h, SWO_NO_RESPONSE for TX_CHECK_PENDING
+ */
+uint16_t tx_check_status_to_sw(tx_check_status_t status)
+{
+    switch (status) {
+        case TX_CHECK_SUCCESS:
+            return SWO_SUCCESS;
+        case TX_CHECK_PENDING:
+            return SWO_NO_RESPONSE;
+        case TX_CHECK_DISABLED:
+            return SWO_COMMAND_CODE_NOT_SUPPORTED;
+        case TX_CHECK_NOT_ALLOWED:
+            return SWO_COMMAND_NOT_ALLOWED;
+        case TX_CHECK_INVALID_SIGNATURE:
+            return SWO_SECURITY_CONDITION_NOT_SATISFIED;
+        case TX_CHECK_INVALID_DESCRIPTOR:
+            return SWO_INCORRECT_DATA;
+        default:
+            return SWO_INCORRECT_DATA;
+    }
+}
+
+#if defined(HAVE_TX_CHECK_APDU)
+/**
+ * @brief Handle the SDK APDU: chunked descriptor (P1 0x00) or opt-in request (P1 0x01).
+ *
+ * @param[in]     buffer            APDU data
+ * @param[in]     buffer_len        APDU data length
+ * @param[in]     p1                APDU P1
+ * @param[in]     p2                APDU P2
+ * @param[out]    buffer_out        Response data
+ * @param[in,out] buffer_out_length Response capacity in, response length out
+ * @return Status word, SWO_NO_RESPONSE when the reply is deferred
+ */
+bolos_err_t tx_check_handle_apdu(const uint8_t *buffer,
+                                 size_t         buffer_len,
+                                 uint8_t        p1,
+                                 uint8_t        p2,
+                                 uint8_t       *buffer_out,
+                                 size_t        *buffer_out_length)
+{
+    size_t   out_capacity = *buffer_out_length;
+    uint8_t *payload      = NULL;
+    size_t   payload_len  = 0;
+
+    *buffer_out_length = 0;
+    switch (p1) {
+        case P1_DESCRIPTOR:
+            switch (apdu_chunks_reassemble(APDU_CHUNKS_OWNER_TRANSACTION_CHECK,
+                                           buffer,
+                                           buffer_len,
+                                           p2,
+                                           &payload,
+                                           &payload_len)) {
+                case APDU_CHUNKS_ERROR:
+                    return SWO_INCORRECT_DATA;
+                case APDU_CHUNKS_PENDING:
+                    return SWO_SUCCESS;
+                case APDU_CHUNKS_COMPLETE:
+                    break;
+            }
+            return tx_check_status_to_sw(tx_check_provide_descriptor(
+                &(const buffer_t){.ptr = payload, .size = payload_len, .offset = 0}));
+
+        case P1_OPT_IN:
+            if ((p2 != 0) || (buffer_len != 0)) {
+                return SWO_WRONG_P1_P2;
+            }
+            tx_check_status_t status = tx_check_opt_in_sdk_apdu();
+            if (status != TX_CHECK_SUCCESS) {
+                return tx_check_status_to_sw(status);
+            }
+            if (out_capacity < 1) {
+                return SWO_INCORRECT_DATA;
+            }
+            buffer_out[0]      = handle_tx_check_get_setting(TX_CHECK_SETTING_ENABLE);
+            *buffer_out_length = 1;
+            return SWO_SUCCESS;
+
+        default:
+            PRINTF("[TX CHECK] Unexpected P1 0x%02x\n", p1);
+            return SWO_WRONG_P1_P2;
+    }
+}
+#endif  // HAVE_TX_CHECK_APDU
+#endif  // HAVE_TX_CHECK

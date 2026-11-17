@@ -84,6 +84,19 @@ _Static_assert(CUSTOM_IO_APDU_BUFFER_SIZE >= OS_IO_SEPH_BUFFER_SIZE,
                "CMD_EDIT_IDENTIFIER requires up to 448 bytes (SEPH buffer).");
 #endif  // CUSTOM_IO_APDU_BUFFER_SIZE
 
+/** Maximum TLV payload the reassembly buffer must hold.
+ *
+ * Mirrors the OS_IO_BUFFER_SIZE selection from os_io.h: prefer
+ * CUSTOM_IO_APDU_BUFFER_SIZE when an app defines it, otherwise fall back to
+ * OS_IO_SEPH_BUFFER_SIZE (set in Makefile.defines).
+ *
+ * Subtract 8 = 3 B (SEPROXYHAL SPI framing) + 5 B (CLA INS P1 P2 Lc). */
+#ifdef CUSTOM_IO_APDU_BUFFER_SIZE
+#define ADDRESS_BOOK_MAX_CHUNKED_PAYLOAD (CUSTOM_IO_APDU_BUFFER_SIZE - 3 - 5)
+#else
+#define ADDRESS_BOOK_MAX_CHUNKED_PAYLOAD (OS_IO_SEPH_BUFFER_SIZE - 3 - 5)
+#endif
+
 /* Exported macros------------------------------------------------------------*/
 
 /* Exported variables --------------------------------------------------------*/

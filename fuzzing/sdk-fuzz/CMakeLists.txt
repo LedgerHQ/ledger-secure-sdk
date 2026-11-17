@@ -218,6 +218,7 @@ set(AB_SOURCES
     ${BOLOS_SDK}/app_features/address_book/src/ledger_account_register.c
     ${BOLOS_SDK}/app_features/address_book/src/ledger_account_edit.c
     ${BOLOS_SDK}/app_features/address_book/src/ledger_account_provide_contact.c
+    ${BOLOS_SDK}/app_features/common/src/apdu_chunks.c
 )
 
 absolution_add_fuzzer(
@@ -235,6 +236,7 @@ absolution_add_fuzzer(
         ${SDK_FUZZ_INCLUDE_DIRS}
         ${CMAKE_SOURCE_DIR}/harness/
         ${BOLOS_SDK}/app_features/address_book/include/
+        ${BOLOS_SDK}/app_features/common/include/
     COMPILE_DEFINITIONS
         APPNAME="Fuzzing"
         HAVE_ADDRESS_BOOK
