@@ -703,7 +703,7 @@ void mem_parse(mem_ctx_t ctx, mem_parse_callback_t callback, void *data)
  * @param ctx allocator context (returned by @ref mem_init())
  * @param stat output statistics structure
  */
-void mem_stat(mem_ctx_t *ctx, mem_stat_t *stat)
+void mem_stat(mem_ctx_t ctx, mem_stat_t *stat)
 {
     memset(stat, 0, sizeof(mem_stat_t));
     stat->total_size = HEAP_HEADER_SIZE;
