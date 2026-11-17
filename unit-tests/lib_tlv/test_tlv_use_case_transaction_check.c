@@ -502,6 +502,75 @@ void test_empty_payload(void)
 }
 
 /* -------------------------------------------------------------------------- */
+/* Test: Partner name from the PKI certificate                                */
+/* -------------------------------------------------------------------------- */
+
+static size_t g_trusted_name_len;
+
+static bolos_err_t os_pki_get_info_stub(uint8_t                  *key_usage,
+                                        uint8_t                  *trusted_name,
+                                        size_t                   *trusted_name_len,
+                                        cx_ecfp_384_public_key_t *public_key,
+                                        int                       n)
+{
+    (void) key_usage;
+    (void) public_key;
+    (void) n;
+    // Full-size name without NUL terminator
+    memset(trusted_name, 'A', CERTIFICATE_TRUSTED_NAME_MAXLEN);
+    *trusted_name_len = g_trusted_name_len;
+    return 0;
+}
+
+void test_partner_name_full_size(void)
+{
+    uint8_t                     payload[512];
+    size_t                      offset = build_valid_transaction_payload(payload);
+    buffer_t                    buf    = {.ptr = payload, .size = offset, .offset = 0};
+    tlv_transaction_check_out_t out    = {0};
+
+    g_trusted_name_len = CERTIFICATE_TRUSTED_NAME_MAXLEN;
+    os_pki_get_info_Stub(os_pki_get_info_stub);
+    check_signature_with_pki_IgnoreAndReturn(CHECK_SIGNATURE_WITH_PKI_SUCCESS);
+    tlv_transaction_check_status_t result = tlv_use_case_transaction_check(&buf, &out);
+
+    TEST_ASSERT_EQUAL_INT(result, TLV_TRANSACTION_CHECK_SUCCESS);
+    TEST_ASSERT_EQUAL_STRING(out.partner, "AAAAAAAAAAAAAAAAAAAA");
+}
+
+void test_partner_name_short(void)
+{
+    uint8_t                     payload[512];
+    size_t                      offset = build_valid_transaction_payload(payload);
+    buffer_t                    buf    = {.ptr = payload, .size = offset, .offset = 0};
+    tlv_transaction_check_out_t out    = {0};
+
+    // Only the returned length is copied, not the rest of the buffer
+    g_trusted_name_len = 3;
+    os_pki_get_info_Stub(os_pki_get_info_stub);
+    check_signature_with_pki_IgnoreAndReturn(CHECK_SIGNATURE_WITH_PKI_SUCCESS);
+    tlv_transaction_check_status_t result = tlv_use_case_transaction_check(&buf, &out);
+
+    TEST_ASSERT_EQUAL_INT(result, TLV_TRANSACTION_CHECK_SUCCESS);
+    TEST_ASSERT_EQUAL_STRING(out.partner, "AAA");
+}
+
+void test_partner_name_invalid_length(void)
+{
+    uint8_t                     payload[512];
+    size_t                      offset = build_valid_transaction_payload(payload);
+    buffer_t                    buf    = {.ptr = payload, .size = offset, .offset = 0};
+    tlv_transaction_check_out_t out    = {0};
+
+    g_trusted_name_len = CERTIFICATE_TRUSTED_NAME_MAXLEN + 1;
+    os_pki_get_info_Stub(os_pki_get_info_stub);
+    check_signature_with_pki_IgnoreAndReturn(CHECK_SIGNATURE_WITH_PKI_SUCCESS);
+    tlv_transaction_check_status_t result = tlv_use_case_transaction_check(&buf, &out);
+
+    TEST_ASSERT_EQUAL_INT(result, TLV_TRANSACTION_CHECK_PARSING_ERROR);
+}
+
+/* -------------------------------------------------------------------------- */
 /* Test suite entry point                                                     */
 /* -------------------------------------------------------------------------- */
 
@@ -568,5 +637,8 @@ int main(void)
     RUN_TEST(test_risk_out_of_range);
     RUN_TEST(test_invalid_tlv_format);
     RUN_TEST(test_empty_payload);
+    RUN_TEST(test_partner_name_full_size);
+    RUN_TEST(test_partner_name_short);
+    RUN_TEST(test_partner_name_invalid_length);
     return UNITY_END();
 }

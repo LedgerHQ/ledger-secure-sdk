@@ -17,6 +17,7 @@
 #include <stdint.h>
 #include <string.h>
 
+#include "os_math.h"
 #include "os_utils.h"
 #include "ox_ec.h"
 #include "cx.h"
@@ -352,8 +353,15 @@ tlv_transaction_check_status_t tlv_use_case_transaction_check(const buffer_t    
     uint8_t                  trusted_name[CERTIFICATE_TRUSTED_NAME_MAXLEN] = {0};
     cx_ecfp_384_public_key_t public_key                                    = {0};
     if (os_pki_get_info(&key_usage, trusted_name, &trusted_name_len, &public_key) == 0) {
+        if (trusted_name_len > sizeof(trusted_name)) {
+            PRINTF("Invalid certificate name length: %u\n", trusted_name_len);
+            return TLV_TRANSACTION_CHECK_PARSING_ERROR;
+        }
         PRINTF("Using certificate name as partner name\n");
-        strlcpy(out->partner, (char *) trusted_name, sizeof(out->partner));
+        // The certificate name is not NUL-terminated
+        size_t copy_len = MIN(trusted_name_len, sizeof(out->partner) - 1);
+        memcpy(out->partner, trusted_name, copy_len);
+        out->partner[copy_len] = '\0';
     }
     // Set a default value for partner
     if (strlen(out->partner) == 0) {

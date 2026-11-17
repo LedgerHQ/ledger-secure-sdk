@@ -3165,19 +3165,6 @@ static void displayInitialWarning(void)
             tune = TUNE_NEUTRAL;
 #endif  // HAVE_PIEZO_SOUND
         }
-        else if (set & (1 << W3C_RISK_DETECTED_WARN)) {
-            info.title = "Potential risk";
-            if (reviewWithWarnCtx.warning->providerMessage == NULL) {
-                info.description = "Unidentified risk";
-            }
-            else {
-                info.description = reviewWithWarnCtx.warning->providerMessage;
-            }
-            buttonsInfo.bottomText = "Accept risk and continue";
-#ifdef HAVE_PIEZO_SOUND
-            tune = TUNE_NEUTRAL;
-#endif  // HAVE_PIEZO_SOUND
-        }
         else if (set & (1 << W3C_THREAT_DETECTED_WARN)) {
             info.title = "Critical threat";
             if (reviewWithWarnCtx.warning->providerMessage == NULL) {
@@ -3189,6 +3176,19 @@ static void displayInitialWarning(void)
             buttonsInfo.bottomText = "Accept threat and continue";
 #ifdef HAVE_PIEZO_SOUND
             tune = TUNE_ERROR;
+#endif  // HAVE_PIEZO_SOUND
+        }
+        else if (set & (1 << W3C_RISK_DETECTED_WARN)) {
+            info.title = "Potential risk";
+            if (reviewWithWarnCtx.warning->providerMessage == NULL) {
+                info.description = "Unidentified risk";
+            }
+            else {
+                info.description = reviewWithWarnCtx.warning->providerMessage;
+            }
+            buttonsInfo.bottomText = "Accept risk and continue";
+#ifdef HAVE_PIEZO_SOUND
+            tune = TUNE_NEUTRAL;
 #endif  // HAVE_PIEZO_SOUND
         }
         nbgl_layoutAddContentCenter(reviewWithWarnCtx.layoutCtx, &info);
