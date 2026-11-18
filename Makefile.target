@@ -18,6 +18,19 @@
 ifeq ($(__MAKEFILE_TARGET__),)
 __MAKEFILE_TARGET__ := 1
 
+# A TARGET coming from the command line or the environment is a recursively expanded
+# variable: merely expanding $(TARGET) would run any $(shell ...) it contains. So,
+# before it is expanded for the first time, its raw text ($(value TARGET)) must be a
+# single plain word, without any '$' (the allowlist itself is checked below).
+ifneq ($(strip $(value TARGET)),)
+ifneq ($(words $(value TARGET)),1)
+$(error TARGET must be exactly one value)
+endif
+ifneq ($(findstring $$,$(value TARGET)),)
+$(error TARGET not set to a valid value)
+endif
+endif
+
 # TARGET should be set as an environment variable otherwise it will be read from a `.target`
 # file in the SDK root repository
 TARGETS := nanox nanos2 stax flex apex_p apex_m apollo
@@ -25,21 +38,78 @@ ifeq ($(TARGET),)
 ifeq ("$(wildcard $(BOLOS_SDK)/.target)","")
 $(error No TARGET specified and no .target file in SDK repository $(BOLOS_SDK))
 else
-TARGET := $(shell cat $(BOLOS_SDK)/.target)
+TARGET := $(strip $(file <$(BOLOS_SDK)/.target))
 endif
 endif
 
-ifeq ($(filter $(TARGET),$(TARGETS)),)
+# TARGET must be exactly one of TARGETS, compared as plain text: only the trusted
+# TARGETS list is used as filter patterns, so that a multi-word value or a '%'
+# wildcard can't pass the check and reach the parse-time $(shell) calls below.
+ifneq ($(words $(TARGET)),1)
+$(error TARGET must be exactly one value (possible values: $(TARGETS)))
+endif
+ifneq ($(filter-out $(TARGETS),$(TARGET)),)
 $(error TARGET not set to a valid value (possible values: $(TARGETS)))
 endif
+# From now on, TARGET is a simply expanded, whitespace-free copy of the validated value
+override TARGET := $(strip $(TARGET))
 
 TARGET_PATH := $(BOLOS_SDK)/target/$(TARGET)
 BOLOS_TARGET_H := $(TARGET_PATH)/include/bolos_target.h
-TARGET_ID   := $(shell grep -E "^\#define\s*TARGET_ID" $(BOLOS_TARGET_H) | cut -f3 -d' ')
-TARGET_NAME := $(shell grep -E "^\#define\s*TARGET_[^I]" $(BOLOS_TARGET_H) | head -n 1 | cut -f2 -d' ')
+TARGET_ID   := $(shell grep -E "^\#define\s*TARGET_ID" "$(BOLOS_TARGET_H)" | cut -f3 -d' ')
+TARGET_NAME := $(shell grep -E "^\#define\s*TARGET_[^I]" "$(BOLOS_TARGET_H)" | head -n 1 | cut -f2 -d' ')
 SDK_NAME    := "ledger-secure-sdk"
-SDK_VERSION := $(shell git -C $(BOLOS_SDK) describe --tags --exact-match  --match "v[0-9]*" --dirty)
-SDK_HASH    := $(shell git -C $(BOLOS_SDK) describe --always --dirty --exclude '*' --abbrev=40)
+# SDK_VERSION and SDK_HASH end up unquoted in shell command lines (compiler -D flags,
+# listinfo), so git's output is validated while it is still a quoted shell variable,
+# and only values made of shell-inert characters reach Make. A git tag name may contain
+# ';', '$', '`', '>', '|', ... and the "v[0-9]*" glob does not filter them out.
+# An exact matching tag that is malformed fails the build instead of falling back to "None".
+# Accepted SDK_VERSION: vX.Y.Z with optional "-suffix" parts (e.g. -ci, -rc1, -dirty).
+SDK_VERSION_REGEX := ^v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.]+)*$$
+SDK_HASH_REGEX    := ^[0-9a-f]{40}(-dirty)?$$
+SDK_INVALID_GIT_INFO := !invalid!
+# sdk_git_info(git describe arguments, validation regex)
+sdk_git_info = $(shell v="$$(git -C '$(BOLOS_SDK)' describe $(1) 2>/dev/null)" || exit 0; \
+                 if printf '%s\n' "$$v" | grep -Eqx '$(2)'; then printf '%s' "$$v"; \
+                 else printf 'Rejected SDK git metadata: %s\n' "$$v" >&2; printf '%s' '$(SDK_INVALID_GIT_INFO)'; fi)
+SDK_VERSION := $(call sdk_git_info,--tags --exact-match --match 'v[0-9]*' --dirty,$(SDK_VERSION_REGEX))
+SDK_HASH    := $(call sdk_git_info,--always --dirty --exclude '*' --abbrev=40,$(SDK_HASH_REGEX))
+ifeq ($(SDK_VERSION),$(SDK_INVALID_GIT_INFO))
+$(error SDK release tag at $(BOLOS_SDK) does not match the vX.Y.Z[-suffix] format, refusing to build)
+endif
+ifeq ($(SDK_HASH),$(SDK_INVALID_GIT_INFO))
+$(error SDK commit hash at $(BOLOS_SDK) has an unexpected format, refusing to build)
+endif
+
+# `git describe --dirty` only reports changes to tracked files, whereas Makefile.rules
+# compiles every *.[csS] and adds the directory of every *.h found ON DISK under the SDK
+# source/header paths. A file unknown to git (untracked, or ignored through .gitignore /
+# .git/info/exclude) in such a path changes the build while the embedded SDK_VERSION /
+# SDK_HASH would still claim a clean tag/commit. Such files therefore mark the SDK dirty.
+# The search covers the whole SDK tree (SDK_SOURCE_PATH is not final yet at this point),
+# minus the top-level directories that are never part of an app build.
+# Set SDK_REQUIRE_CLEAN=1 (e.g. in release CI) to fail instead of building a dirty SDK.
+SDK_PROVENANCE_EXCLUDE := doc fuzzing tests tools unit-tests
+SDK_UNTRACKED_SOURCES  := $(shell git -C $(BOLOS_SDK) ls-files --others -- '*.[csSh]' \
+                            $(foreach dir,$(SDK_PROVENANCE_EXCLUDE),':!:$(dir)/') 2>/dev/null)
+ifneq ($(SDK_UNTRACKED_SOURCES),)
+$(warning SDK tree contains source files unknown to git, SDK_VERSION/SDK_HASH marked dirty: $(SDK_UNTRACKED_SOURCES))
+ifneq ($(SDK_VERSION),)
+SDK_VERSION := $(SDK_VERSION:%-dirty=%)-dirty
+endif
+ifneq ($(SDK_HASH),)
+SDK_HASH    := $(SDK_HASH:%-dirty=%)-dirty
+endif
+endif
+ifeq ($(SDK_REQUIRE_CLEAN),1)
+ifeq ($(SDK_HASH),)
+$(error SDK_REQUIRE_CLEAN=1 but the SDK provenance at $(BOLOS_SDK) cannot be determined (not a git checkout?))
+endif
+ifneq ($(filter %-dirty,$(SDK_HASH)),)
+$(error SDK_REQUIRE_CLEAN=1 but the SDK tree at $(BOLOS_SDK) is dirty (modified or untracked files))
+endif
+endif
+
 ifeq ($(SDK_VERSION),)
 SDK_VERSION := "None"
 endif

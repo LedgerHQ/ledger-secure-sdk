@@ -1086,8 +1086,23 @@ static void nbgl_driver_draw4BPPImageRle(nbgl_area_t *area,
     // Fill buffer with background color
     uint8_t background = GET_MAPPED_COLOR(color_map, 0xF);
     background |= background << 4;
+    // Dimensions come from the image header: make sure the decoded image fits in
+    // rle_4bpp_uncompress_buffer (2 pixels per byte) before decoding anything
+    uint64_t pixel_count = (uint64_t) area->width * (uint64_t) area->height;
+    if ((area->width == 0) || (area->height == 0) || (area->width > SCREEN_WIDTH)
+        || (area->height > SCREEN_HEIGHT)
+        || (pixel_count > (sizeof(rle_4bpp_uncompress_buffer) * 2ULL))
+        || (((uint64_t) nb_skipped_bytes * 2ULL) > pixel_count)) {
+        LOG_FATAL(LOW_LOGGER,
+                  "%s: invalid RLE image (%d x %d, %d skipped bytes)\n",
+                  __FUNCTION__,
+                  area->width,
+                  area->height,
+                  nb_skipped_bytes);
+        return;
+    }
     memset(rle_4bpp_uncompress_buffer, background, sizeof(rle_4bpp_uncompress_buffer));
-    uint32_t max_pix_cnt = (area->width * area->height);
+    uint32_t max_pix_cnt = (uint32_t) pixel_count;
     // 'transparent' bytes was set (with memset), not need to write them again
     uint32_t pix_cnt   = nb_skipped_bytes * 2;
     uint32_t read_cnt  = 0;
@@ -1113,7 +1128,7 @@ static void nbgl_driver_draw4BPPImageRle(nbgl_area_t *area,
         }
     }
 
-    if ((pix_cnt % 2) != 0) {
+    if (((pix_cnt % 2) != 0) && ((pix_cnt / 2) < sizeof(rle_4bpp_uncompress_buffer))) {
         rle_4bpp_uncompress_buffer[(pix_cnt) / 2] = remaining;
     }
 

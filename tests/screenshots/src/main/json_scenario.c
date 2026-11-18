@@ -445,6 +445,7 @@ int scenario_parse_json(void)
     char               *buffer;
     struct json_object *json_root;
 
+    nb_pages = 0;
     // Read the JSON file
     if ((buffer = read_json_data("", jsonName)) == NULL) {
         // Error message is displayed in the called function
@@ -466,8 +467,27 @@ int scenario_parse_json(void)
     json_object_object_foreach(json_root, key, value)
     {
         if (!strcmp(key, "title")) {
-            char *title = (char *) json_object_get_string(value);
-            strcpy(scenario_name, title);
+            const char *title;
+            size_t      title_len;
+
+            if (json_object_get_type(value) != json_type_string) {
+                fprintf(stdout, "\"title\" must be a string in file %s!\n", jsonName);
+                json_object_put(json_root);
+                free(buffer);
+                return 13;
+            }
+            title     = json_object_get_string(value);
+            title_len = (size_t) json_object_get_string_len(value);
+            // reject empty, too long, embedded NUL or path-like titles (used to build file paths)
+            if ((title_len == 0) || (title_len >= sizeof(scenario_name))
+                || (strlen(title) != title_len) || (strchr(title, '/') != NULL)
+                || (strstr(title, "..") != NULL)) {
+                fprintf(stdout, "Invalid \"title\" in file %s!\n", jsonName);
+                json_object_put(json_root);
+                free(buffer);
+                return 14;
+            }
+            memcpy(scenario_name, title, title_len + 1);
         }
         else if (!strcmp(key, "product")) {
             char *name = (char *) json_object_get_string(value);
@@ -480,15 +500,32 @@ int scenario_parse_json(void)
             if (json_object_get_type(value) != json_type_array) {
                 continue;
             }
-            for (int i = 0; i < (int) json_object_array_length(value); i++) {
-                bool            notConcerned = false;
-                char           *name         = NULL;
-                ScenarioPage_t *page         = &pages[nb_pages];
+            size_t array_len = json_object_array_length(value);
+            for (size_t i = 0; i < array_len; i++) {
+                bool                notConcerned = false;
+                char               *name         = NULL;
+                ScenarioPage_t     *page;
+                struct json_object *page_info;
 
-                struct json_object *page_info = json_object_array_get_idx(value, i);
-                page->optional                = false;  // by default
-                page->nb_sub_pages            = 1;      // by default
-                page->cur_sub_page            = 0;      // by default
+                if (nb_pages >= NB_MAX_PAGES) {
+                    fprintf(
+                        stdout, "Too many pages in file %s (max %d)!\n", jsonName, NB_MAX_PAGES);
+                    json_object_put(json_root);
+                    free(buffer);
+                    return 15;
+                }
+                page_info = json_object_array_get_idx(value, i);
+                if (json_object_get_type(page_info) != json_type_object) {
+                    fprintf(stdout, "Page #%zu is not an object in file %s!\n", i, jsonName);
+                    json_object_put(json_root);
+                    free(buffer);
+                    return 16;
+                }
+                page = &pages[nb_pages];
+                memset(page, 0, sizeof(*page));
+                page->optional     = false;  // by default
+                page->nb_sub_pages = 1;      // by default
+                page->cur_sub_page = 0;      // by default
                 json_object_object_foreach(page_info, k, v)
                 {
                     if (!strcmp(k, "name")) {
@@ -518,8 +555,10 @@ int scenario_parse_json(void)
                         }
                     }
                     else {
-                        fprintf(
-                            stdout, "WARNING: for page #%d - Ignoring unknown Key \"%s\"!\n", i, k);
+                        fprintf(stdout,
+                                "WARNING: for page #%zu - Ignoring unknown Key \"%s\"!\n",
+                                i,
+                                k);
                     }
                 }
                 if (!notConcerned) {
