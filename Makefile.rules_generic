@@ -177,8 +177,29 @@ $(BIN_DIR)/app.elf: $(LINK_DEPENDENCIES)
 # this target while it needs to be run only once.
 $(BIN_DIR)/app.hex $(DBG_DIR)/app.map $(DBG_DIR)/app.asm: $(BIN_DIR)/app.elf
 
+# Generate the APDU file and its SHA-256 sidecar, failing closed:
+# - stale outputs (including the published bin/ copies) are removed first, so a
+#   failed rebuild never leaves an old APDU/hash behind as the current one;
+# - the ledgerblue exit status is checked directly (no masking pipeline);
+# - exactly one "Application full hash" line must be present, and it must be a
+#   64 hex digits SHA-256;
+# - both files are written to temporaries and only renamed once all checks pass.
 $(BIN_DIR)/app.apdu: bin/app.hex debug/app.map
-	$(L)python3 -m ledgerblue.loadApp $(APP_LOAD_PARAMS) --offline $(BIN_DIR)/app.apdu | grep "Application" | cut -f5 -d' ' > $(BIN_DIR)/app.sha256
+	$(L)rm -f $@ $@.tmp $(BIN_DIR)/app.sha256 $(BIN_DIR)/app.sha256.tmp bin/app.apdu bin/app.sha256; \
+	out=$$(python3 -m ledgerblue.loadApp $(APP_LOAD_PARAMS) --offline $@.tmp) || \
+		{ echo "[ERROR] ledgerblue.loadApp failed" >&2; rm -f $@.tmp; exit 1; }; \
+	hash=$$(printf '%s\n' "$$out" | sed -n 's/^Application full hash : //p'); \
+	if [[ ! "$$hash" =~ ^[0-9A-Fa-f]{64}$$ ]]; then \
+		echo "[ERROR] ledgerblue.loadApp did not report exactly one valid application hash" >&2; \
+		rm -f $@.tmp; exit 1; \
+	fi; \
+	if [ ! -s $@.tmp ]; then \
+		echo "[ERROR] ledgerblue.loadApp produced an empty APDU file" >&2; \
+		rm -f $@.tmp; exit 1; \
+	fi; \
+	printf '%s\n' "$$hash" > $(BIN_DIR)/app.sha256.tmp && \
+	mv -f $@.tmp $@ && \
+	mv -f $(BIN_DIR)/app.sha256.tmp $(BIN_DIR)/app.sha256
 
 # This target is generated along $(BIN_DIR)/app.apdu but we can't make them co-target
 # otherwise building with `make -j` ends up with multiple threads running simultaneously

@@ -22,8 +22,13 @@
 // Regression tests for V-127: the keyboard must never write beyond entryBuffer[entryMaxLen],
 // even when the suggestions callback leaves letter keys enabled.
 // Regression tests for V-140: an info or a switch too tall to fit in a page must not make the
-// automatic pagination spin forever, it must occupy its own page. The same applies to a pair too
-// tall to fit in a page of the tag/value list modal of an alias.
+// automatic pagination spin forever, it must occupy its own page.
+// Regression tests for V-407: a pair of the tag/value list of an alias too tall to fit in a page of
+// its modal can't be displayed in full (no continuation page), so the review must be rejected when
+// started (fail closed) instead of truncating its value.
+// Regression tests for V-408: a value needing more pages than UINT8_MAX in the "More" details
+// modal can't be displayed in full (its end is never reachable), so the review must be rejected
+// when started (fail closed) instead of silently cutting the value.
 // Regression tests for V-142: in the threat/risk report modal, a long report URL must never lead
 // to an out-of-bounds header string, nor to a QR Code encoding a truncated URL.
 // Regression tests for V-298: when an INFOS_LIST with extensions is automatically paginated in a
@@ -381,22 +386,48 @@ static const char LONG_VALUE[] = "long value";
 #define LONG_VALUE_NB_LINES (NB_MAX_LINES_IN_REVIEW + 5)
 // a value fitting in a single line in the regular font, but on 2 lines in the small bold font
 static const char WIDER_IN_BOLD[] = "wider in bold";
+// a value filling a page of the modal of an alias list, with a tag on a single line: the pair fits
+// alone in the page, but it can't share it with another pair
+static const char PAGE_VALUE[] = "page value";
+#define PAGE_VALUE_NB_LINES                                                                 \
+    ((TAG_VALUE_AREA_HEIGHT - 1 - PRE_TAG_VALUE_MARGIN - TEXT_HEIGHT - TAG_VALUE_INTERVALE) \
+     / TEXT_HEIGHT)
+// a value one line too tall to fit in a page of the modal of an alias list
+static const char PAGE_VALUE_PLUS_ONE[] = "page value plus one";
 // a value fitting in a single line in the small fonts, but on 3 lines in the large font
 static const char TALLER_IN_LARGE[] = "taller in large";
 // a value displayed in many pages of the "More" details modal. Any text starting in it is split in
 // lines of a number of chars depending on the font, like real fonts (fewer chars in bold)
-#define MORE_VALUE_LEN 1500
-static char MORE_VALUE[MORE_VALUE_LEN + 1];
+#define MORE_VALUE_LEN        1500
+// number of chars per line in the small bold font, used by the "More" details modal
+#define BOLD_CHARS_PER_LINE   20
+// number of chars of a full page of the "More" details modal
+#define DETAILS_PAGE_CHARS    (NB_MAX_LINES_IN_DETAILS * BOLD_CHARS_PER_LINE)
+// number of chars between the starts of 2 consecutive pages of the "More" details modal, for a
+// value without '\n' displayed without wrapping: the last 3 chars of a page are replaced by "..."
+// and displayed again at the beginning of the next page
+#define DETAILS_PAGE_ADVANCE  (DETAILS_PAGE_CHARS - 3)
+// length of a value without '\n' displayed in exactly UINT8_MAX pages of the "More" details modal
+#define MAX_DETAILS_VALUE_LEN ((UINT8_MAX - 1) * DETAILS_PAGE_ADVANCE + DETAILS_PAGE_CHARS)
+#define MORE_VALUE_SIZE       (MAX_DETAILS_VALUE_LEN + DETAILS_PAGE_CHARS + 1)
+static char MORE_VALUE[MORE_VALUE_SIZE];
 
 static bool isInMoreValue(const char *text)
 {
-    return (text >= MORE_VALUE) && (text < &MORE_VALUE[MORE_VALUE_LEN]);
+    return (text >= MORE_VALUE) && (text < &MORE_VALUE[MORE_VALUE_SIZE]);
+}
+
+// fills MORE_VALUE with a value of the given length, made of 'A' chars
+static void setMoreValue(uint16_t len)
+{
+    memset(MORE_VALUE, 'A', len);
+    MORE_VALUE[len] = '\0';
 }
 
 static uint16_t getNbCharsPerLine(nbgl_font_id_e fontId)
 {
     if (fontId == SMALL_BOLD_FONT) {
-        return 20;
+        return BOLD_CHARS_PER_LINE;
     }
     if (fontId == SMALL_REGULAR_FONT) {
         return 24;
@@ -418,6 +449,12 @@ static uint16_t getTextNbLines(nbgl_font_id_e fontId, const char *text)
     }
     if (strcmp(text, LONG_VALUE) == 0) {
         return LONG_VALUE_NB_LINES;
+    }
+    if (strcmp(text, PAGE_VALUE) == 0) {
+        return PAGE_VALUE_NB_LINES;
+    }
+    if (strcmp(text, PAGE_VALUE_PLUS_ONE) == 0) {
+        return PAGE_VALUE_NB_LINES + 1;
     }
     if ((strcmp(text, WIDER_IN_BOLD) == 0) && (fontId == SMALL_BOLD_FONT)) {
         return 2;
@@ -1696,23 +1733,15 @@ void test_alias_list_modal_pages_fit(void)
     checkAliasListModalPages(TEXT_HEIGHT + TAG_VALUE_INTERVALE + 2 * TEXT_HEIGHT);
 }
 
-void test_alias_list_modal_pair_too_long_has_its_page(void)
+void test_alias_list_modal_pair_filling_page_has_its_page(void)
 {
-    // a pair too long to fit in a modal page is displayed alone in its page, it doesn't make the
-    // modal pages empty
+    // a pair too tall to share a modal page with another pair, but fitting alone in it, is
+    // displayed alone in its page, in full (not truncated)
     buildAliasList();
-    aliasListPairs[0].value = LONG_VALUE;
+    aliasListPairs[0].value = PAGE_VALUE;
     openAliasListModal();
     TEST_ASSERT_EQUAL_UINT8(1, modal_content.tagValueList.nbPairs);
-    // its value is truncated to the max number of lines fitting in the page, with "..."
-    uint8_t        nbLines   = modal_content.tagValueList.nbMaxLinesForValue;
-    const uint16_t tagHeight = PRE_TAG_VALUE_MARGIN + TEXT_HEIGHT + TAG_VALUE_INTERVALE;
-    TEST_ASSERT_GREATER_THAN_UINT8(0, nbLines);
-    TEST_ASSERT_LESS_THAN_UINT8(LONG_VALUE_NB_LINES, nbLines);
-    TEST_ASSERT_TRUE(modal_content.tagValueList.hideEndOfLastLine);
-    TEST_ASSERT_LESS_THAN_UINT16(TAG_VALUE_AREA_HEIGHT, tagHeight + nbLines * TEXT_HEIGHT);
-    TEST_ASSERT_GREATER_OR_EQUAL_UINT16(TAG_VALUE_AREA_HEIGHT,
-                                        tagHeight + (nbLines + 1) * TEXT_HEIGHT);
+    TEST_ASSERT_EQUAL_UINT8(0, modal_content.tagValueList.nbMaxLinesForValue);
     checkAliasListModalPages(0);
 }
 
@@ -1748,13 +1777,13 @@ void test_alias_list_modal_with_callback(void)
     checkAliasListModalPages(TEXT_HEIGHT + TAG_VALUE_INTERVALE + 2 * TEXT_HEIGHT);
 }
 
-void test_alias_list_modal_with_callback_pair_too_long(void)
+void test_alias_list_modal_with_callback_pair_filling_page(void)
 {
-    // pairs too long to fit in a page of an alias list using a callback are alone in their page
-    // and truncated, as the static ones
+    // pairs filling a page of an alias list using a callback are alone in their page and not
+    // truncated, as the static ones
     buildAliasList();
-    aliasListPairs[0].value = LONG_VALUE;
-    aliasListPairs[1].value = LONG_VALUE;
+    aliasListPairs[0].value = PAGE_VALUE;
+    aliasListPairs[1].value = PAGE_VALUE;
     useAliasListCallback();
     openAliasListModal();
     TEST_ASSERT_GREATER_THAN_UINT8(2, modal_nav.nbPages);
@@ -1763,10 +1792,7 @@ void test_alias_list_modal_with_callback_pair_too_long(void)
             modal_callback(modal_nav.navWithButtons.navToken, page);
         }
         TEST_ASSERT_EQUAL_UINT8(1, modal_content.tagValueList.nbPairs);
-        TEST_ASSERT_GREATER_THAN_UINT8(0, modal_content.tagValueList.nbMaxLinesForValue);
-        TEST_ASSERT_LESS_THAN_UINT8(LONG_VALUE_NB_LINES,
-                                    modal_content.tagValueList.nbMaxLinesForValue);
-        TEST_ASSERT_TRUE(modal_content.tagValueList.hideEndOfLastLine);
+        TEST_ASSERT_EQUAL_UINT8(0, modal_content.tagValueList.nbMaxLinesForValue);
     }
     // open the modal again to check all pages from the first one: touching the alias calls
     // displayTagValueListModal(), which resets detailsContext
@@ -1775,7 +1801,7 @@ void test_alias_list_modal_with_callback_pair_too_long(void)
 }
 
 // V-300: the modal pages of an alias list were limited to 32, the pairs beyond were silently never
-// displayed. Builds a list of nbPairs pairs, each one too long to fit with another one, so that
+// displayed. Builds a list of nbPairs pairs, each one too tall to fit with another one, so that
 // every pair has its own page (as many pages as pairs), optionally using a callback (with the
 // given startIndex), and checks that all pairs are reachable in both directions
 static void checkAliasListModalWithManyPages(uint8_t nbPairs, bool withCallback, uint8_t startIndex)
@@ -1783,7 +1809,7 @@ static void checkAliasListModalWithManyPages(uint8_t nbPairs, bool withCallback,
     memset(aliasListPairs, 0, sizeof(aliasListPairs));
     for (uint16_t i = 0; i < nbPairs; i++) {
         aliasListPairs[i].item  = "Item";
-        aliasListPairs[i].value = LONG_VALUE;
+        aliasListPairs[i].value = PAGE_VALUE;
     }
     memset(&aliasList, 0, sizeof(aliasList));
     aliasList.pairs   = aliasListPairs;
@@ -1924,6 +1950,57 @@ void test_review_is_rejected_with_empty_alias_list(void)
     }
 }
 
+// V-407: a pair of an alias list too tall to fit in a page of the modal would be truncated, the
+// end of its value never being displayed, so the review must be rejected, whatever the position of
+// the pair in the list, and whether the alias list (and the review list) uses a callback or not
+static void checkReviewWithTooLongAliasPairIsRejected(const char *value, uint8_t pairIndex)
+{
+    for (uint8_t aliasWithCallback = 0; aliasWithCallback < 2; aliasWithCallback++) {
+        for (uint8_t withCallback = 0; withCallback < 2; withCallback++) {
+            buildAliasList();
+            aliasListPairs[pairIndex].value = value;
+            if (aliasWithCallback) {
+                useAliasListCallback();
+            }
+            checkReviewWithAliasListIsRejected(withCallback);
+        }
+    }
+}
+
+void test_review_is_rejected_with_too_long_alias_pair(void)
+{
+    checkReviewWithTooLongAliasPairIsRejected(LONG_VALUE, 0);
+    checkReviewWithTooLongAliasPairIsRejected(LONG_VALUE, NB_ALIAS_LIST_PAIRS - 1);
+    // one line too many is enough to be rejected
+    checkReviewWithTooLongAliasPairIsRejected(PAGE_VALUE_PLUS_ONE, 0);
+    checkReviewWithTooLongAliasPairIsRejected(PAGE_VALUE_PLUS_ONE, NB_ALIAS_LIST_PAIRS - 1);
+}
+
+void test_review_is_rejected_with_too_long_alias_pair_tag(void)
+{
+    // a tag too tall to fit in a page can't be displayed in full either
+    for (uint8_t aliasWithCallback = 0; aliasWithCallback < 2; aliasWithCallback++) {
+        buildAliasList();
+        aliasListPairs[1].item = TALL_TEXT;
+        if (aliasWithCallback) {
+            useAliasListCallback();
+        }
+        checkReviewWithAliasListIsRejected(false);
+    }
+}
+
+void test_review_with_alias_pair_limited_by_application_is_accepted(void)
+{
+    // a max number of lines explicitly set by the application on a pair of the alias list is
+    // honored: the pair fits in the page with this number of lines, so the review is accepted
+    buildAliasList();
+    aliasListPairs[0].value              = LONG_VALUE;
+    aliasListPairs[0].nbMaxLinesForValue = 3;
+    openAliasListModal();
+    TEST_ASSERT_EQUAL_INT(0, nb_rejects);
+    checkAliasListModalPages(0);
+}
+
 // An INFO_LIST_ALIAS alias without info list, or with an empty one, must be rejected too
 // (touching it used to dereference the NULL list, or to display an empty modal)
 static void checkReviewWithAliasInfoListIsRejected(const nbgl_contentInfoList_t *infoList)
@@ -2058,14 +2135,10 @@ void test_review_confirm_pages_split_with_drawn_font(void)
 // displays the end of the value, and going back displays the same pages as going forward
 // ============================================================================
 
-void test_more_details_pages_show_whole_value(void)
+// Starts a generic review of a single pair with MORE_VALUE as value, too long for a review page: it
+// has a "More" button
+static void startMoreValueReview(void)
 {
-    const char *pagesStart[UINT8_MAX];
-    uint8_t     nbPages;
-
-    memset(MORE_VALUE, 'A', MORE_VALUE_LEN);
-    MORE_VALUE[MORE_VALUE_LEN] = '\0';
-    // a single pair with this value, too long for a review page: it has a "More" button
     memset(pairs, 0, NB_PAIRS * sizeof(nbgl_contentTagValue_t));
     pairs[0].item  = items[0];
     pairs[0].value = MORE_VALUE;
@@ -2077,6 +2150,16 @@ void test_more_details_pages_show_whole_value(void)
     contents.contentsList                = &content;
     contents.nbContents                  = 1;
     nbgl_useCaseGenericReview(&contents, "Reject", onReject);
+}
+
+// Opens the "More" details modal of the review started with startMoreValueReview(), and checks that
+// all its pages are reachable, the last one displaying the end of the value, and that going back
+// displays the same pages as going forward. Returns the number of pages of the modal
+static uint8_t checkMoreDetailsPages(void)
+{
+    static const char *pagesStart[UINT8_MAX];
+    uint8_t            nbPages;
+
     TEST_ASSERT_EQUAL(TAG_VALUE_DETAILS, page_content.type);
 
     modal_pages_expected = true;
@@ -2103,11 +2186,106 @@ void test_more_details_pages_show_whole_value(void)
                 strlen(pagesStart[page]));
         }
     }
+    // the last page displays the end of the value
+    TEST_ASSERT_EQUAL_PTR(&MORE_VALUE[strlen(MORE_VALUE)],
+                          pagesStart[nbPages - 1] + strlen(pagesStart[nbPages - 1]));
     // backward: the same pages
     for (int page = nbPages - 2; page >= 0; page--) {
         modal_callback(modal_nav.navWithButtons.navToken, page);
         TEST_ASSERT_EQUAL_PTR(pagesStart[page], modal_content.tagValueList.pairs[0].value);
     }
+    return nbPages;
+}
+
+void test_more_details_pages_show_whole_value(void)
+{
+    setMoreValue(MORE_VALUE_LEN);
+    startMoreValueReview();
+    checkMoreDetailsPages();
+}
+
+// V-408: the "More" details modal has at most UINT8_MAX pages. A value needing exactly this number
+// of pages is displayed in full
+void test_more_details_with_max_pages_shows_whole_value(void)
+{
+    setMoreValue(MAX_DETAILS_VALUE_LEN);
+    startMoreValueReview();
+    TEST_ASSERT_EQUAL_INT(0, nb_rejects);
+    TEST_ASSERT_EQUAL_UINT8(UINT8_MAX, checkMoreDetailsPages());
+}
+
+// V-408: a value needing more pages than UINT8_MAX in the "More" details modal used to be silently
+// cut after the last page, its end being never displayed before approving. Such a review must be
+// rejected when started (fail closed), whether the list uses a callback or not, whatever the
+// position of the pair in the list
+static void checkReviewWithTooLongDetailsIsRejected(uint16_t len, uint8_t pairIndex)
+{
+    setMoreValue(len);
+    for (uint8_t withCallback = 0; withCallback < 2; withCallback++) {
+        buildList(NB_PAIRS, withCallback);
+        pairs[pairIndex].value      = MORE_VALUE;
+        pairs[pairIndex].aliasValue = 0;
+        nbgl_useCaseGenericReview(&contents, "Reject", onReject);
+        TEST_ASSERT_EQUAL_INT(1, nb_rejects);
+        TEST_ASSERT_NULL(page_callback);
+
+        nbgl_useCaseReview(TYPE_TRANSACTION,
+                           &content.content.tagValueConfirm.tagValueList,
+                           &C_Warning_64px,
+                           "Review",
+                           NULL,
+                           "Sign",
+                           onChoice);
+        TEST_ASSERT_EQUAL_INT(1, nb_choices);
+        TEST_ASSERT_FALSE(last_choice);
+        TEST_ASSERT_NULL(page_callback);
+        nb_rejects = 0;
+        nb_choices = 0;
+    }
+}
+
+void test_review_is_rejected_with_too_many_details_pages(void)
+{
+    // a single char more than the max is enough to be rejected
+    checkReviewWithTooLongDetailsIsRejected(MAX_DETAILS_VALUE_LEN + 1, 0);
+    checkReviewWithTooLongDetailsIsRejected(MAX_DETAILS_VALUE_LEN + 1, NB_PAIRS - 1);
+    checkReviewWithTooLongDetailsIsRejected(MORE_VALUE_SIZE - 1, 0);
+}
+
+// A callback may return a reusable static pair: here the review list and the alias list of its
+// first pair share the same storage. The first pair has a value too long for the "More" details
+// modal, and the alias list only short values. Checking the alias details (calling the alias list
+// callback, overwriting the shared pair) used to happen first, so the "More" details check then
+// examined the last alias pair instead of the review one, and the review was wrongly accepted.
+static nbgl_contentTagValue_t sharedPair;
+
+static nbgl_contentTagValue_t *getSharedReviewPair(uint8_t pairIndex)
+{
+    sharedPair = pairs[pairIndex - callbackBase];
+    return &sharedPair;
+}
+
+static nbgl_contentTagValue_t *getSharedAliasListPair(uint8_t pairIndex)
+{
+    sharedPair = *getAliasListPair(pairIndex);
+    return &sharedPair;
+}
+
+void test_review_is_rejected_with_too_many_details_pages_and_shared_callback_pair(void)
+{
+    setMoreValue(MAX_DETAILS_VALUE_LEN + 1);
+    buildAliasList();
+    useAliasListCallback();
+    aliasList.callback = getSharedAliasListPair;
+    buildList(NB_PAIRS, true);
+    content.content.tagValueConfirm.tagValueList.callback = getSharedReviewPair;
+    pairs[0].value                                        = MORE_VALUE;
+    extensions[0].aliasType                               = TAG_VALUE_LIST_ALIAS;
+    extensions[0].tagValuelist                            = &aliasList;
+
+    nbgl_useCaseGenericReview(&contents, "Reject", onReject);
+    TEST_ASSERT_EQUAL_INT(1, nb_rejects);
+    TEST_ASSERT_NULL(page_callback);
 }
 
 // ============================================================================
@@ -2483,9 +2661,11 @@ void test_switches_list_with_too_tall_switch_is_paginated(void)
 
 void test_alias_tag_value_list_modal_with_too_tall_pair_is_paginated(void)
 {
+    // a pair too tall to share a page with another one occupies its own page (a pair too tall to
+    // fit even alone is rejected when starting the review, see V-407)
     static const nbgl_contentTagValue_t modalPairs[] = {
-        {.item = "Tall",  .value = TALL_TEXT},
-        {.item = "Short", .value = "value"  }
+        {.item = "Tall",  .value = PAGE_VALUE},
+        {.item = "Short", .value = "value"   }
     };
     static const nbgl_contentTagValueList_t modalList = {.pairs = modalPairs, .nbPairs = 2};
 
@@ -2668,9 +2848,9 @@ int main(void)
     RUN_TEST(test_pair_max_lines_shares_page);
     RUN_TEST(test_no_pair_max_lines_uses_details_page);
     RUN_TEST(test_alias_list_modal_pages_fit);
-    RUN_TEST(test_alias_list_modal_pair_too_long_has_its_page);
+    RUN_TEST(test_alias_list_modal_pair_filling_page_has_its_page);
     RUN_TEST(test_alias_list_modal_with_callback);
-    RUN_TEST(test_alias_list_modal_with_callback_pair_too_long);
+    RUN_TEST(test_alias_list_modal_with_callback_pair_filling_page);
     RUN_TEST(test_alias_list_modal_31_32_33_pages);
     RUN_TEST(test_alias_list_modal_max_pages);
     RUN_TEST(test_alias_list_modal_many_pages_of_several_pairs);
@@ -2679,12 +2859,18 @@ int main(void)
     RUN_TEST(test_review_is_rejected_on_alias_list_callback_index_overflow);
     RUN_TEST(test_review_is_rejected_without_alias_list);
     RUN_TEST(test_review_is_rejected_with_empty_alias_list);
+    RUN_TEST(test_review_is_rejected_with_too_long_alias_pair);
+    RUN_TEST(test_review_is_rejected_with_too_long_alias_pair_tag);
+    RUN_TEST(test_review_with_alias_pair_limited_by_application_is_accepted);
     RUN_TEST(test_review_with_alias_list_at_uint8_limit_is_accepted);
     RUN_TEST(test_review_is_rejected_without_alias_info_list);
     RUN_TEST(test_review_is_rejected_with_empty_alias_info_list);
     RUN_TEST(test_review_list_pages_split_with_drawn_font);
     RUN_TEST(test_review_confirm_pages_split_with_drawn_font);
     RUN_TEST(test_more_details_pages_show_whole_value);
+    RUN_TEST(test_more_details_with_max_pages_shows_whole_value);
+    RUN_TEST(test_review_is_rejected_with_too_many_details_pages);
+    RUN_TEST(test_review_is_rejected_with_too_many_details_pages_and_shared_callback_pair);
     RUN_TEST(test_tag_value_max_lines);
     RUN_TEST(test_threat_report_with_short_url);
     RUN_TEST(test_threat_report_with_saturating_url);
