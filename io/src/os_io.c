@@ -417,13 +417,20 @@ int os_io_tx_cmd(uint8_t                     type,
 
 #ifdef HAVE_IO_USB
     if (type & OS_IO_PACKET_TYPE_USB_MASK) {
-        uint8_t count = 0;
+        uint8_t  ticks  = 0;
+        uint16_t events = 0;
 
-        while ((count < 5) && USBD_LEDGER_is_busy()) {
+        // A message goes out one packet per event, so 5 events left the end of long replies
+        // unsent until the app read events again. Wait for the whole message, but give up
+        // after 10 ticker events (~1 s) in case the host stops reading.
+        while ((ticks < 10) && (events < 1024) && USBD_LEDGER_is_busy()) {
             os_io_rx_evt(G_io_seph_buffer, sizeof(G_io_seph_buffer), NULL, false);
-            count++;
+            if (G_io_seph_buffer[1] == SEPROXYHAL_TAG_TICKER_EVENT) {
+                ticks++;
+            }
+            events++;
         }
-        if (count < 5) {
+        if (!USBD_LEDGER_is_busy()) {
             status = length;
         }
     }
