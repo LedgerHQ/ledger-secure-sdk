@@ -13,8 +13,7 @@ jobs:
   unit_test:
     uses: LedgerHQ/ledger-app-workflows/.github/workflows/reusable_unit_tests.yml@v1
     with:
-      use_cmake_ut_framework: true
+      use_cmake_presets: true
       repo_is_tool: true
-      test_directory: unit-tests
     secrets:
       codecov_token: ${{ secrets.CODECOV_TOKEN }}

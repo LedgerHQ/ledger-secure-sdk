@@ -12,7 +12,6 @@
 *.bin
 *.orig
 TAGS
-unit-tests/lib_*/build/
 build
 fuzzing/build/
 fuzzing/out/
@@ -26,3 +25,4 @@ fuzzing/sdk-fuzz/mock/scenario_layout.h
 
 # LSP
 compile_commands.json
+build-cmake/
