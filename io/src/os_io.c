@@ -244,6 +244,7 @@ int os_io_init(os_io_init_t *init)
     G_io_apdu_slot_owner  = OS_IO_PACKET_TYPE_NONE;
 #endif  // USE_OS_IO_STACK
 
+    (void) force_restart;
     return 0;
 }
 
