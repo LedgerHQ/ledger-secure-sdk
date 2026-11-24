@@ -572,11 +572,13 @@ void nbgl_refreshSpecialWithPostRefresh(nbgl_refresh_mode_t mode, nbgl_post_refr
 bool nbgl_refreshIsNeeded(void);
 void nbgl_refreshReset(void);
 
-void     nbgl_objInit(void);
-void     nbgl_objDraw(nbgl_obj_t *obj);
-void     nbgl_objAllowDrawing(bool enable);
+void nbgl_objInit(void);
+void nbgl_objDraw(nbgl_obj_t *obj);
+void nbgl_objAllowDrawing(bool enable);
+#ifdef SCREEN_SIZE_WALLET
 uint8_t *nbgl_objGetRAMBuffer(void);
-bool     nbgl_objIsUx(nbgl_obj_t *obj);
+#endif  // SCREEN_SIZE_WALLET
+bool nbgl_objIsUx(nbgl_obj_t *obj);
 
 void         nbgl_objPoolRelease(uint8_t layer);
 nbgl_obj_t  *nbgl_objPoolGet(nbgl_obj_type_t type, uint8_t layer);

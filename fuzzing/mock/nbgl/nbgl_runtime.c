@@ -43,12 +43,14 @@ void nbgl_objAllowDrawing(bool enable)
     (void) enable;
 }
 
+#ifdef SCREEN_SIZE_WALLET
 static uint8_t ram_buffer[512];
 
 uint8_t *nbgl_objGetRAMBuffer(void)
 {
     return ram_buffer;
 }
+#endif  // SCREEN_SIZE_WALLET
 
 typedef union {
     nbgl_obj_t            base;
