@@ -333,13 +333,11 @@ int32_t os_io_rx_evt(uint8_t  *buffer,
                                         check_se_event,
                                         0);
     }
-    if (status < 0) {
+    if (status <= 0) {
         goto error;
     }
-    if (status > 0) {
-        length = (uint16_t) status;
-    }
 
+    length = (uint16_t) status;
     if (length > dst_max_len) {
         status = -22;  // EINVAL
         goto error;
