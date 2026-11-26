@@ -1,0 +1,28 @@
+{
+  "version": 7,
+  "include": [
+    "cmake/presets/LedgerPresets.json"
+  ],
+  "configurePresets": [
+    {
+      "name": "unit-tests",
+      "inherits": "ledger-ut",
+      "displayName": "SDK unit tests (host GCC)",
+      "description": "sourceDir is the SDK here, so the toolchain resolves without BOLOS_SDK; apps keep the inherited $env{BOLOS_SDK} form.",
+      "toolchainFile": "${sourceDir}/cmake/toolchains/toolchain_gcc_x86.cmake"
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "unit-tests",
+      "configurePreset": "unit-tests"
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "unit-tests",
+      "inherits": "ledger-ut",
+      "configurePreset": "unit-tests"
+    }
+  ]
+}

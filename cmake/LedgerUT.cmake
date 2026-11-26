@@ -4,29 +4,30 @@
 include(FetchContent)
 include(CTest)
 enable_testing()
-set(LEDGER_UT_DIR ${CMAKE_CURRENT_LIST_DIR})
 
-# App sources, ../src by default: set LEDGER_UT_APP_SRC_DIR before ledger_unit_tests_init() to change it
+set(LEDGER_UT_DIR ${CMAKE_CURRENT_LIST_DIR} CACHE INTERNAL "LedgerUT module dir")
+
+# App sources, src/ by default: set LEDGER_UT_APP_SRC_DIR before ledger_unit_tests_init() to change it
 if(NOT DEFINED LEDGER_UT_APP_SRC_DIR)
-    set(LEDGER_UT_APP_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../src)
+    set(LEDGER_UT_APP_SRC_DIR ${CMAKE_SOURCE_DIR}/src)
 endif()
 
 option(LEDGER_UT_SANITIZERS "Build the test executables with ASan and UBSan" ON)
 set(LEDGER_UT_TEST_TIMEOUT 60 CACHE STRING "Timeout of each unit test, in seconds")
 
 # Host TRY / CATCH / THROW support, to add to the SOURCES of the tests that need it
-set(LEDGER_UT_EXCEPTION_STUBS ${CMAKE_CURRENT_LIST_DIR}/ut_exceptions.c)
-
-# CMock configuration template: set LEDGER_UT_CMOCK_CONFIG before ledger_unit_tests_init() to change it
-if(NOT DEFINED LEDGER_UT_CMOCK_CONFIG)
-    set(LEDGER_UT_CMOCK_CONFIG ${CMAKE_CURRENT_LIST_DIR}/cmock_config.yml.in)
-endif()
+set(LEDGER_UT_EXCEPTION_STUBS ${CMAKE_CURRENT_LIST_DIR}/ut/exceptions.c
+    CACHE INTERNAL "Host exception stubs")
 
 #######################################################################
 #                    include defines and includes                     #
 #######################################################################
-include(${LEDGER_UT_DIR}/ut_include_dirs.cmake)
-include(${LEDGER_UT_DIR}/ut_compile_defines.cmake)
+include(${LEDGER_UT_DIR}/ut/include_dirs.cmake)
+include(${LEDGER_UT_DIR}/ut/compile_defines.cmake)
+
+add_library(ledger_ut_host_shims INTERFACE)
+add_library(ledger::ut-host-shims ALIAS ledger_ut_host_shims)
+target_compile_definitions(ledger_ut_host_shims INTERFACE ${UT_COMPILE_DEFS_SDK})
 
 #######################################################################
 #                     Fetch UT/Mocking framework                      #
@@ -76,10 +77,15 @@ macro(ledger_unit_tests_init)
         message(FATAL_ERROR "In-source builds not allowed. Please make a new directory (called a build directory) and run CMake from there. You may need to remove CMakeCache.txt. ")
     endif()
 
+    # Exported: init may run in a parent directory of the tests.
     set(CMOCK_GEN_DIR ${CMAKE_CURRENT_BINARY_DIR}/mocks)
     set(CMOCK_CONFIG_FILE ${CMAKE_CURRENT_BINARY_DIR}/cmock_config.yml)
     file(MAKE_DIRECTORY ${CMOCK_GEN_DIR})
-    include_directories(${CMAKE_CURRENT_BINARY_DIR}/mocks)
+    include_directories(${CMOCK_GEN_DIR})
+    # CMock configuration template: set LEDGER_UT_CMOCK_CONFIG before ledger_unit_tests_init() to change it
+    if(NOT DEFINED LEDGER_UT_CMOCK_CONFIG)
+        set(LEDGER_UT_CMOCK_CONFIG ${LEDGER_UT_DIR}/ut/cmock_config.yml.in)
+    endif()
     configure_file(${LEDGER_UT_CMOCK_CONFIG} ${CMOCK_CONFIG_FILE} @ONLY)
 
     add_compile_definitions(TEST)
@@ -87,7 +93,7 @@ macro(ledger_unit_tests_init)
 
     if(NOT TARGET generate_coverage)
         add_custom_target(generate_coverage
-            COMMAND ${LEDGER_UT_DIR}/gen_coverage.sh ${LEDGER_UT_APP_SRC_DIR}
+            COMMAND ${LEDGER_UT_DIR}/ut/gen_coverage.sh ${CMAKE_SOURCE_DIR}
             WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
             COMMENT "Generating coverage report"
             VERBATIM
@@ -126,16 +132,17 @@ set_property(GLOBAL PROPERTY CMOCK_MOCKED_HEADERS "")
 #   ledger_unit_tests_add_test(
 #       NAME            test_foo
 #       SOURCES         ../src/foo.c ../src/bar.c    # sources under test
-#       MOCK_HEADERS    ${SDK_DIR}/include/os.h      # headers to be mocked (optional)
+#       MOCK_HEADERS    ${LEDGER_SDK_ROOT}/include/os.h  # headers to mock (optional)
 #       INCLUDE_DIRS    ../src                       # extra -I paths (optional)
 #       COMPILE_DEFS    TARGET_NANOX APPNAME="App"   # extra -D flags  (optional)
 #       COMPILE_OPTIONS -Wno-comment                 # extra compiler flags (optional)
 #       LINK_OPTIONS    -Wl,--wrap=foo               # extra linker flags  (optional)
+#       NO_TARGET_PROFILE                            # skip the preset device defines (optional)
 #   )
 #######################################################################
 function(ledger_unit_tests_add_test)
     # get args
-    cmake_parse_arguments(ARG "" "NAME" "SOURCES;MOCK_HEADERS;INCLUDE_DIRS;COMPILE_DEFS;COMPILE_OPTIONS;LINK_OPTIONS" ${ARGN})
+    cmake_parse_arguments(ARG "NO_TARGET_PROFILE" "NAME" "SOURCES;MOCK_HEADERS;INCLUDE_DIRS;COMPILE_DEFS;COMPILE_OPTIONS;LINK_OPTIONS" ${ARGN})
 
     # for all MOCK_HEADERS, generate a mock source file if not already generated
     set(_cmock_config ${CMOCK_CONFIG_FILE})
@@ -211,6 +218,20 @@ function(ledger_unit_tests_add_test)
 
     if(ARG_LINK_OPTIONS)
         target_link_options(${ARG_NAME} PRIVATE ${ARG_LINK_OPTIONS})
+    endif()
+
+    # Brings glyphs.h (reached via ux_nbgl.h) and orders the build; data only.
+    if(TARGET nbgl_glyphs AND NOT ARG_NO_TARGET_PROFILE)
+        target_link_libraries(${ARG_NAME} PRIVATE nbgl_glyphs)
+    endif()
+
+    # Device defines come from the profile, the same one the device build uses.
+    if(TARGET ledger_target_profile AND NOT ARG_NO_TARGET_PROFILE)
+        target_link_libraries(${ARG_NAME} PRIVATE ledger::target-profile)
+    endif()
+
+    if(TARGET ledger_abi_options)
+        target_link_libraries(${ARG_NAME} PRIVATE ledger::abi-options)
     endif()
 
     # register test
