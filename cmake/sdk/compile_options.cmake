@@ -57,6 +57,14 @@ if(ENABLE_SDK_WERROR)
 endif()
 
 if(LEDGER_DEVICE_BUILD)
+    if(DEBUG)
+        target_compile_options(ledger_compile_options INTERFACE
+            $<$<COMPILE_LANGUAGE:C>:-Og> $<$<COMPILE_LANGUAGE:C>:-g3>)
+    else()
+        target_compile_options(ledger_compile_options INTERFACE
+            $<$<COMPILE_LANGUAGE:C>:-Oz> $<$<COMPILE_LANGUAGE:C>:-g0>)
+    endif()
+
     if(NOT DISABLE_STACK_PROTECTOR)
         target_compile_options(ledger_compile_options INTERFACE -fstack-protector-strong)
         # Entry at __stack_chk_init so the canary is randomized, including in sideloads.

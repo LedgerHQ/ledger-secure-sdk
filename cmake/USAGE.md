@@ -242,6 +242,7 @@ ledger_app(
 | `DISABLE`         | Sets `DISABLE_<feature>`, see `sdk/target_profile.cmake` and `sdk/compile_options.cmake` |
 | `PERMISSIONS`     | Sets `HAVE_APPLICATION_FLAG_<permission>`, see `include/appflags.h`  |
 | `CUSTOM_APP_FLAGS`| Extra application flags, added to the computed ones                  |
+| `APP_STORAGE_SIZE`| Application storage size in bytes, with `FEATURES APP_STORAGE`       |
 | `EXCLUDE_SOURCES` | Sources left out of `app`                                            |
 | `INCLUDE_DIRS`    | Extra include directories                                            |
 | `CURVES`, `PATHS` | Derivation curves and paths, required for a device build             |
@@ -250,6 +251,18 @@ Paths are relative to the app root. A `PERMISSIONS`, `FEATURES` or `DISABLE` nam
 no matching SDK option fails the configure step.
 The stack protector and LTO are on unless disabled with `DISABLE STACK_PROTECTOR`
 or `DISABLE LINK_TIME_OPTIMIZATION`.
+
+The application storage is enabled with `FEATURES APP_STORAGE`, plus
+`APP_STORAGE_PROP_SETTINGS` and / or `APP_STORAGE_PROP_DATA`. Its size is
+`APP_STORAGE_SIZE` (480 bytes by default):
+
+```cmake
+ledger_app(
+    ...
+    APP_STORAGE_SIZE 256
+    FEATURES APP_STORAGE APP_STORAGE_PROP_SETTINGS
+)
+```
 
 The application flags are computed as in `Makefile.standard_app`, from `PERMISSIONS`,
 `CUSTOM_APP_FLAGS` and the features (BLE or NFC give `BOLOS_SETTINGS`,
@@ -260,7 +273,7 @@ The application flags are computed as in `Makefile.standard_app`, from `PERMISSI
 holding a header is an include directory, listed in `LEDGER_APP_INCLUDE_DIRS`
 afterwards; `INCLUDE_DIRS` (optional) adds others. Adding a source or header
 file re-runs the configure step. For a device build, it also creates
-`bin/app.elf`, `bin/app.hex`, `bin/app.apdu` and `app.map`. For a unit-test build, it calls
+`bin/app.elf`, `bin/app.hex`, `bin/app.apdu`, `app.map` (linker map) and `app.asm`. For a unit-test build, it calls
 `ledger_unit_tests_init()` and leaves out `main.c` / `app_main.c`.
 
 As `make load` and `make delete`, a device build installs or removes the app on a
@@ -270,6 +283,27 @@ connected device:
 cmake --build --preset flex --target load
 cmake --build --preset flex --target delete
 ```
+
+### 2.4. Build options
+
+The make variables are CMake options of the same name and effect, set at configure time:
+
+```bash
+cmake --preset flex -DDEBUG=1
+```
+
+| Option                        | Effect                                                                   |
+| ----------------------------- | ------------------------------------------------------------------------ |
+| `DEBUG`                       | `-Og -g3` instead of `-Oz -g0`, `PRINTF` over the debug channel          |
+| `DEBUG_OVER_USB`              | `PRINTF` over USB CDC, without the OS IO stack; not with `DEBUG`         |
+| `DISABLE_DEBUG_LEDGER_ASSERT` | No assert display in a `DEBUG` / `DEBUG_OVER_USB` build                  |
+| `DISABLE_DEBUG_THROW`         | No `THROW` tracing in a `DEBUG` / `DEBUG_OVER_USB` build                 |
+| `DEBUG_OS_STACK_CONSUMPTION`  | Tracks the OS stack consumption                                          |
+| `ENABLE_SDK_WERROR`           | SDK warnings become errors                                               |
+
+`DEBUG` drives the optimization level, not `CMAKE_BUILD_TYPE`: as with make, the
+`-O` / `-g` flags are on the compile line only, so the LTO code generation at link
+time is the same.
 
 ---
 

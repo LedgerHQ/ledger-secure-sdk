@@ -40,9 +40,9 @@ string(APPEND CMAKE_C_FLAGS_INIT
 
 string(APPEND CMAKE_ASM_FLAGS_INIT " ${LEDGER_ARCH_FLAGS}")
 
-# Cached, as CMake would append its -O3 / -O0 defaults to the _INIT values.
-set(CMAKE_C_FLAGS_RELEASE "-Oz -g0" CACHE STRING "")
-set(CMAKE_C_FLAGS_DEBUG   "-Og -g3" CACHE STRING "")
+# Emptied: DEBUG sets -O/-g on compile only, as make (none at link).
+set(CMAKE_C_FLAGS_RELEASE "" CACHE STRING "" FORCE)
+set(CMAKE_C_FLAGS_DEBUG   "" CACHE STRING "" FORCE)
 
 string(APPEND CMAKE_EXE_LINKER_FLAGS_INIT
        " ${LEDGER_ARCH_FLAGS} -mno-unaligned-access -fuse-ld=lld -nostdlib -nodefaultlibs"
