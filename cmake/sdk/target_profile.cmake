@@ -47,7 +47,18 @@ option(ENABLE_NBGL_KEYPAD "NBGL keypad support" OFF)
 option(ENABLE_SWAP "Build with the swap feature" OFF)
 option(ENABLE_TESTING_SWAP "Build with the swap feature, Speculos only" OFF)
 
-# Makefile.standard_app:130-132
+option(ENABLE_APP_STORAGE "Build with the application storage" OFF)
+option(ENABLE_APP_STORAGE_PROP_SETTINGS "App storage holds settings" OFF)
+option(ENABLE_APP_STORAGE_PROP_DATA "App storage holds data" OFF)
+if(NOT APP_STORAGE_SIZE)
+    # One flash page minus its header.
+    set(APP_STORAGE_SIZE 480)
+endif()
+
+option(DEBUG "Debug build: -Og -g3 and PRINTF over the debug channel" OFF)
+option(DEBUG_OVER_USB "PRINTF over USB CDC" OFF)
+option(DISABLE_DEBUG_LEDGER_ASSERT "No assert display in debug builds" OFF)
+option(DISABLE_DEBUG_THROW "No THROW tracing in debug builds" OFF)
 option(DEBUG_OS_STACK_CONSUMPTION "Track the stack consumption of the OS" OFF)
 
 option(DISABLE_STANDARD_USB "Drop the USB stack" OFF)
@@ -57,6 +68,17 @@ option(DISABLE_STANDARD_SNPRINTF "Use newlib's snprintf instead of the SDK one" 
 option(DISABLE_STANDARD_SEPROXYHAL "Drop OS_IO_SEPROXYHAL" OFF)
 option(DISABLE_STANDARD_APP_SYNC_RAPDU "Drop STANDARD_APP_SYNC_RAPDU" OFF)
 option(DISABLE_OS_IO_STACK_USE "Drop USE_OS_IO_STACK" OFF)
+
+if(DEBUG_OVER_USB)
+    if(DEBUG)
+        message(FATAL_ERROR "Can't set both DEBUG & DEBUG_OVER_USB")
+    endif()
+    set(DISABLE_OS_IO_STACK_USE ON)
+    if("${TARGET}" STREQUAL "nanos2")
+        set(DISABLE_STANDARD_WEBUSB ON)
+        set(DISABLE_STANDARD_U2F ON)
+    endif()
+endif()
 
 if(ENABLE_ADDRESS_BOOK)
     set(ENABLE_TLV_LIBRARY ON)
@@ -185,6 +207,8 @@ foreach(_var LEDGER_SDK_VERSION LEDGER_SDK_HASH)
     if(NOT ${_var})
         set(${_var} "None")
     endif()
+    # Read by listparams, outside the SDK scope.
+    set(${_var} "${${_var}}" CACHE INTERNAL "")
 endforeach()
 
 #######################################################################
@@ -279,6 +303,13 @@ if(ENABLE_SWAP OR ENABLE_TESTING_SWAP)
     target_compile_definitions(ledger_target_profile INTERFACE HAVE_SWAP)
 endif()
 
+if(ENABLE_APP_STORAGE)
+    target_compile_definitions(ledger_target_profile INTERFACE
+        HAVE_APP_STORAGE APP_STORAGE_SIZE=${APP_STORAGE_SIZE}
+        HAVE_APP_STORAGE_PROP_SETTINGS=$<BOOL:${ENABLE_APP_STORAGE_PROP_SETTINGS}>
+        HAVE_APP_STORAGE_PROP_DATA=$<BOOL:${ENABLE_APP_STORAGE_PROP_DATA}>)
+endif()
+
 if(DEBUG_OS_STACK_CONSUMPTION)
     target_compile_definitions(ledger_target_profile INTERFACE DEBUG_OS_STACK_CONSUMPTION=1)
 endif()
@@ -321,9 +352,23 @@ if(NOT DISABLE_OS_IO_STACK_USE)
     target_compile_definitions(ledger_target_profile INTERFACE USE_OS_IO_STACK)
 endif()
 
-# XXX DEBUG (HAVE_PRINTF) not handled yet.
-# Function-style macro: not supported by compile definitions.
-target_compile_options(ledger_target_profile INTERFACE "-DPRINTF(...)=")
+if(DEBUG_OVER_USB)
+    target_compile_definitions(ledger_target_profile INTERFACE HAVE_PRINTF_CDC HAVE_CDCUSB)
+endif()
+
+if(DEBUG OR DEBUG_OVER_USB)
+    target_compile_definitions(ledger_target_profile INTERFACE HAVE_PRINTF PRINTF=mcu_usb_printf)
+    if(NOT DISABLE_DEBUG_LEDGER_ASSERT)
+        target_compile_definitions(ledger_target_profile INTERFACE
+            HAVE_LEDGER_ASSERT_DISPLAY LEDGER_ASSERT_CONFIG_FILE_INFO)
+    endif()
+    if(NOT DISABLE_DEBUG_THROW)
+        target_compile_definitions(ledger_target_profile INTERFACE HAVE_DEBUG_THROWS)
+    endif()
+else()
+    # Function-style macro: not supported by compile definitions.
+    target_compile_options(ledger_target_profile INTERFACE "-DPRINTF(...)=")
+endif()
 
 get_target_property(_profile ledger_target_profile INTERFACE_COMPILE_DEFINITIONS)
 string(REPLACE ";" "\n" _profile "${_profile}")
