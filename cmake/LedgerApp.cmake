@@ -14,7 +14,7 @@ endforeach()
 # Macro, so that the SDK inputs and the coverage flags land in the app directory.
 macro(ledger_app)
     set(_ledger_app_icons ICON_NANOX ICON_NANOS2 ICON_STAX ICON_FLEX ICON_APEX_P ICON_APEX_M)
-    cmake_parse_arguments(_LEDGER_APP "" "NAME;COPYRIGHT;VARIANT_PARAM;GLYPHS_DIR;ICON_HOME_NANO;CUSTOM_APP_FLAGS;${_ledger_app_icons}"
+    cmake_parse_arguments(_LEDGER_APP "" "NAME;COPYRIGHT;VARIANT_PARAM;GLYPHS_DIR;ICON_HOME_NANO;CUSTOM_APP_FLAGS;APP_STORAGE_SIZE;${_ledger_app_icons}"
                           "VARIANTS;PERMISSIONS;FEATURES;DISABLE;EXCLUDE_SOURCES;INCLUDE_DIRS;CURVES;PATHS" ${ARGN})
     foreach(_arg NAME COPYRIGHT VARIANT_PARAM VARIANTS)
         if(NOT _LEDGER_APP_${_arg})
@@ -53,6 +53,12 @@ macro(ledger_app)
     endforeach()
     if(_LEDGER_APP_CUSTOM_APP_FLAGS)
         set(CUSTOM_APP_FLAGS ${_LEDGER_APP_CUSTOM_APP_FLAGS})
+    endif()
+    if(_LEDGER_APP_APP_STORAGE_SIZE)
+        if(NOT "APP_STORAGE" IN_LIST _LEDGER_APP_FEATURES)
+            message(FATAL_ERROR "ledger_app: APP_STORAGE_SIZE needs FEATURES APP_STORAGE")
+        endif()
+        set(APP_STORAGE_SIZE ${_LEDGER_APP_APP_STORAGE_SIZE})
     endif()
     foreach(_feature IN LISTS _LEDGER_APP_FEATURES)
         if(NOT "ENABLE_${_feature}" IN_LIST _LEDGER_SDK_OPTIONS)
@@ -170,6 +176,7 @@ function(_ledger_app)
     set_target_properties(app.elf PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${_bin_dir})
     # Keeps app overrides of weak SDK hooks.
     target_link_libraries(app.elf PRIVATE $<LINK_LIBRARY:WHOLE_ARCHIVE,app> ledger::sdk)
+    target_link_options(app.elf PRIVATE -Wl,-Map,${CMAKE_BINARY_DIR}/app.map)
 
     set(_load_app_args
         -DPYTHON=${Python3_EXECUTABLE}
@@ -184,9 +191,9 @@ function(_ledger_app)
     add_custom_command(TARGET app.elf POST_BUILD
         COMMAND size -A $<TARGET_FILE:app.elf>
         COMMAND llvm-objcopy -O ihex -S $<TARGET_FILE:app.elf> ${_bin_dir}/app.hex
-        COMMAND llvm-objdump -h -t $<TARGET_FILE:app.elf> > ${CMAKE_BINARY_DIR}/app.map
+        COMMAND llvm-objdump -S -d $<TARGET_FILE:app.elf> > ${CMAKE_BINARY_DIR}/app.asm
         COMMAND ${CMAKE_COMMAND} ${_load_app_args} -P ${LEDGER_SDK_ROOT}/cmake/app/apdu.cmake
-        COMMENT "Generating app.hex, app.map, app.apdu and app.sha256"
+        COMMENT "Generating app.hex, app.asm, app.apdu and app.sha256"
         VERBATIM)
 
     # Same as `make load` and `make delete`.
@@ -235,6 +242,9 @@ function(_ledger_app)
         COMMAND ${CMAKE_COMMAND} -E echo "APPNAME=${LEDGER_APPNAME}"
         COMMAND ${CMAKE_COMMAND} -E echo "APPVERSION=${LEDGER_APP_VERSION}"
         COMMAND ${CMAKE_COMMAND} -E echo "API_LEVEL=${LEDGER_API_LEVEL}"
+        COMMAND ${CMAKE_COMMAND} -E echo "SDK_NAME=ledger-secure-sdk"
+        COMMAND ${CMAKE_COMMAND} -E echo "SDK_VERSION=${LEDGER_SDK_VERSION}"
+        COMMAND ${CMAKE_COMMAND} -E echo "SDK_HASH=${LEDGER_SDK_HASH}"
         COMMAND ${CMAKE_COMMAND} -E echo "appFlags=${LEDGER_APP_FLAGS}"
         COMMAND ${CMAKE_COMMAND} -E echo "curve=${_curves}"
         COMMAND ${CMAKE_COMMAND} -E echo "path=${_paths}"
